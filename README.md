@@ -12,16 +12,16 @@ This package is based on my original collection of [Video Transcoding Scripts](h
 
 Most of the tools in this package are essentially intelligent wrappers around Open Source software like [HandBrake](https://handbrake.fr/), [MKVToolNix](https://www.bunkus.org/videotools/mkvtoolnix/), [MPlayer](http://mplayerhq.hu/), [FFmpeg](http://ffmpeg.org/), and [MP4v2](https://code.google.com/p/mp4v2/). And they're all designed to be executed from the command line shell:
 
-* [`transcode-video`](#whytranscode-video)
+* [`transcode-video`](#why-transcode-video)
 Transcode video file or disc image directory into format and size similar to popular online downloads.
 
-* [`detect-crop`](#whydetect-crop)
+* [`detect-crop`](#why-detect-crop)
 Detect optimal crop values for video file or disc image directory.
 
-* [`convert-video`](#whyconvert-video)
+* [`convert-video`](#why-convert-video)
 Convert video file from Matroska to MP4 format or from MP4 to Matroksa format without transcoding video.
 
-* [`query-handbrake-log`](#whyquery-handbrake-log)
+* [`query-handbrake-log`](#why-query-handbrake-log)
 Report information from HandBrake-generated `.log` files.
 
 Even if you don't try any of my tools, you may find this "README" document helpful:
