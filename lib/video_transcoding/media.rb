@@ -8,7 +8,7 @@ module VideoTranscoding
   class Media
     attr_reader :path
 
-    def initialize(path:, title: nil, autocrop: false, extended: true, allow_directory: true)
+    def initialize(path: nil, title: nil, autocrop: false, extended: true, allow_directory: true)
       @path     = path
       @previews = autocrop ? 10 : 2
       @extended = extended
