@@ -1,0 +1,1205 @@
+#!/usr/bin/env ruby -W
+#
+# transcode-video
+#
+# Copyright (c) 2013-2015 Don Melton
+#
+
+$LOAD_PATH.unshift File.expand_path(File.dirname(__FILE__) + '/../lib')
+
+require 'fileutils'
+require 'tmpdir'
+require 'video_transcoding/cli'
+
+module VideoTranscoding
+  class Command
+    include CLI
+
+    MAX_WIDTH   = 4096
+    MAX_HEIGHT  = 2304
+
+    def about
+      <<HERE
+transcode-video #{VERSION}
+#{COPYRIGHT}
+HERE
+    end
+
+    def usage
+      <<HERE
+Transcode video file or disc image directory into format and size similar to
+popular online downloads. Works best with Blu-ray or DVD rip.
+
+Automatically determines target video bitrate, number of audio tracks, etc.
+WITHOUT ANY command line options.
+
+Usage: #{$PROGRAM_NAME} [OPTION]... [FILE|DIRECTORY]...
+
+Input options:
+    --scan          list title(s) and tracks in video media and exit
+    --title INDEX   select indexed title in video media
+                      (default: main feature or first listed)
+    --chapters CHAPTER[-CHAPTER]
+                    select chapters, single or range (default: all)
+
+Output options:
+-o, --output FILENAME|DIRECTORY
+                    set output path and filename, or just path
+                      (default: input filename with output format extension
+                        in current working directory)
+    --mp4           output MP4 instead of Matroska `.mkv` format
+    --m4v             "     "  with `.m4v` extension instead of `.mp4`
+    --chapter-names FILENAME
+                    import chapter names from `.csv` text file
+                      (in NUMBER,NAME format, e.g. "1,Intro")
+    --no-log        don't write log file
+    --dry-run       don't transcode, just show `HandBrakeCLI` command and exit
+
+Quality options:
+    --big           raise default limits for both video and AC-3 audio bitrates
+                      (always increases output size)
+    --quick         trade some precision for 45-50% increase in encoding speed
+                      (more than 15% speedier than x264 encoder "fast" preset)
+                      (avoids quality loss of "faster" and "veryfast" presets)
+    --preset veryfast|faster|fast|slow|slower|veryslow
+                    apply x264 encoder preset
+
+Video options:
+    --crop T:B:L:R  set video crop values (default: 0:0:0:0)
+                      (use `--crop detect` for optimal crop values)
+                      (use `--crop auto` for `HandBrakeCLI` behavior)
+    --720p          fit video within 1280x720 pixel bounds
+    --max-width WIDTH, --max-height HEIGHT
+                    fit video within horizontal and/or vertical pixel bounds
+    --pixel-aspect X:Y
+                    set pixel aspect ratio (default: 1:1)
+                      (e.g.: make X larger than Y to stretch horizontally)
+    --force-rate FPS
+                    force constant video frame rate
+                      (`23.976` applied automatically for some inputs)
+    --limit-rate FPS
+                    set peak-limited video frame rate
+                      (`30` applied automatically for most inputs)
+    --filter NAME[=SETTINGS]
+                    apply `HandBrakeCLI` video filter with optional settings
+                      (`deinterlace` applied automatically for some inputs)
+                      (refer to `HandBrakeCLI --help` for more information)
+                      (can be used multiple times)
+
+Audio options:
+    --main-audio TRACK[=NAME]
+                    select main audio track with optional name
+                      (default: 1 or first in selected language)
+                      (default output can be two audio tracks,
+                        both surround and stereo, i.e. "width" is `double`)
+    --add-audio TRACK[=NAME]|language[=CODE[,...]]|all
+                    add track selected by number assigning it an optional name
+                      or add tracks selected by one or more languages
+                      or add all tracks
+                      (language is indicated by ISO 639-2 code, e.g.: `eng`)
+                      (multiple languages are separated by commas)
+                      (default output is single AAC audio track,
+                        i.e. "width" is `stereo`)
+                      (can be used multiple times)
+    --audio-width TRACK|all=double|surround|stereo
+                    set audio output "width" for specific track or all tracks
+                      with `double` to allow room for two output tracks
+                      with `surround` to allow single surround or stereo track
+                      with `stereo` to allow only single stereo track
+                      (can be used multiple times)
+    --ac3-bitrate 384|448|640
+                    set AC-3 audio bitrate (default: 384)
+    --pass-ac3-bitrate 384|448|640
+                    set AC-3 audio pass-through bitrate (default: 448)
+    --copy-audio TRACK|all
+                    try to copy track selected by number in its original format
+                      falling back to AC-3 format if original not allowed
+                      or try to copy all tracks in same manner
+                      (can be used multiple times)
+    --copy-audio-name TRACK|all
+                    copy original track name selected by number
+                      unless the name is specified with another option
+                      or try to copy all track names in same manner
+                      (can be used multiple times)
+    --no-audio      disable all audio output
+
+Subtitle options:
+    --burn-subtitle TRACK|scan
+                    burn track selected by number into video
+                      or `scan` to find forced track in main audio language
+    --force-subtitle TRACK|scan
+                    add track selected by number and set forced flag
+                      or scan for forced track in same language as main audio
+    --add-subtitle TRACK|language[=CODE[,...]]|all
+                    add track selected by number
+                      or add tracks selected by one or more languages
+                      or add all tracks
+                      (language is indicated by ISO 639-2 code, e.g.: `eng`)
+                      (multiple languages are separated by commas)
+                      (can be used multiple times)
+    --no-auto-burn  don't automatically burn first forced subtitle
+
+External subtitle options:
+    --burn-srt FILENAME
+                    burn SubRip-format text file into video
+    --force-srt FILENAME
+                    add subtitle track from SubRip-format text file
+                      and set forced flag
+    --add-srt FILENAME
+                    add subtitle track from SubRip-format text file
+                      (can be used multiple times)
+    --bind-srt-language CODE
+                    bind ISO 639-2 language code (default: und)
+                      to previously forced or added subtitle
+                      (can be used multiple times)
+    --bind-srt-encoding FORMAT
+                    bind character set encoding (default: latin1)
+                      to previously burned, forced or added subtitle
+                      (can be used multiple times)
+    --bind-srt-offset MILLISECONDS
+                    bind +/- offset in milliseconds (default: 0)
+                      to previously burned, forced or added subtitle
+                      (can be used multiple times)
+
+Advanced options:
+-E, --encoder-option NAME=VALUE|_NAME
+                    pass x264 video encoder option by name with value
+                      or disable use of option by prefixing name with "_"
+                      (e.g.: `-E vbv-bufsize=8000`)
+                      (e.g.: `-E _crf-max`)
+                      (refer to `x264 --fullhelp` for more information)
+                      (can be used multiple times)
+-H, --handbrake-option NAME[=VALUE]|_NAME
+                    pass `HandBrakeCLI` option by name or by name with value
+                      or disable use of option by prefixing name with "_"
+                      (e.g.: `-H stop-at=duration:30`)
+                      (e.g.: `-H _markers`)
+                      (refer to `HandBrakeCLI --help` for more information)
+                      (some options are not allowed)
+                      (can be used multiple times)
+
+Diagnostic options:
+-v, --verbose       increase diagnostic information
+-q, --quiet         decrease     "           "
+
+Other options:
+-h, --help          display this help and exit
+    --version       output version information and exit
+
+Requires `HandBrakeCLI`, `mp4track`, `mplayer` and `mkvpropedit`.
+HERE
+    end
+
+    def initialize
+      super
+      @scan                       = false
+      @title                      = nil
+      @output                     = nil
+      @format                     = :mkv
+      @log                        = true
+      @dry_run                    = false
+      @vbv_maxrate_2160p          = 10000
+      @vbv_maxrate_1080p          = 5000
+      @vbv_maxrate_720p           = 4000
+      @vbv_maxrate_480p           = 2000
+      @quick                      = false
+      @crop                       = {:top => 0, :bottom => 0, :left => 0, :right => 0}
+      @main_audio                 = nil
+      @extra_audio                = []
+      @audio_name                 = {}
+      @audio_language             = []
+      @audio_width                = {:main => :double, :other => :stereo}
+      @ac3_bitrate                = 384
+      @pass_ac3_bitrate           = 448
+      @copy_audio                 = []
+      @copy_audio_name            = []
+      @burn_subtitle              = nil
+      @force_subtitle             = nil
+      @extra_subtitle             = []
+      @subtitle_language          = []
+      @auto_burn                  = true
+      @burn_srt                   = nil
+      @force_srt                  = nil
+      @srt_file                   = []
+      @srt_language               = {}
+      @srt_encoding               = {}
+      @srt_offset                 = {}
+      @encoder_options            = {}
+      @disable_encoder_options    = []
+      @handbrake_options          = {}
+      @disable_handbrake_options  = []
+      @temporary                  = nil
+    end
+
+    def define_options(opts)
+      opts.on('--scan')               { @scan = true }
+      opts.on('--title ARG', Integer) { |arg| @title = arg }
+
+      opts.on '--chapters ARG' do |arg|
+        unless arg =~ /^[1-9][0-9]*(?:-[1-9][0-9]*)?$/
+          fail UsageError, "invalid chapters argument: #{arg}"
+        end
+
+        force_handbrake_option 'chapters', arg
+      end
+
+      opts.on '-o', '--output ARG' do |arg|
+        unless File.directory? arg
+          @format = case File.extname(arg)
+          when '.mkv'
+            :mkv
+          when '.mp4'
+            :mp4
+          when '.m4v'
+            :m4v
+          else
+            fail UsageError, "unsupported filename extension: #{arg}"
+          end
+        end
+
+        @output = arg
+      end
+
+      opts.on '--mp4' do
+        @output = filter_output_option(@output, '.mp4')
+        @format = :mp4
+      end
+
+      opts.on '--m4v' do
+        @output = filter_output_option(@output, '.m4v')
+        @format = :m4v
+      end
+
+      opts.on '--chapter-names ARG' do |arg|
+        fail "chapter names file does not exist: #{arg}" unless File.exist? arg
+        force_handbrake_option 'markers', arg
+      end
+
+      opts.on('--no-log')             { @log = false }
+      opts.on('--dry-run')            { @dry_run = true }
+
+      opts.on '--big' do
+        @vbv_maxrate_2160p  = 16000
+        @vbv_maxrate_1080p  = 8000
+        @vbv_maxrate_720p   = 6000
+        @vbv_maxrate_480p   = 3000
+        @ac3_bitrate        = 640
+        @pass_ac3_bitrate   = 640
+      end
+
+      opts.on '--quick' do
+        @quick = true
+        @handbrake_options.delete 'encoder-preset'
+      end
+
+      opts.on '--preset ARG' do |arg|
+        case arg
+        when 'medium'
+          @handbrake_options.delete 'encoder-preset'
+        when 'ultrafast', 'superfast', 'veryfast', 'faster', 'fast', 'slow',
+        'slower', 'veryslow', 'placebo'
+          force_handbrake_option 'encoder-preset', arg
+        else
+          fail UsageError, "unsupported preset name: #{arg}"
+        end
+
+        @quick = false
+      end
+
+      opts.on '--crop ARG' do |arg|
+        @crop = case arg
+        when /^([0-9]+):([0-9]+):([0-9]+):([0-9]+)$/
+          {:top => $1.to_i, :bottom => $2.to_i, :left => $3.to_i, :right => $4.to_i}
+        when 'detect'
+          :detect
+        when 'auto'
+          :auto
+        else
+          fail UsageError, "invalid crop values: #{arg}"
+        end
+      end
+
+      opts.on '--720p' do
+        force_handbrake_option 'maxWidth', '1280'
+        force_handbrake_option 'maxHeight', '720'
+        @handbrake_options.delete 'width'
+        @handbrake_options.delete 'height'
+      end
+
+      opts.on '--max-width ARG', Integer do |arg|
+        fail UsageError, "invalid maximum width argument: #{arg}" if arg < 0 or arg > MAX_WIDTH
+        force_handbrake_option 'maxWidth', arg.to_s
+        @handbrake_options.delete 'width'
+      end
+
+      opts.on '--max-height ARG', Integer do |arg|
+        fail UsageError, "invalid maximum height argument: #{arg}" if arg < 0 or arg > MAX_HEIGHT
+        force_handbrake_option 'maxHeight', arg.to_s
+        @handbrake_options.delete 'height'
+      end
+
+      opts.on '--pixel-aspect ARG' do |arg|
+        if arg =~ /^[1-9][0-9]*:[1-9][0-9]*$/
+          force_handbrake_option 'pixel-aspect', arg
+          force_handbrake_option 'custom-anamorphic', nil
+          @handbrake_options.delete 'display-width'
+          @handbrake_options.delete 'strict-anamorphic'
+          @handbrake_options.delete 'loose-anamorphic'
+        else
+          fail UsageError, "invalid pixel aspect argument: #{arg}"
+        end
+      end
+
+      opts.on '--force-rate ARG' do |arg|
+        unless arg =~ /^[1-9][0-9]*(?:\.[0-9]+)?$/
+          fail UsageError, "invalid force rate argument: #{arg}"
+        end
+
+        force_handbrake_option 'rate', arg
+        @handbrake_options.delete 'vfr'
+        @handbrake_options.delete 'pfr'
+      end
+
+      opts.on '--limit-rate ARG' do |arg|
+        unless arg =~ /^[1-9][0-9]*(?:\.[0-9]+)?$/
+          fail UsageError, "invalid limit rate argument: #{arg}"
+        end
+
+        force_handbrake_option 'rate', arg
+        force_handbrake_option 'pfr', nil
+        @handbrake_options.delete 'vfr'
+        @handbrake_options.delete 'cfr'
+      end
+
+      opts.on '--filter ARG' do |arg|
+        if arg =~ /^([a-z]+)(?:=(.+))?$/
+          case $1
+          when 'deinterlace', 'decomb', 'detelecine', 'denoise', 'nlmeans',
+          'nlmeans-tune', 'deblock', 'rotate', 'grayscale'
+            force_handbrake_option $1, $2
+          else
+            fail UsageError, "unsupported filter name: #{$1}"
+          end
+        else
+          fail UsageError, "invalid filter argument: #{arg}"
+        end
+      end
+
+      opts.on '--main-audio ARG' do |arg|
+        if arg =~ /^([1-9][0-9]*)(?:=(.+))?$/
+          track = $1.to_i
+          @main_audio = track
+          @audio_name[track] = $2 unless $2.nil?
+        else
+          fail UsageError, "invalid main audio argument: #{arg}"
+        end
+      end
+
+      opts.on '--add-audio ARG' do |arg|
+        if arg =~ /^(?:([1-9][0-9]*)(?:=(.+))?|lang(?:uage)?=([a-z]{3}(?:,[a-z]{3})*)|(all))$/
+          if $4.nil?
+            if $3.nil?
+              track = $1.to_i
+              @extra_audio << track unless @extra_audio.first.is_a? Symbol
+              @audio_name[track] = $2 unless $2.nil?
+            elsif @extra_audio.first != :all
+              @extra_audio = [:language] 
+              @audio_language = $3.split(',')
+            end
+          else
+            @extra_audio = [:all]
+            @audio_language = []
+          end
+        else
+          fail UsageError, "invalid add audio argument: #{arg}"
+        end
+      end
+
+      opts.on '--audio-width ARG' do |arg|
+        if arg =~ /^([1-9][0-9]*|all)=(double|surround|stereo)$/
+          width = $2.to_sym
+
+          if $1 == 'all'
+            @audio_width[:main] = width
+            @audio_width[:other] = width
+          else
+            @audio_width[$1.to_i] = width
+          end
+        else
+          fail UsageError, "invalid audio width argument: #{arg}"
+        end
+      end
+
+      opts.on '--ac3-bitrate ARG', Integer do |arg|
+        @ac3_bitrate = case arg
+        when 384, 448, 640
+          arg
+        else
+          fail UsageError, "unsupported AC-3 audio bitrate: #{arg}"
+        end
+      end
+
+      opts.on '--pass-ac3-bitrate ARG', Integer do |arg|
+        @pass_ac3_bitrate = case arg
+        when 384, 448, 640
+          arg
+        else
+          fail UsageError, "unsupported AC-3 audio pass-through bitrate: #{arg}"
+        end
+      end
+
+      opts.on '--copy-audio ARG' do |arg|
+        if arg =~ /^[1-9][0-9]*|all$/
+          if $MATCH == 'all'
+            @copy_audio = [:all]
+          else
+            @copy_audio << $MATCH.to_i unless @copy_audio.first == :all
+          end
+        end
+      end
+
+      opts.on '--copy-audio-name ARG' do |arg|
+        if arg =~ /^[1-9][0-9]*|all$/
+          if $MATCH == 'all'
+            @copy_audio_name = [:all]
+          else
+            @copy_audio_name << $MATCH.to_i unless @copy_audio_name.first == :all
+          end
+        end
+      end
+
+      opts.on('--no-audio')           { force_handbrake_option 'audio', 'none' }
+
+      opts.on '--burn-subtitle ARG' do |arg|
+        if arg =~ /^[1-9][0-9]*|scan$/
+          if $MATCH == 'scan'
+            @burn_subtitle = :scan
+          else
+            track = $MATCH.to_i
+            @burn_subtitle = track
+            @extra_subtitle << track
+          end
+
+          @force_subtitle = nil
+          @burn_srt = nil
+          @force_srt = nil
+          @auto_burn = false
+        else
+          fail UsageError, "invalid burn subtitle argument: #{arg}"
+        end
+      end
+
+      opts.on '--force-subtitle ARG' do |arg|
+        if arg =~ /^[1-9][0-9]*|scan$/
+          if $MATCH == 'scan'
+            @force_subtitle = :scan
+          else
+            track = $MATCH.to_i
+            @force_subtitle = track
+            @extra_subtitle << track
+          end
+
+          @burn_subtitle = nil
+          @burn_srt = nil
+          @force_srt = nil
+          @auto_burn = false
+        else
+          fail UsageError, "invalid force subtitle argument: #{arg}"
+        end
+      end
+
+      opts.on '--add-subtitle ARG' do |arg|
+        if arg =~ /^(?:([1-9][0-9]*)|lang(?:uage)?=([a-z]{3}(?:,[a-z]{3})*)|(all))$/
+          if $3.nil?
+            if $2.nil?
+              unless @extra_subtitle.first.is_a? Symbol
+                @extra_subtitle << $1.to_i
+              end
+            elsif @extra_subtitle.first != :all
+              @extra_subtitle = [:language] 
+              @subtitle_language = $2.split(',')
+            end
+          else
+            @extra_subtitle = [:all]
+            @subtitle_language = []
+          end
+        else
+          fail UsageError, "invalid add subtitle argument: #{arg}"
+        end
+      end
+
+      opts.on('--no-auto-burn')       { @auto_burn = false }
+
+      opts.on '--burn-srt ARG' do |arg|
+        fail "subtitle file does not exist: #{arg}" unless File.exist? arg
+        index = @srt_file.index(arg)
+
+        if index.nil?
+          @burn_srt = @srt_file.size
+          @srt_file << arg
+        else
+          @burn_srt = index
+        end
+
+        @force_srt = nil
+        @burn_subtitle = nil
+        @force_subtitle = nil
+        @auto_burn = false
+      end
+
+      opts.on '--force-srt ARG' do |arg|
+        fail "subtitle file does not exist: #{arg}" unless File.exist? arg
+        index = @srt_file.index(arg)
+
+        if index.nil?
+          @force_srt = @srt_file.size
+          @srt_file << arg
+        else
+          @force_srt = index
+        end
+
+        @burn_srt = nil
+        @burn_subtitle = nil
+        @force_subtitle = nil
+        @auto_burn = false
+      end
+
+      opts.on '--add-srt ARG' do |arg|
+        fail "subtitle file does not exist: #{arg}" unless File.exist? arg
+        @srt_file << arg unless @srt_file.include? arg
+      end
+
+      opts.on '--bind-srt-language ARG' do |arg|
+        fail UsageError, "invalid subtitle language argument: #{arg}" unless arg =~ /^[a-z]{3}$/
+        fail UsageError, "subtitle file missing for language: #{arg}" if @srt_file.empty?
+        @srt_language[@srt_file.size - 1] = arg
+      end
+
+      opts.on '--bind-srt-encoding ARG' do |arg|
+        fail UsageError, "subtitle file missing for encoding: #{arg}" if @srt_file.empty?
+        @srt_encoding[@srt_file.size - 1] = arg
+      end
+
+      opts.on '--bind-srt-offset ARG', Integer do |arg|
+        fail UsageError, "subtitle file missing for offset: #{arg}" if @srt_file.empty?
+        @srt_offset[@srt_file.size - 1] = arg
+      end
+
+      opts.on '-E', '--encoder-option ARG' do |arg|
+        if arg =~ /^([a-z][a-z_-]+)=([^ :]+)$/
+          @encoder_options[$1] = $2
+          @disable_encoder_options.delete $1
+        elsif arg =~ /^_([a-z][a-z_-]+)$/
+          @disable_encoder_options << $1
+          @encoder_options.delete $1
+        else
+          fail UsageError, "invalid encoder option: #{arg}"
+        end
+      end
+
+      opts.on '-H', '--handbrake-option ARG' do |arg|
+        if arg =~ /^([a-zA-Z][a-zA-Z0-9-]+)(?:=(.+))?$/
+          force_handbrake_option filter_handbrake_option($1), $2
+        elsif arg =~ /^_([a-zA-Z][a-zA-Z0-9-]+)$/
+          name = filter_handbrake_option($1)
+          @disable_handbrake_options << name
+          @handbrake_options.delete name
+        else
+          fail UsageError, "invalid HandBrakeCLI option: #{arg}"
+        end
+      end
+    end
+
+    def force_handbrake_option(name, value)
+      @handbrake_options[name] = value
+      @disable_handbrake_options.delete name
+    end
+
+    def filter_output_option(path, ext)
+      if path.nil? or File.directory? path
+        path
+      else
+        File.basename(path, '.*') + ext
+      end
+    end
+
+    def filter_handbrake_option(name)
+      case name
+      when 'help', 'update', 'preset', 'preset-list', 'input', 'title',
+      'scan', 'main-feature', 'previews', 'output', 'format',
+      'encoder-preset-list', 'encoder-tune-list', 'encoder-profile-list',
+      'encoder-level-list'
+        fail UsageError, "unsupported HandBrakeCLI option name: #{name}"
+      when 'qsv-preset', 'x264-preset', 'x265-preset'
+        'encoder-preset'
+      when 'x264-tune', 'x265-tune'
+        'encoder-tune'
+      when 'x264-profile', 'h264-profile', 'h265-profile'
+        'encoder-profile'
+      when 'h264-level', 'h265-level'
+        'encoder-level'
+      else
+        name
+      end
+    end
+
+    def configure
+      @extra_audio.uniq!
+      @copy_audio.uniq!
+      @copy_audio_name.uniq!
+      @extra_subtitle.uniq!
+      @disable_encoder_options.uniq!
+      @disable_handbrake_options.uniq!
+      HandBrake.setup
+      MP4track.setup
+      MPlayer.setup
+      MKVpropedit.setup
+    end
+
+    def process_input(arg)
+      Console.info "Processing: #{arg}..."
+
+      if @scan
+        media = Media.new(path: arg, title: @title)
+        Console.debug media.info
+        puts media.summary
+        return
+      end
+
+      seconds = Time.now.tv_sec
+      media = Media.new(path: arg, title: @title, autocrop: @crop == :detect)
+      Console.debug media.info
+      handbrake_options = {
+        'input' => arg,
+        'output' => resolve_output(media),
+        'markers' => nil,
+        'encoder' => 'x264',
+        'quality' => '16'
+      }
+      title = media.info[:title]
+      handbrake_options['title'] = title.to_s unless title == 1
+      encoder_options = {}
+      prepare_video(media, handbrake_options, encoder_options)
+      renamed_audio = {}
+      prepare_audio(media, handbrake_options, renamed_audio)
+      prepare_subtitle(media, handbrake_options)
+      prepare_srt(media, handbrake_options)
+      prepare_options(handbrake_options, encoder_options)
+      transcode(handbrake_options)
+      adjust_metadata(handbrake_options['output'], renamed_audio)
+
+      unless @dry_run
+        seconds = Time.now.tv_sec - seconds
+        hours   = seconds / (60 * 60)
+        minutes = (seconds / 60) % 60
+        seconds = seconds % 60
+        printf "Elapsed time: %02d:%02d:%02d\n\n", hours, minutes, seconds
+      end
+    end
+
+    def resolve_output(media)
+      output = File.basename(media.path, '.*') + '.' + @format.to_s
+
+      unless @output.nil?
+        path = File.absolute_path(@output)
+
+        if File.directory? @output
+          output = path + File::SEPARATOR + output
+        else
+          output = path
+        end
+      end
+
+      fail "output file exists: #{media.path}" if File.exist? output
+      output
+    end
+
+    def prepare_video(media, handbrake_options, encoder_options)
+      crop = resolve_crop(media)
+      width, height = media.info[:width], media.info[:height]
+
+      unless crop.nil?
+        handbrake_options['crop'] = Crop.handbrake_string(crop)
+        width -= crop[:left] + crop[:right]
+        height -= crop[:top] + crop[:bottom]
+
+        unless width > 0 and height > 0
+          fail UsageError, "invalid crop values: #{Crop.handbrake_string(crop)}"
+        end
+      end
+
+      width       = @handbrake_options.fetch('width', width).to_i
+      height      = @handbrake_options.fetch('height', height).to_i
+      max_width   = @handbrake_options.fetch('maxWidth', MAX_WIDTH).to_i
+      max_height  = @handbrake_options.fetch('maxHeight', MAX_HEIGHT).to_i
+
+      if width > max_width or height > max_height
+        anamorphic = 'loose-anamorphic'
+        adjusted_height = (height * (max_width.to_f / width)).to_i
+        adjusted_height -= 1 if adjusted_height.odd?
+
+        if adjusted_height > max_height
+          width = (width * (max_height.to_f / height)).to_i
+          width -= 1 if width.odd?
+          height = max_height
+        else
+          width = max_width
+          height = adjusted_height
+        end
+      else
+        anamorphic = 'strict-anamorphic'
+      end
+
+      handbrake_options[anamorphic] = nil unless @handbrake_options.has_key? 'custom-anamorphic'
+      preset = @handbrake_options.fetch('encoder-preset', 'medium')
+
+      if width > 1920 or height > 1080
+        vbv_maxrate = @vbv_maxrate_2160p
+        max_bufsize = 300000
+      elsif width > 1280 or height > 720
+        vbv_maxrate = @vbv_maxrate_1080p
+        max_bufsize = 25000
+
+        case preset
+        when 'slow', 'slower', 'veryslow', 'placebo'
+          handbrake_options['encoder-level'] = '4.0'
+        end
+      elsif width > 720 or height > 576
+        vbv_maxrate = @vbv_maxrate_720p
+        max_bufsize = 17500
+      else
+        vbv_maxrate = @vbv_maxrate_480p
+        max_bufsize = 12500
+      end
+
+      unless media.info[:directory]
+        bitrate = ((((media.info[:size] * 8) / media.info[:duration]) / 1000) / 1000) * 1000
+
+        if bitrate < vbv_maxrate
+          min_bitrate = vbv_maxrate / 2
+
+          if bitrate < min_bitrate
+            vbv_maxrate = min_bitrate
+          else
+            vbv_maxrate = bitrate
+          end
+        end
+      end
+
+      vbv_bufsize = @encoder_options.fetch('vbv-maxrate', vbv_maxrate).to_i / 2
+      vbv_bufsize = max_bufsize if vbv_bufsize > max_bufsize
+
+      case preset
+      when 'slower', 'veryslow', 'placebo'
+        encoder_options['ref'] = '5'
+      end
+
+      encoder_options['vbv-maxrate'] = vbv_maxrate.to_s
+      encoder_options['vbv-bufsize'] = (vbv_maxrate / 2).to_s
+      encoder_options['crf-max'] = '25'
+
+      if @quick and not @handbrake_options.has_key? 'encoder-preset'
+        encoder_options['ref']          = '1'
+        encoder_options['weightp']      = '1'
+        encoder_options['subme']        = '6'
+        encoder_options['mixed-refs']   = '0'
+        encoder_options['rc-lookahead'] = '30'
+      end
+
+      unless @handbrake_options.has_key? 'rate'
+        fps = media.info[:fps]
+
+        if fps == 29.97
+          handbrake_options['rate'] = '23.976'
+
+          unless  @handbrake_options.has_key? 'deinterlace' or
+                  @handbrake_options.has_key? 'decomb' or
+                  @handbrake_options.has_key? 'detelecine'
+            handbrake_options['deinterlace'] = nil
+          end
+        elsif media.info[:mpeg2]
+          case fps
+          when 23.976, 24.0, 25.0
+            handbrake_options['rate'] = fps.to_s
+          end
+        else
+          handbrake_options['rate'] = '30'
+          handbrake_options['pfr'] = nil
+        end
+      end
+    end
+
+    def resolve_crop(media)
+      if @crop == :detect
+        width, height = media.info[:width], media.info[:height]
+        hb_crop = Crop.constrain(media.info[:autocrop], width, height)
+
+        unless media.info[:directory]
+          mp_crop = Crop.detect(media.path, media.info[:duration], width, height)
+          mp_crop = Crop.constrain(mp_crop, width, height)
+
+          if hb_crop != mp_crop
+            Console.error 'Results differ...'
+            Console.error "From HandBrakeCLI: #{Crop.handbrake_string(hb_crop)}"
+            Console.error "From mplayer:      #{Crop.handbrake_string(mp_crop)}"
+            fail "crop detection failed: #{media.path}"
+          end
+        end
+
+        hb_crop
+      elsif @crop == :auto
+        nil
+      else
+        @crop
+      end
+    end
+
+    def prepare_audio(media, handbrake_options, renamed_audio)
+      return if @handbrake_options.fetch('audio', '') == 'none' or media.info[:audio].empty?
+      main_track = resolve_main_audio(media)
+      @audio_width[main_track] ||= @audio_width[:main]
+      track_order = [main_track]
+
+      case @extra_audio.first
+      when :all
+        media.info[:audio].each { |track, _| track_order << track unless track == main_track }
+      when :language
+        media.info[:audio].each do |track, info|
+          if track != main_track and @audio_language.include? info[:language]
+            track_order << track
+          end
+        end
+      else
+        @extra_audio.each do |track|
+          track_order << track if track != main_track and media.info[:audio].include? track
+        end
+      end
+
+      tracks, encoders, bitrates, names = [], [], [], []
+
+      add_surround = ->(info, copy) do
+        bitrate = info[:bps].nil? ? 640 : info[:bps] / 1000
+
+        if copy or (info[:format] == 'AC3' and bitrate <= @pass_ac3_bitrate)
+          encoders << 'copy'
+          bitrates << ''
+        else
+          encoders << 'ac3'
+
+          if @ac3_bitrate == 640
+            bitrates << ''
+          else
+            bitrates << @ac3_bitrate.to_s
+          end
+        end
+      end
+
+      add_stereo = ->(info, copy) do
+        if copy or (info[:format] == 'AAC' and info[:channels] <= 2.0)
+          encoders << 'copy'
+        else
+          encoders << HandBrake.aac_encoder
+        end
+
+        bitrates << ''
+      end
+
+      track_order.each do |track|
+        tracks << track
+        info = media.info[:audio][track]
+        copy = (@copy_audio.first == :all or @copy_audio.include? track)
+
+        if @copy_audio_name.first == :all or @copy_audio_name.include? track
+          name = info.fetch(:name, '')
+        else
+          name = ''
+        end
+
+        name = @audio_name.fetch(track, name)
+
+        if name =~ /,/
+          sanitized_name = name.gsub(/,/, '_')
+          renamed_audio[sanitized_name] = name
+          name = sanitized_name
+        end
+
+        names << name
+
+        case @audio_width.fetch(track, @audio_width[:other])
+        when :double
+          if info[:channels] > 2.0
+            tracks << track
+            names << name
+
+            if @format == :mkv
+              add_surround.call info, copy
+              add_stereo.call info, false
+            else
+              add_stereo.call info, false
+              add_surround.call info, copy
+            end
+          else
+            add_stereo.call info, copy
+          end
+        when :surround
+          if info[:channels] > 2.0
+            add_surround.call info, copy
+          else
+            add_stereo.call info, copy
+          end
+        when :stereo
+          add_stereo.call info, copy and info[:channels] <= 2.0
+        end
+      end
+
+      handbrake_options['audio'] = tracks.join(',')
+      handbrake_options['aencoder'] = encoders.join(',')
+      handbrake_options['audio-fallback'] = 'ac3' unless @copy_audio.empty?
+      bitrates = bitrates.join(',')
+      handbrake_options['ab'] = bitrates if bitrates.gsub(/,/, '') != ''
+      names = names.join(',')
+      handbrake_options['aname'] = names if names.gsub(/,/, '') != ''
+    end
+
+    def resolve_main_audio(media)
+      track = @main_audio
+
+      if track.nil?
+        unless @audio_language.empty?
+          track, _ = media.info[:audio].find do |_, info|
+            @audio_language.include? info[:language]
+          end
+        end
+
+        track ||= 1
+      end
+    end
+
+    def prepare_subtitle(media, handbrake_options)
+      return if media.info[:subtitle].empty?
+
+      if @auto_burn
+        burn_track, _ = media.info[:subtitle].find { |_, info| info[:forced] }
+      else
+        burn_track = @burn_subtitle
+      end
+
+      if burn_track == :scan or @force_subtitle == :scan
+        track_order = ['scan']
+      else
+        track_order = []
+        track_order << burn_track.to_s unless burn_track.nil?
+        track_order << @force_subtitle.to_s unless @force_subtitle.nil?
+      end
+
+      case @extra_subtitle.first
+      when :all
+        media.info[:subtitle].each do |track, _|
+          track_order << track unless track == burn_track or track == @force_subtitle
+        end
+      when :language
+        media.info[:subtitle].each do |track, info|
+          unless track == burn_track or track == @force_subtitle
+            track_order << track if @subtitle_language.include? info[:language]
+          end
+        end
+      else
+        @extra_subtitle.each do |track|
+          unless track == burn_track or track == @force_subtitle
+            track_order << track if media.info[:subtitle].include? track
+          end
+        end
+      end
+
+      unless track_order.empty?
+        track_order = track_order.join(',')
+        handbrake_options['subtitle'] = track_order if track_order.gsub(/,/, '') != ''
+        handbrake_options['subtitle-burned'] = nil unless burn_track.nil?
+        handbrake_options['subtitle-default'] = nil unless @force_subtitle.nil?
+      end
+    end
+
+    def prepare_srt(media, handbrake_options)
+      files, encodings, offsets, languages = [], [], [], []
+
+      @srt_file.each_with_index do |file, index|
+        if file =~ /,/
+          @temporary ||= Dir.mktmpdir
+          link = @temporary + File::SEPARATOR + "subtitle_#{media.hash}_#{index}.srt"
+          File.symlink File.absolute_path(file), link
+          file = link
+        end
+
+        encoding  = @srt_encoding.fetch(index, '')
+        offset    = @srt_offset.fetch(index, '').to_s
+        language  = @srt_language.fetch(index, '')
+
+        if index > 0 and (index == @burn_srt or index == @force_srt)
+          files.unshift     file
+          encodings.unshift encoding
+          offsets.unshift   offset
+          languages.unshift language
+        else
+          files     << file
+          encodings << encoding
+          offsets   << language
+          languages << language
+        end
+      end
+
+      unless files.empty?
+        files = files.join(',')
+        handbrake_options['srt-file'] = files
+        encodings = encodings.join(',')
+        handbrake_options['srt-codeset'] = encodings if encodings.gsub(/,/, '') != ''
+        offsets = offsets.join(',')
+        handbrake_options['srt-offset'] = offsets if offsets.gsub(/,/, '') != ''
+        languages = languages.join(',')
+        handbrake_options['srt-lang'] = languages if languages.gsub(/,/, '') != ''
+        handbrake_options['srt-burn'] = nil unless @burn_srt.nil?
+        handbrake_options['srt-default'] = nil unless @force_srt.nil?
+      end
+    end
+
+    def prepare_options(handbrake_options, encoder_options)
+      encoder_options.merge! @encoder_options
+      @disable_encoder_options.each { |name| encoder_options.delete name }
+
+      unless encoder_options.empty?
+        encopts = ''
+        encoder_options.each { |name, value| encopts += "#{name}=#{value}:" }
+        handbrake_options['encopts'] = encopts.chop
+      end
+
+      handbrake_options.merge! @handbrake_options
+      @disable_handbrake_options.each { |name| handbrake_options.delete name }
+    end
+
+    def transcode(handbrake_options)
+      handbrake_command = [HandBrake.command_name]
+
+      handbrake_options.each do |name, value|
+        if value.nil?
+          handbrake_command << "--#{name}"
+        elsif @dry_run and name != 'encopts'
+          handbrake_command << "--#{name}=#{value.shellescape}"
+        else
+          handbrake_command << "--#{name}=#{value}"
+        end
+      end
+
+      if @dry_run
+        puts handbrake_command.join(' ')
+        return
+      end
+
+      Console.debug handbrake_command
+      log_file = @log ? File.new(handbrake_options['output'] + '.log', 'w') : nil
+      Console.info 'Transcoding with HandBrakeCLI...'
+
+      begin
+        IO.popen(handbrake_command, :err=>[:child, :out]) do |io|
+          Signal.trap 'INT' do
+            Process.kill 'INT', io.pid
+          end
+
+          io.each_char do |char|
+            print char
+            log_file.print char unless log_file.nil?
+          end
+        end
+      rescue SystemCallError => e
+        raise "transcoding failed: #{e}"
+      end
+
+      log_file.close unless log_file.nil?
+      fail "transcoding failed: #{handbrake_options['input']}" unless $CHILD_STATUS.exitstatus == 0
+    end
+
+    def adjust_metadata(output, renamed_audio)
+      return if @dry_run
+      media = Media.new(path: output, allow_directory: false)
+      Console.debug media.info
+
+      if  media.info[:mkv] and
+          media.info[:subtitle].include? 1 and
+          media.info[:subtitle][1][:default] and
+          not media.info[:subtitle][1][:forced]
+        Console.info 'Forcing subtitle with mkvpropedit...'
+
+        begin
+          IO.popen([
+            MKVpropedit.command_name,
+            '--edit', 'track:s1',
+            '--set', 'flag-forced=1',
+            output,
+          ], :err=>[:child, :out]) do |io|
+            io.each do |line|
+              Console.debug line
+            end
+          end
+        rescue SystemCallError => e
+          raise "forcing subtitle failed: #{e}"
+        end
+
+        fail "forcing subtitle: #{output}" if $CHILD_STATUS.exitstatus == 2
+      end
+
+      return if renamed_audio.empty?
+
+      media.info[:audio].each do |track, info|
+        original_name = renamed_audio[info[:name]]
+
+        unless original_name.nil?
+          if media.info[:mkv]
+            Console.info 'Renaming audio with mkvpropedit...'
+
+            begin
+              IO.popen([
+                MKVpropedit.command_name,
+                '--edit', "track:a#{track}",
+                '--set', "name=#{original_name}",
+                output,
+              ], :err=>[:child, :out]) do |io|
+                io.each do |line|
+                  Console.debug line
+                end
+              end
+            rescue SystemCallError => e
+              raise "renaming audio failed: #{e}"
+            end
+
+            fail "renaming audio: #{output}" if $CHILD_STATUS.exitstatus == 2
+          elsif media.info[:mp4]
+            Console.info 'Renaming audio with mp4track...'
+
+            ['hdlrname', 'udtaname'].each do |property|
+              begin
+                IO.popen([
+                  MP4track.command_name,
+                  '--track-index', track.to_s,
+                  "--#{property}", original_name,
+                  output,
+                ], :err=>[:child, :out]) do |io|
+                  io.each do |line|
+                    Console.debug line
+                  end
+                end
+              rescue SystemCallError => e
+                raise "renaming audio failed: #{e}"
+              end
+
+              fail "renaming audio: #{output}" unless $CHILD_STATUS.exitstatus == 0
+            end
+          end
+        end
+      end
+    end
+
+    def terminate
+      FileUtils.remove_entry @temporary unless @temporary.nil?
+    end
+  end
+end
+
+VideoTranscoding::Command.new.run

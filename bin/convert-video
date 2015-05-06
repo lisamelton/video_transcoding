@@ -1,0 +1,290 @@
+#!/usr/bin/env ruby -W
+#
+# convert-video
+#
+# Copyright (c) 2013-2015 Don Melton
+#
+
+$LOAD_PATH.unshift File.expand_path(File.dirname(__FILE__) + '/../lib')
+
+require 'video_transcoding/cli'
+
+module VideoTranscoding
+  class Command
+    include CLI
+
+    def about
+      <<HERE
+convert-video #{VERSION}
+#{COPYRIGHT}
+HERE
+    end
+
+    def usage
+      <<HERE
+Convert video file from Matroska to MP4 format or from MP4 to Matroksa format
+WITHOUT TRANSCODING VIDEO.
+
+Usage: #{$PROGRAM_NAME} [OPTION]... [FILE]...
+
+-o, --output DIRECTORY
+                    set output path
+                      (default: input filename with output format extension
+                        in current working directory)
+    --use-m4v       use `.m4v` extension instead of `.mp4` for MP4 output
+
+-v, --verbose       increase diagnostic information
+-q, --quiet         decrease     "           "
+
+-h, --help          display this help and exit
+    --version       output version information and exit
+
+Requires `HandBrakeCLI`, `mp4track`, `ffmpeg` and `mkvmerge`.
+HERE
+    end
+
+    def initialize
+      super
+      @output   = nil
+      @use_m4v  = false
+    end
+
+    def define_options(opts)
+      opts.on('-o', '--output ARG') { |arg| @output = arg }
+      opts.on('--use-m4v')          { @use_m4v = true }
+    end
+
+    def configure
+      unless @output.nil? or File.directory? @output
+        fail UsageError, "not a directory: #{@output}"
+      end
+
+      HandBrake.setup
+      MP4track.setup
+      FFmpeg.setup
+      MKVmerge.setup
+    end
+
+    def process_input(arg)
+      Console.info "Processing: #{arg}..."
+      media = Media.new(path: arg, allow_directory: false)
+      Console.debug media.info
+      output = resolve_output(media)
+      fail "no H.264 format video track: #{arg}" unless media.info[:h264]
+      fail "no video stream: #{arg}" unless media.info.has_key? :stream
+
+      if media.info[:mkv]
+        convert_to_mp4(media, output)
+      else
+        convert_to_mkv(media, output)
+      end
+    end
+
+    def resolve_output(media)
+      if media.info[:mkv]
+        ext = @use_m4v ? '.m4v' : '.mp4'
+      elsif media.info[:mp4]
+        ext = '.mkv'
+      else
+        fail "unsupported input container format: #{media.path}"
+      end
+
+      output = File.basename(media.path, '.*') + ext
+
+      unless @output.nil?
+        output = File.absolute_path(@output) + File::SEPARATOR + output
+      end
+
+      fail "output file exists: #{media.path}" if File.exist? output
+      output
+    end
+
+    def convert_to_mp4(media, output)
+      map_options = [
+        '-map', "0:#{media.info[:stream]}"
+      ]
+      copy_options = [
+        '-c:v', 'copy'
+      ]
+
+      unless media.info[:audio].empty?
+        track_order = media.info[:audio].keys
+        stream = 0
+
+        if media.info[:audio][1][:channels] > 2.0
+          if track_order.size > 1
+            if  media.info[:audio][1][:language] == media.info[:audio][2][:language] and
+                media.info[:audio][2][:format] == 'AAC' and
+                media.info[:audio][2][:channels] <= 2.0
+              first = track_order[0]
+              track_order[0] = track_order[1]
+              track_order[1] = first
+            end
+          else
+            map_options.concat([
+              '-map', "0:#{media.info[:audio][1][:stream]}"
+            ])
+
+            if FFmpeg.aac_encoder == 'aac'
+              copy_options.concat([
+                '-strict', 'experimental'
+              ])
+            end
+
+            copy_options.concat([
+              '-ac', '2',
+              '-c:a:0', FFmpeg.aac_encoder,
+              '-b:a:0', '160k'
+            ])
+            stream += 1
+          end
+        end
+
+        track_order.each do |track|
+          map_options.concat([
+            '-map', "0:#{media.info[:audio][track][:stream]}"
+          ])
+
+          if  media.info[:audio][track][:channels] > 2.0 and
+              media.info[:audio][track][:format] != 'AC3'
+            copy_options.concat([
+              '-ac', '6',
+              "-c:a:#{stream}", 'ac3',
+              "-b:a:#{stream}", '384k'
+            ])
+          elsif media.info[:audio][track][:channels] <= 2.0 and
+                media.info[:audio][track][:format] != 'AAC' and
+                media.info[:audio][track][:format] != 'AC3'
+            if FFmpeg.aac_encoder == 'aac'
+              copy_options.concat([
+                '-strict', 'experimental'
+              ])
+            end
+
+            copy_options.concat([
+              '-ac', '2',
+              "-c:a:#{stream}", FFmpeg.aac_encoder,
+              "-b:a:#{stream}", '160k'
+            ])
+          else
+            copy_options.concat([
+              "-c:a:#{stream}", 'copy'
+            ])
+          end
+
+          stream += 1
+        end
+      end
+
+      ffmpeg_command = [
+        FFmpeg.command_name,
+        '-hide_banner',
+        '-nostdin',
+        '-i', media.path,
+        *map_options,
+        *copy_options,
+        output
+      ]
+      Console.debug ffmpeg_command
+      Console.info 'Converting with ffmpeg...'
+
+      begin
+        IO.popen(ffmpeg_command, :err=>[:child, :out]) do |io|
+          Signal.trap 'INT' do
+            Process.kill 'INT', io.pid
+          end
+
+          io.each_char do |char|
+            print char
+          end
+        end
+      rescue SystemCallError => e
+        raise "conversion failed: #{e}"
+      end
+
+      fail "conversion failed: #{media.path}" unless $CHILD_STATUS.exitstatus == 0
+      mp4_media = Media.new(path: output, allow_directory: false)
+      Console.debug media.info
+
+      mp4_media.info[:audio].each do |track, info|
+        if track == 1 and not info[:default]
+          enabled = 'true'
+        elsif track != 1 and info[:default]
+          enabled = 'false'
+        else
+          enabled = nil
+        end
+
+        unless enabled.nil?
+          begin
+            IO.popen([
+              MP4track.command_name,
+              '--track-index', track.to_s,
+              '--enabled', enabled,
+              output,
+            ], :err=>[:child, :out]) do |io|
+              io.each do |line|
+                Console.debug line
+              end
+            end
+          rescue SystemCallError => e
+            raise "adjusting audio enabled failed: #{e}"
+          end
+
+          fail "adjusting audio enabled failed: #{output}" unless $CHILD_STATUS.exitstatus == 0
+        end
+      end
+    end
+
+    def convert_to_mkv(media, output)
+      track_order = ['0:' + media.info[:stream].to_s]
+      track_name_options = []
+
+      media.info[:audio].each do |_, info|
+        track_order << '0:' + info[:stream].to_s
+        track_name_options.concat([
+          '--track-name', "#{info[:stream]}:#{info[:name]}"
+        ])
+      end
+
+      if  track_order.size > 2 and
+          media.info[:audio][1][:language] == media.info[:audio][2][:language] and
+          media.info[:audio][1][:format] == 'AAC' and
+          media.info[:audio][1][:channels] <= 2.0 and
+          media.info[:audio][2][:channels] > 2.0
+        first = track_order[1]
+        track_order[1] = track_order[2]
+        track_order[2] = first
+      end
+
+      mkvmerge_command = [
+        MKVmerge.command_name,
+        '--output', output,
+        '--track-order', track_order.join(','),
+        '--disable-track-statistics-tags'
+      ]
+      mkvmerge_command += track_name_options unless track_name_options.empty?
+      mkvmerge_command << media.path
+      Console.debug mkvmerge_command
+      Console.info 'Converting with mkvmerge...'
+
+      begin
+        IO.popen(mkvmerge_command, :err=>[:child, :out]) do |io|
+          Signal.trap 'INT' do
+            Process.kill 'INT', io.pid
+          end
+
+          io.each_char do |char|
+            print char
+          end
+        end
+      rescue SystemCallError => e
+        raise "conversion failed: #{e}"
+      end
+
+      fail "conversion failed: #{media.path}" if $CHILD_STATUS.exitstatus == 2
+    end
+  end
+end
+
+VideoTranscoding::Command.new.run
