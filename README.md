@@ -300,6 +300,10 @@ However, you can copy the original audio track, provided HandBrake and your sele
 
     transcode-video --copy-audio 1 "/path/to/Movie.mkv"
 
+The `--copy-audio` option doesn't implicitly add the audio track to be copied. The previous command works because `1` identifies the main audio track and it's included by default. To copy a different track, you must first add it:
+
+    transcode-video --add-audio 4 --copy-audio 4 "/path/to/Movie.mkv"
+
 Be aware that copying audio tracks in their original format will likely defeat two very important goals of transcoding: portability and compression.
 
 #### Understanding subtitles
