@@ -51,9 +51,9 @@ module VideoTranscoding
       @info = {}
 
       if @title.nil?
-        if @scan =~ /\+ title ([0-9]+):\n  \+ Main Feature/m
+        if @scan =~ /\+ title ([0-9]+):\r?\n  \+ Main Feature/m
           @title = $1.to_i
-        elsif @scan =~ /^\+ title ([0-9]+):$/
+        elsif @scan =~ /^\+ title ([0-9]+):/
           @title = $1.to_i
         else
           @title = 1
@@ -70,7 +70,7 @@ module VideoTranscoding
       @info[:size]      = @stat.size
       @info[:directory] = @stat.directory?
 
-      unless @scan =~ /^  \+ duration: ([0-9]{2}):([0-9]{2}):([0-9]{2})$/
+      unless @scan =~ /^  \+ duration: ([0-9]{2}):([0-9]{2}):([0-9]{2})/
         fail 'media duration not found'
       end
 
@@ -92,7 +92,7 @@ module VideoTranscoding
 
       return @info unless @extended
 
-      unless @scan =~ /  \+ audio tracks:\n(.*)  \+ subtitle tracks:\n(.*)HandBrake has exited./m
+      unless @scan =~ /  \+ audio tracks:\r?\n(.*)  \+ subtitle tracks:\r?\n(.*)\r?\nHandBrake has exited./m
         fail 'audio and subtitle information not found'
       end
 
@@ -101,7 +101,7 @@ module VideoTranscoding
       @info[:audio]     = {}
       @info[:subtitle]  = {}
 
-      audio.each_line do |line|
+      audio.gsub(/\r/, '').each_line do |line|
         if line =~ /^    \+ ([0-9.]+), [^(]+\(([^)]+)\) .*\(([0-9.]+) ch\) .*\(iso639-2: ([a-z]{3})\)/
           track                 = $1.to_i
           track_info            = {}
@@ -121,7 +121,7 @@ module VideoTranscoding
         end
       end
 
-      subtitle.each_line do |line|
+      subtitle.gsub(/\r/, '').each_line do |line|
         if line =~ /^    \+ ([0-9.]+), .*\(iso639-2: ([a-z]{3})\) \((?:Text|Bitmap)\)\(([^)]+)\)/
           track                   = $1.to_i
           track_info              = {}
@@ -166,7 +166,7 @@ module VideoTranscoding
               track_info[:default] = false
             end
 
-            if @scan =~ /[ ]+Stream #0\.#{stream}[^ ]*: Audio: [^\n]+\n[ ]+Metadata:\n^[ ]+title[ ]+: ([^\n]+)/m
+            if @scan =~ /[ ]+Stream #0\.#{stream}[^ ]*: Audio: [^\n]+\n[ ]+Metadata:\r?\n^[ ]+title[ ]+: ([^\r\n]+)/m
               track_info[:name] = $1
             else
               track_info[:name] = nil
@@ -188,7 +188,7 @@ module VideoTranscoding
               track_info[:forced] = false
             end
 
-            if @scan =~ /[ ]+Stream #0\.#{stream}[^ ]*: Subtitle: [^\n]+\n[ ]+Metadata:\n^[ ]+title[ ]+: ([^\n]+)/m
+            if @scan =~ /[ ]+Stream #0\.#{stream}[^ ]*: Subtitle: [^\n]+\n[ ]+Metadata:\r?\n^[ ]+title[ ]+: ([^\r\n]+)/m
               track_info[:name] = $1
             else
               track_info[:name] = nil
