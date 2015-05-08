@@ -978,7 +978,7 @@ HERE
     def prepare_subtitle(media, handbrake_options)
       return if media.info[:subtitle].empty?
 
-      if @auto_burn
+      if @auto_burn and not media.info[:mp4]
         burn_track, _ = media.info[:subtitle].find { |_, info| info[:forced] }
       else
         burn_track = @burn_subtitle
