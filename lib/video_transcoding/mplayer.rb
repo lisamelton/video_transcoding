@@ -12,16 +12,17 @@ module VideoTranscoding
 
     def setup
       Tool.provide(COMMAND_NAME, ['-version']) do |output, _, _|
-        unless output =~ /^MPlayer ([0-9.]+)/
+        unless output =~ /^MPlayer .*-([0-9]+)\.([0-9]+)\.[0-9]+ /
           Console.debug output
           fail "#{COMMAND_NAME} version unknown"
         end
 
-        version = $1
+        major_version = $1.to_i
+        minor_version = $2.to_i
         Console.info "#{$MATCH} found..."
 
-        unless version =~ /^([0-9]+)\.([0-9]+)/ and (($1.to_i * 100) + $2.to_i) >= 101
-          fail "#{COMMAND_NAME} version 1.1 or later required"
+        unless ((major_version * 100) + minor_version) >= 402
+          fail "#{COMMAND_NAME} version 4.2 or later required"
         end
       end
     end
