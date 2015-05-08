@@ -92,7 +92,7 @@ module VideoTranscoding
 
       return @info unless @extended
 
-      unless @scan =~ /  \+ audio tracks:\r?\n(.*)  \+ subtitle tracks:\r?\n(.*)\r?\nHandBrake has exited./m
+      unless @scan =~ /  \+ audio tracks:\r?\n(.*)  \+ subtitle tracks:\r?\n(.*)(?:\r?\n)?HandBrake has exited./m
         fail 'audio and subtitle information not found'
       end
 
