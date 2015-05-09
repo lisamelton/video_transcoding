@@ -809,25 +809,28 @@ HERE
       end
 
       unless @handbrake_options.has_key? 'rate'
+        rate = '30'
         fps = media.info[:fps]
 
         if fps == 29.97
-          handbrake_options['rate'] = '23.976'
-
-          unless  @handbrake_options.has_key? 'deinterlace' or
-                  @handbrake_options.has_key? 'decomb' or
-                  @handbrake_options.has_key? 'detelecine'
-            handbrake_options['deinterlace'] = nil
+          if media.info[:mpeg2]
+            rate = '23.976'
+          else
+            unless  @handbrake_options.has_key? 'deinterlace' or
+                    @handbrake_options.has_key? 'decomb' or
+                    @handbrake_options.has_key? 'detelecine'
+              handbrake_options['deinterlace'] = nil
+            end
           end
         elsif media.info[:mpeg2]
           case fps
           when 23.976, 24.0, 25.0
-            handbrake_options['rate'] = fps.to_s
+            rate = fps.to_s
           end
-        else
-          handbrake_options['rate'] = '30'
-          handbrake_options['pfr'] = nil
         end
+
+        handbrake_options['rate'] = rate
+        handbrake_options['pfr'] = nil if rate == '30'
       end
     end
 
