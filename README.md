@@ -266,6 +266,8 @@ You can also give the main audio track a custom name:
 
     transcode-video --main-audio 3="Original Stereo" "/path/to/Movie.mkv"
 
+Unlike `HandBrakeCLI`, custom track names are allowed to contain commas.
+
 By default, only one audio track is selected. But you can add additional tracks, also with custom names:
 
     transcode-video --add-audio 4 --add-audio 5="Director Commentary" "/path/to/Movie.mkv"
@@ -331,6 +333,8 @@ You can also find text-based subtitles for your movies and TV shows at sites lik
 If and when you do have a subtitle in text format, specifically [SubRip](https://en.wikipedia.org/wiki/SubRip) `.srt` format, you can easily add it to your output video from an external file:
 
     transcode-video --add-srt "/path/to/Subtitle.srt" "/path/to/Movie.mkv"
+
+Unlike `HandBrakeCLI`, external subtitle file names are allowed to contain commas.
 
 ### Using `detect-crop`
 
