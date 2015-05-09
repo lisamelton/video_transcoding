@@ -115,11 +115,13 @@ Audio options:
                     try to copy track selected by number in its original format
                       falling back to AC-3 format if original not allowed
                       or try to copy all tracks in same manner
+                      (only applies to main and explicitly added audio tracks)
                       (can be used multiple times)
     --copy-audio-name TRACK|all
                     copy original track name selected by number
                       unless the name is specified with another option
                       or try to copy all track names in same manner
+                      (only applies to main and explicitly added audio tracks)
                       (can be used multiple times)
     --no-audio      disable all audio output
 
