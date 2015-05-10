@@ -978,6 +978,8 @@ HERE
 
         track ||= 1
       end
+
+      track
     end
 
     def prepare_subtitle(media, handbrake_options)
