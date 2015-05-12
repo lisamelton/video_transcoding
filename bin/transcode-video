@@ -646,6 +646,7 @@ HERE
     end
 
     def configure
+      @pass_ac3_bitrate = @ac3_bitrate if @pass_ac3_bitrate < @ac3_bitrate
       @extra_audio.uniq!
       @copy_audio.uniq!
       @copy_audio_name.uniq!
