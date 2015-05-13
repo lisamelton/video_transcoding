@@ -62,7 +62,7 @@ module VideoTranscoding
         @scan = Media.scan(@path, @title, @previews)
       end
 
-      if @scan =~ / libhb: scan thread found ([0-9.]+) valid title/
+      if @scan =~ / libhb: scan thread found ([0-9]+) valid title/
         fail 'multiple titles found' if $1.to_i > 1
       end
 
@@ -92,7 +92,7 @@ module VideoTranscoding
 
       return @info unless @extended
 
-      unless @scan =~ /  \+ audio tracks:\r?\n(.*)  \+ subtitle tracks:\r?\n(.*)(?:\r?\n)?HandBrake has exited./m
+      unless @scan =~ /  \+ audio tracks:\r?\n(.*)  \+ subtitle tracks:\r?\n(.*)HandBrake has exited./m
         fail 'audio and subtitle information not found'
       end
 
@@ -102,7 +102,7 @@ module VideoTranscoding
       @info[:subtitle]  = {}
 
       audio.gsub(/\r/, '').each_line do |line|
-        if line =~ /^    \+ ([0-9.]+), [^(]+\(([^)]+)\) .*\(([0-9.]+) ch\) .*\(iso639-2: ([a-z]{3})\)/
+        if line =~ /^    \+ ([0-9]+), [^(]+\(([^)]+)\) .*\(([0-9.]+) ch\) .*\(iso639-2: ([a-z]{3})\)/
           track                 = $1.to_i
           track_info            = {}
           track_info[:format]   = $2
@@ -116,20 +116,16 @@ module VideoTranscoding
           end
 
           @info[:audio][track] = track_info
-        else
-          fail "invalid audio track information: #{line}"
         end
       end
 
       subtitle.gsub(/\r/, '').each_line do |line|
-        if line =~ /^    \+ ([0-9.]+), .*\(iso639-2: ([a-z]{3})\) \((?:Text|Bitmap)\)\(([^)]+)\)/
+        if line =~ /^    \+ ([0-9]+), .*\(iso639-2: ([a-z]{3})\) \((?:Text|Bitmap)\)\(([^)]+)\)/
           track                   = $1.to_i
           track_info              = {}
           track_info[:language]   = $2
           track_info[:format]     = $3
           @info[:subtitle][track] = track_info
-        else
-          fail "invalid subtitle track information: #{line}"
         end
       end
 
