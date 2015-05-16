@@ -153,41 +153,47 @@ module VideoTranscoding
             end
           when 'Audio'
             audio_track += 1
-            track_info = @info[:audio][audio_track]
-            track_info[:stream] = stream
 
-            if attributes =~ /\(default\)/
-              track_info[:default] = true
-            else
-              track_info[:default] = false
-            end
+            if @info[:audio].has_key? audio_track
+              track_info = @info[:audio][audio_track]
+              track_info[:stream] = stream
 
-            if @scan =~ /[ ]+Stream #0\.#{stream}[^ ]*: Audio: [^\n]+\n[ ]+Metadata:\r?\n^[ ]+title[ ]+: ([^\r\n]+)/m
-              track_info[:name] = $1
-            else
-              track_info[:name] = nil
+              if attributes =~ /\(default\)/
+                track_info[:default] = true
+              else
+                track_info[:default] = false
+              end
+
+              if @scan =~ /[ ]+Stream #0\.#{stream}[^ ]*: Audio: [^\n]+\n[ ]+Metadata:\r?\n^[ ]+title[ ]+: ([^\r\n]+)/m
+                track_info[:name] = $1
+              else
+                track_info[:name] = nil
+              end
             end
           when 'Subtitle'
             subtitle_track += 1
-            track_info = @info[:subtitle][subtitle_track]
-            track_info[:stream] = stream
 
-            if attributes =~ /\(default\)/
-              track_info[:default] = true
-            else
-              track_info[:default] = false
-            end
+            if @info[:subtitle].has_key? subtitle_track
+              track_info = @info[:subtitle][subtitle_track]
+              track_info[:stream] = stream
 
-            if attributes =~ /\(forced\)/
-              track_info[:forced] = true
-            else
-              track_info[:forced] = false
-            end
+              if attributes =~ /\(default\)/
+                track_info[:default] = true
+              else
+                track_info[:default] = false
+              end
 
-            if @scan =~ /[ ]+Stream #0\.#{stream}[^ ]*: Subtitle: [^\n]+\n[ ]+Metadata:\r?\n^[ ]+title[ ]+: ([^\r\n]+)/m
-              track_info[:name] = $1
-            else
-              track_info[:name] = nil
+              if attributes =~ /\(forced\)/
+                track_info[:forced] = true
+              else
+                track_info[:forced] = false
+              end
+
+              if @scan =~ /[ ]+Stream #0\.#{stream}[^ ]*: Subtitle: [^\n]+\n[ ]+Metadata:\r?\n^[ ]+title[ ]+: ([^\r\n]+)/m
+                track_info[:name] = $1
+              else
+                track_info[:name] = nil
+              end
             end
           end
         end
@@ -245,15 +251,21 @@ module VideoTranscoding
           case type
           when 'audio'
             audio_track += 1
-            track_info = @info[:audio][audio_track]
-            track_info[:default] = flags[index]
-            track_info[:name] = names[index]
+
+            if @info[:audio].has_key? audio_track
+              track_info = @info[:audio][audio_track]
+              track_info[:default] = flags[index]
+              track_info[:name] = names[index]
+            end
           when 'text'
             subtitle_track += 1
-            track_info = @info[:subtitle][subtitle_track]
-            track_info[:default] = flags[index]
-            track_info[:forced] = flags[index]
-            track_info[:name] = names[index]
+
+            if @info[:subtitle].has_key? subtitle_track
+              track_info = @info[:subtitle][subtitle_track]
+              track_info[:default] = flags[index]
+              track_info[:forced] = flags[index]
+              track_info[:name] = names[index]
+            end
           end
 
           index += 1
