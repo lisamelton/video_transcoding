@@ -758,10 +758,8 @@ HERE
 
       if width > 1920 or height > 1080
         vbv_maxrate = @vbv_maxrate_2160p
-        max_bufsize = 300000
       elsif width > 1280 or height > 720
         vbv_maxrate = @vbv_maxrate_1080p
-        max_bufsize = 25000
 
         case preset
         when 'slow', 'slower', 'veryslow', 'placebo'
@@ -769,10 +767,8 @@ HERE
         end
       elsif width > 720 or height > 576
         vbv_maxrate = @vbv_maxrate_720p
-        max_bufsize = 17500
       else
         vbv_maxrate = @vbv_maxrate_480p
-        max_bufsize = 12500
       end
 
       unless media.info[:directory]
@@ -789,16 +785,13 @@ HERE
         end
       end
 
-      vbv_bufsize = @encoder_options.fetch('vbv-maxrate', vbv_maxrate).to_i / 2
-      vbv_bufsize = max_bufsize if vbv_bufsize > max_bufsize
-
       case preset
       when 'slower', 'veryslow', 'placebo'
         encoder_options['ref'] = '5'
       end
 
       encoder_options['vbv-maxrate'] = vbv_maxrate.to_s
-      encoder_options['vbv-bufsize'] = vbv_bufsize.to_s
+      encoder_options['vbv-bufsize'] = (@encoder_options.fetch('vbv-maxrate', vbv_maxrate).to_i / 2).to_s
       encoder_options['crf-max'] = '25'
 
       if @quick and not @handbrake_options.has_key? 'encoder-preset'
