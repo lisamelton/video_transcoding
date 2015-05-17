@@ -798,7 +798,7 @@ HERE
       end
 
       encoder_options['vbv-maxrate'] = vbv_maxrate.to_s
-      encoder_options['vbv-bufsize'] = (vbv_maxrate / 2).to_s
+      encoder_options['vbv-bufsize'] = vbv_bufsize.to_s
       encoder_options['crf-max'] = '25'
 
       if @quick and not @handbrake_options.has_key? 'encoder-preset'
