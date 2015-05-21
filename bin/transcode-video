@@ -621,7 +621,7 @@ HERE
       if path.nil? or File.directory? path
         path
       else
-        File.basename(path, '.*') + ext
+        File.dirname(path) + File::SEPARATOR + File.basename(path, '.*') + ext
       end
     end
 
@@ -713,7 +713,7 @@ HERE
         end
       end
 
-      fail "output file exists: #{media.path}" if File.exist? output
+      fail "output file exists: #{output}" if File.exist? output
       output
     end
 

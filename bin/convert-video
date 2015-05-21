@@ -95,7 +95,7 @@ HERE
         output = File.absolute_path(@output) + File::SEPARATOR + output
       end
 
-      fail "output file exists: #{media.path}" if File.exist? output
+      fail "output file exists: #{output}" if File.exist? output
       output
     end
 
