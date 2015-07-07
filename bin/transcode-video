@@ -987,10 +987,12 @@ HERE
 
       if burn_track == :scan or @force_subtitle == :scan
         track_order = ['scan']
+        scan = true
       else
         track_order = []
         track_order << burn_track.to_s unless burn_track.nil?
         track_order << @force_subtitle.to_s unless @force_subtitle.nil?
+        scan = false
       end
 
       case @extra_subtitle.first
@@ -1015,6 +1017,7 @@ HERE
       unless track_order.empty?
         track_order = track_order.join(',')
         handbrake_options['subtitle'] = track_order if track_order.gsub(/,/, '') != ''
+        handbrake_options['subtitle-forced'] = nil if scan
         handbrake_options['subtitle-burned'] = nil unless burn_track.nil?
         handbrake_options['subtitle-default'] = nil unless @force_subtitle.nil?
       end
