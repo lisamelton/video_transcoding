@@ -664,7 +664,7 @@ HERE
 
       if @scan
         media = Media.new(path: arg, title: @title)
-        Console.debug media.info
+        Console.debug media.info unless @title.nil?
         puts media.summary
         return
       end

@@ -27,7 +27,7 @@ module VideoTranscoding
         end
       else
         fail UsageError, "invalid title index: #{title}" unless title.nil? or title == 1
-        @title = 1
+        @title = title.nil? ? 0 : title
       end
 
       @scan       = Media.scan(@path, @title, @previews) if @scan.nil?
