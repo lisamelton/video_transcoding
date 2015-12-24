@@ -424,7 +424,7 @@ I have four rules when preparing my own media for transcoding:
 
 * It can also make an unencrypted backup of your entire Blu-ray or DVD to a disc image directory.
 
-* It's not pretty and it's not particularly easy use. But once you figure out how it works, you can rip your video exactly the way you want.
+* It's not pretty and it's not particularly easy to use. But once you figure out how it works, you can rip your video exactly the way you want.
 
 #### Why a single `.mkv` file?
 
