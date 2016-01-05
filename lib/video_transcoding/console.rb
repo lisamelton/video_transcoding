@@ -1,7 +1,7 @@
 #
 # console.rb
 #
-# Copyright (c) 2013-2015 Don Melton
+# Copyright (c) 2013-2016 Don Melton
 #
 
 module VideoTranscoding
