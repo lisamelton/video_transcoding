@@ -1,7 +1,7 @@
 #
 # handbrake.rb
 #
-# Copyright (c) 2013-2015 Don Melton
+# Copyright (c) 2013-2016 Don Melton
 #
 
 module VideoTranscoding
@@ -14,17 +14,14 @@ module VideoTranscoding
       Tool.provide(COMMAND_NAME, ['--preset-list']) do |output, status, _|
         fail "#{COMMAND_NAME} failed during execution" unless status == 0
 
-        unless output =~ /^HandBrake ([^ ]+)/
-          Console.debug output
-          fail "#{COMMAND_NAME} version unknown"
-        end
+        if output =~ /^HandBrake ([^ ]+)/
+          version = $1
+          Console.info "#{$MATCH} found..."
 
-        version = $1
-        Console.info "#{$MATCH} found..."
-
-        unless  (version =~ /^([0-9]+)\.([0-9]+)/ and (($1.to_i * 100) + $2.to_i) >= 10) or
-                (version =~ /^svn([0-9]+)/ and $1.to_i >= 6536)
-          fail "#{COMMAND_NAME} version 0.10.0 or later required"
+          unless  (version =~ /^([0-9]+)\.([0-9]+)/ and (($1.to_i * 100) + $2.to_i) >= 10) or
+                  (version =~ /^svn([0-9]+)/ and $1.to_i >= 6536)
+            fail "#{COMMAND_NAME} version 0.10.0 or later required"
+          end
         end
       end
     end
