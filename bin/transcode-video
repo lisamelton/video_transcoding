@@ -297,7 +297,7 @@ HERE
 
       opts.on '--quick' do
         @quick = true
-        @handbrake_options.delete 'encoder-preset'
+        force_handbrake_option 'encoder-preset', 'medium'
       end
 
       opts.on '--preset ARG' do |arg|
@@ -828,7 +828,7 @@ HERE
         end
       end
 
-      if @quick and not @handbrake_options.has_key? 'encoder-preset'
+      if @quick and @handbrake_options.fetch('encoder-preset', 'medium') == 'medium'
         encoder_options['ref']          = '1'
         encoder_options['weightp']      = '1'
         encoder_options['subme']        = '6'
