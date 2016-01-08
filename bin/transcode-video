@@ -234,7 +234,7 @@ HERE
       @vbr_quality                = nil
       @encoder_options            = {}
       @disable_encoder_options    = []
-      @handbrake_options          = {'encoder-preset' => 'medium'}
+      @handbrake_options          = {'encoder-preset' => 'medium', 'encoder-profile' => 'high'}
       @disable_handbrake_options  = []
       @temporary                  = nil
     end
