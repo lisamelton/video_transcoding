@@ -602,10 +602,10 @@ HERE
       end
 
       opts.on '-E', '--encoder-option ARG' do |arg|
-        if arg =~ /^([a-z][a-z_-]+)=([^ :]+)$/
+        if arg =~ /^([a-z0-9][a-z0-9_-]+)=([^ :]+)$/
           @encoder_options[$1] = $2
           @disable_encoder_options.delete $1
-        elsif arg =~ /^_([a-z][a-z_-]+)$/
+        elsif arg =~ /^_([a-z0-9][a-z0-9_-]+)$/
           @disable_encoder_options << $1
           @encoder_options.delete $1
         else
