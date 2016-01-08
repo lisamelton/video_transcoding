@@ -234,7 +234,7 @@ HERE
       @vbr_quality                = nil
       @encoder_options            = {}
       @disable_encoder_options    = []
-      @handbrake_options          = {}
+      @handbrake_options          = {'encoder-preset' => 'medium'}
       @disable_handbrake_options  = []
       @temporary                  = nil
     end
@@ -302,9 +302,7 @@ HERE
 
       opts.on '--preset ARG' do |arg|
         case arg
-        when 'medium'
-          @handbrake_options.delete 'encoder-preset'
-        when 'ultrafast', 'superfast', 'veryfast', 'faster', 'fast', 'slow',
+        when 'ultrafast', 'superfast', 'veryfast', 'faster', 'fast', 'medium' , 'slow',
         'slower', 'veryslow', 'placebo'
           force_handbrake_option 'encoder-preset', arg
         else
