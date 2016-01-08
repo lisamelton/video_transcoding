@@ -302,8 +302,8 @@ HERE
 
       opts.on '--preset ARG' do |arg|
         case arg
-        when 'ultrafast', 'superfast', 'veryfast', 'faster', 'fast', 'medium' , 'slow',
-        'slower', 'veryslow', 'placebo'
+        when 'ultrafast', 'superfast', 'veryfast', 'faster', 'fast', 'medium',
+        'slow', 'slower', 'veryslow', 'placebo'
           force_handbrake_option 'encoder-preset', arg
         else
           fail UsageError, "unsupported preset name: #{arg}"
