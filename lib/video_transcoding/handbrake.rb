@@ -24,6 +24,16 @@ module VideoTranscoding
           end
         end
       end
+
+      begin
+        IO.popen([Tool.use(COMMAND_NAME), '--version'], :err=>[:child, :out]) do |io|
+          if io.read =~ /^HandBrake ([^ ]+)/
+            Console.info "#{$MATCH.strip} found..."
+          end
+        end
+      rescue SystemCallError => e
+        raise "#{COMMAND_NAME} failed during execution: #{e}"
+      end
     end
 
     def command_name
