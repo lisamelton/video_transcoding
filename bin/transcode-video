@@ -1070,7 +1070,7 @@ HERE
         else
           files     << file
           encodings << encoding
-          offsets   << offsets
+          offsets   << offset
           languages << language
         end
       end
