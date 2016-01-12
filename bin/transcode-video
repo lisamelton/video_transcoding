@@ -164,8 +164,9 @@ External subtitle options:
                       (can be used multiple times)
 
 Alternate ratecontrol options:
-    --abr BITRATE   use modified ABR ratecontrol with average video bitrate
-    --vbr QUALITY   use true VBR ratecontrol with constant video quality (0-51)
+    --cvbr BITRATE  use Constrained VBR ratecontrol at target video bitrate
+    --abr BITRATE   use modified ABR ratecontrol at average video bitrate
+    --vbr QUALITY   use true VBR ratecontrol at constant video quality (0-51)
 
 Advanced options:
 -E, --encoder-option NAME=VALUE|_NAME
@@ -230,6 +231,7 @@ HERE
       @srt_language               = {}
       @srt_encoding               = {}
       @srt_offset                 = {}
+      @cvbr_bitrate               = nil
       @abr_bitrate                = nil
       @vbr_quality                = nil
       @encoder_options            = {}
@@ -591,13 +593,21 @@ HERE
         @srt_offset[@srt_file.size - 1] = arg
       end
 
+      opts.on '--cvbr ARG', Integer do |arg|
+        @cvbr_bitrate = arg
+        @abr_bitrate = nil
+        @vbr_quality = nil
+      end
+
       opts.on '--abr ARG', Integer do |arg|
         @abr_bitrate = arg
+        @cvbr_bitrate = nil
         @vbr_quality = nil
       end
 
       opts.on '--vbr ARG', Float do |arg|
         @vbr_quality = arg
+        @cvbr_bitrate = nil
         @abr_bitrate = nil
       end
 
@@ -790,25 +800,32 @@ HERE
           handbrake_options['encoder-level'] = 'auto'
         end
 
-        handbrake_options['quality'] = '16'
+        if @cvbr_bitrate.nil?
+          handbrake_options['quality'] = '16'
 
-        unless media.info[:directory]
-          bitrate = ((((media.info[:size] * 8) / media.info[:duration]) / 1000) / 1000) * 1000
+          unless media.info[:directory]
+            bitrate = ((((media.info[:size] * 8) / media.info[:duration]) / 1000) / 1000) * 1000
 
-          if bitrate < vbv_maxrate
-            min_bitrate = vbv_maxrate / 2
+            if bitrate < vbv_maxrate
+              min_bitrate = vbv_maxrate / 2
 
-            if bitrate < min_bitrate
-              vbv_maxrate = min_bitrate
-            else
-              vbv_maxrate = bitrate
+              if bitrate < min_bitrate
+                vbv_maxrate = min_bitrate
+              else
+                vbv_maxrate = bitrate
+              end
             end
           end
-        end
 
-        encoder_options['vbv-maxrate'] = vbv_maxrate.to_s
-        encoder_options['vbv-bufsize'] = (@encoder_options.fetch('vbv-maxrate', vbv_maxrate).to_i / 2).to_s
-        encoder_options['crf-max'] = '25'
+          encoder_options['vbv-maxrate']  = vbv_maxrate.to_s
+          encoder_options['vbv-bufsize']  = (@encoder_options.fetch('vbv-maxrate', vbv_maxrate).to_i / 2).to_s
+          encoder_options['crf-max']      = '25'
+        else
+          handbrake_options['quality']    = '1'
+          encoder_options['vbv-maxrate']  = @cvbr_bitrate.to_s
+          encoder_options['vbv-bufsize']  = (@cvbr_bitrate / 2).to_s
+          encoder_options['crf-max']      = '30'
+        end
       else
         unless @abr_bitrate.nil?
           handbrake_options['vb'] = @abr_bitrate.to_s
