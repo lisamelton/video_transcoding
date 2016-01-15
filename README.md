@@ -84,31 +84,31 @@ When installing `HandBrakeCLI` or other downloaded programs, make sure the execu
 
 ### Why `transcode-video`?
 
-Videos from the [iTunes Store](https://en.wikipedia.org/wiki/ITunes_Store) are my template for a portable format while remaining high enough quality to be mistaken for the originals. Their files are very good quality, only about 20% the size of the same video on a Blu-ray Disc, and play on a wide variety of devices.
+Videos from the [iTunes Store](https://en.wikipedia.org/wiki/ITunes_Store) are my template for a portable format while remaining high enough quality to be mistaken for the originals. Their files are very good quality, much smaller than the same video on a Blu-ray Disc, and play on a wide variety of devices.
 
 HandBrake is a powerful video transcoding tool but it's complicated to configure. It has several presets but they aren't smart enough to automatically change bitrate targets and other encoding options based on different inputs. More importantly, HandBrake's default presets don't produce a predictable output size with sufficient quality.
 
 HandBrake's "AppleTV 3" preset is closest to what I want but transcoding "[Planet Terror (2007)](http://www.blu-ray.com/movies/Planet-Terror-Blu-ray/1248/)" with it results in a huge video bitrate of 19.9 Mbps, very near the original of 22.9 Mbps. And transcoding "[The Girl with the Dragon Tattoo (2011)](http://www.blu-ray.com/movies/The-Girl-with-the-Dragon-Tattoo-Blu-ray/35744/)," while much smaller in output size, lacks detail compared to the original.
 
-So, to follow the iTunes Store template, the `transcode-video` tool configures the [x264 video encoder](http://www.videolan.org/developers/x264.html) within HandBrake to use a [constrained variable bitrate (CVBR)](https://en.wikipedia.org/wiki/Variable_bitrate) mode, and to automatically target bitrates appropriate for different input resolutions.
+So, the `transcode-video` tool configures the [x264 video encoder](http://www.videolan.org/developers/x264.html) within HandBrake to use a [constrained variable bitrate (CVBR)](https://en.wikipedia.org/wiki/Variable_bitrate) mode, and to automatically target bitrates appropriate for different input resolutions.
 
 Input resolution | Target video bitrate
 --- | ---
-1080p or Blu-ray video | 5 Mbps
-720p | 4 Mbps
-480i, 576p or DVD video | 2 Mbps
+1080p or Blu-ray video | 8 Mbps
+720p | 6 Mbps
+480i, 576p or DVD video | 3 Mbps
+
+Actual output video bitrates are usually lower than these targets, especially for DVD video.
 
 When audio transcoding is required, it's done in [AAC format](https://en.wikipedia.org/wiki/Advanced_Audio_Coding) and, if the original is [multi-channel surround sound](https://en.wikipedia.org/wiki/Surround_sound), in [Dolby Digital AC-3 format](https://en.wikipedia.org/wiki/Dolby_Digital). Meaning the output can contain two tracks from the same source in different formats. And mono, stereo and surround inputs are all handled differently.
 
-Input channels | Pass through | AAC track | AC-3 track
---- | --- | --- | ---
-Mono | AAC only | 80 Kbps | none
-Stereo | AAC only | 160 Kbps | none
-Surround | AC-3 only, up to 448 Kbps | 160 Kbps | 384 Kbps with 5.1 channels
+Input channels | AAC track | AC-3 track
+--- | --- | ---
+Mono | 80 Kbps | none
+Stereo | 160 Kbps | none
+Surround | 160 Kbps | 640 Kbps with 5.1 channels
 
-Which makes the output of `transcode-video` very near the same size, quality and configuration as videos from the iTunes Store, including their audio tracks.
-
-But if the iTunes-style configuration is not suitable, most of these default settings and automatic behaviors can be easily overridden or augmented with additional command line options.
+But most of these default settings and automatic behaviors can be easily overridden or augmented with additional command line options.
 
 ### Why `detect-crop`?
 
@@ -194,31 +194,31 @@ To create MP4 output with the `.m4v` file extension instead of `.mp4`, use the `
 
 The `.m4v` file extension is more "iTunes-friendly," but the file content itself is exactly the same as a file with the `.mp4` extension.
 
-#### Improving quality
+#### Reducing output size
 
-If quality is more important to you than output size, use the `--big` option:
+If reducing output size is more important to you than quality, use the `--small` option:
 
-    transcode-video --big "/path/to/Movie.mkv"
+    transcode-video --small "/path/to/Movie.mkv"
 
-Video bitrate targets are raised 50-60% depending upon the video resolution of your input.
+Video bitrate targets are lowered 33-37% depending upon the video resolution of your input.
 
-Input resolution | Target video bitrate with `--big`
+Input resolution | Target video bitrate with `--small`
 --- | ---
-1080p or Blu-ray video | 8 Mbps
-720p | 6 Mbps
-480i, 576p or DVD video | 3 Mbps
+1080p or Blu-ray video | 5 Mbps
+720p | 4 Mbps
+480i, 576p or DVD video | 2 Mbps
 
-Dolby Digital AC-3 audio bitrate limits are raised 66% to their maximum allowed value. However, there's no impact on the bitrate of mono and stereo AAC audio tracks.
+Dolby Digital AC-3 audio bitrate limits are lowered 40%. However, there's no impact on the bitrate of mono and stereo AAC audio tracks.
 
-Input channels | Pass through<br />with `--big` | AAC track<br />with `--big` | AC-3 track<br />with `--big`
+Input channels | Pass through<br />with `--small` | AAC track<br />with `--small` | AC-3 track<br />with `--small`
 --- | --- | --- | ---
 Mono | AAC only | 80 Kbps | none
 Stereo | AAC only | 160 Kbps | none
-Surround | AC-3 only, up to 640 Kbps | 160 Kbps | 640 Kbps with 5.1 channels
+Surround | AC-3 only, up to 448 Kbps | 160 Kbps | 384 Kbps with 5.1 channels
 
-With `--big`, noisy video and complex surround audio have the most potential for perceptible quality improvements.
+This makes the output of `transcode-video` very near the same size as videos from the iTunes Store, including their audio tracks.
 
-Be aware that performance degrades 6-10% using the `--big` option due to more calculations being made and more bits being written to disk.
+With `--small`, noisy video and complex surround audio have the most potential for perceptible quality loss.
 
 #### Improving performance
 
@@ -226,13 +226,11 @@ If you're willing to trade some precision for a 45-50% increase in video encodin
 
     transcode-video --quick "/path/to/Movie.mkv"
 
-The precision loss is minor and, when combined with the `--big` option, may not even be perceptible:
-
-    transcode-video --big --quick "/path/to/Movie.mkv"
-
 The `--quick` option is also more than 15% speedier than the x264 video encoder's "fast" preset and it avoids the occasional quality loss problems of the "faster" and "veryfast" presets.
 
 Be aware that output files are slightly larger when using the `--quick` option since the loss of precision is also a loss of efficiency.
+
+Performance also improves slightly using the `--small` option due to fewer calculations being made and fewer bits being written to disk.
 
 #### Cropping
 
@@ -479,7 +477,7 @@ Use the default settings whenever possible.
 
 Use the `--mp4` or `--m4v` options if your target player can't handle Matroska format.
 
-Use the `--big` option if you can't retain your original source rip or you just have plenty of storage space.
+Use the `--small` option if you're short on storage space or you want your files near the same size as those from the iTunes Store.
 
 Use the `--quick` option if you're in a hurry or you have a huge number of files to transcode.
 

@@ -56,8 +56,9 @@ Output options:
     --dry-run       don't transcode, just show `HandBrakeCLI` command and exit
 
 Quality options:
-    --big           raise default limits for both video and AC-3 audio bitrates
-                      (always increases output size)
+    --small, --small-video
+                    lower default limits for both video and AC-3 audio bitrates
+                      or for video only, trading some quality for reduced size
     --quick         trade some precision for 45-50% increase in encoding speed
                       (more than 15% speedier than x264 encoder "fast" preset)
                       (avoids quality loss of "faster" and "veryfast" presets)
@@ -163,12 +164,9 @@ External subtitle options:
                       to previously burned, forced or added subtitle
                       (can be used multiple times)
 
-Alternate ratecontrol options:
-    --cvbr BITRATE  use Constrained VBR ratecontrol at target video bitrate
+Advanced options:
     --abr BITRATE   use modified ABR ratecontrol at average video bitrate
     --vbr QUALITY   use true VBR ratecontrol at constant video quality (0-51)
-
-Advanced options:
 -E, --encoder-option NAME=VALUE|_NAME
                     pass x264 video encoder option by name with value
                       or disable use of option by prefixing name with "_"
@@ -205,10 +203,10 @@ HERE
       @format                     = :mkv
       @log                        = true
       @dry_run                    = false
-      @vbv_maxrate_2160p          = 10000
-      @vbv_maxrate_1080p          = 5000
-      @vbv_maxrate_720p           = 4000
-      @vbv_maxrate_480p           = 2000
+      @vbv_maxrate_2160p          = 16000
+      @vbv_maxrate_1080p          = 8000
+      @vbv_maxrate_720p           = 6000
+      @vbv_maxrate_480p           = 3000
       @quick                      = false
       @crop                       = {:top => 0, :bottom => 0, :left => 0, :right => 0}
       @main_audio                 = nil
@@ -216,8 +214,8 @@ HERE
       @audio_name                 = {}
       @audio_language             = []
       @audio_width                = {:main => :double, :other => :stereo}
-      @ac3_bitrate                = 384
-      @pass_ac3_bitrate           = 448
+      @ac3_bitrate                = 640
+      @pass_ac3_bitrate           = 640
       @copy_audio                 = []
       @copy_audio_name            = []
       @burn_subtitle              = nil
@@ -231,9 +229,9 @@ HERE
       @srt_language               = {}
       @srt_encoding               = {}
       @srt_offset                 = {}
-      @cvbr_bitrate               = nil
       @abr_bitrate                = nil
       @vbr_quality                = nil
+      @cvbr_bitrate               = nil
       @encoder_options            = {}
       @disable_encoder_options    = []
       @handbrake_options          = {'encoder-preset' => 'medium', 'encoder-profile' => 'high'}
@@ -288,7 +286,24 @@ HERE
       opts.on('--no-log')             { @log = false }
       opts.on('--dry-run')            { @dry_run = true }
 
+      opts.on '--small' do
+        @vbv_maxrate_2160p  = 10000
+        @vbv_maxrate_1080p  = 5000
+        @vbv_maxrate_720p   = 4000
+        @vbv_maxrate_480p   = 2000
+        @ac3_bitrate        = 384
+        @pass_ac3_bitrate   = 448
+      end
+
+      opts.on '--small-video' do
+        @vbv_maxrate_2160p  = 10000
+        @vbv_maxrate_1080p  = 5000
+        @vbv_maxrate_720p   = 4000
+        @vbv_maxrate_480p   = 2000
+      end
+
       opts.on '--big' do
+        Console.warn 'Using deprecated option: --big'
         @vbv_maxrate_2160p  = 16000
         @vbv_maxrate_1080p  = 8000
         @vbv_maxrate_720p   = 6000
@@ -593,12 +608,6 @@ HERE
         @srt_offset[@srt_file.size - 1] = arg
       end
 
-      opts.on '--cvbr ARG', Integer do |arg|
-        @cvbr_bitrate = arg
-        @abr_bitrate = nil
-        @vbr_quality = nil
-      end
-
       opts.on '--abr ARG', Integer do |arg|
         @abr_bitrate = arg
         @cvbr_bitrate = nil
@@ -609,6 +618,13 @@ HERE
         @vbr_quality = arg
         @cvbr_bitrate = nil
         @abr_bitrate = nil
+      end
+
+      opts.on '--cvbr ARG', Integer do |arg|
+        Console.warn 'Using experimental option: --cvbr'
+        @cvbr_bitrate = arg
+        @abr_bitrate = nil
+        @vbr_quality = nil
       end
 
       opts.on '-E', '--encoder-option ARG' do |arg|
