@@ -14,17 +14,12 @@ module VideoTranscoding
       Tool.provide(COMMAND_NAME, ['-version']) do |output, status, properties|
         fail "#{COMMAND_NAME} failed during execution" unless status == 0
 
-        unless output =~ /^ffmpeg version ([0-9.]+)/
+        unless output =~ /^ffmpeg version [^ ]+/
           Console.debug output
           fail "#{COMMAND_NAME} version unknown"
         end
 
-        version = $1
         Console.info "#{$MATCH} found..."
-
-        unless version =~ /^([0-9]+)\.([0-9]+)/ and (($1.to_i * 100) + $2.to_i) >= 205
-          fail "#{COMMAND_NAME} version 2.5.0 or later required"
-        end
 
         if output =~ /--enable-libfdk-aac/
           properties[:aac_encoder] = 'libfdk_aac'
