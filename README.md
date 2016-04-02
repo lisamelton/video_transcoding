@@ -71,7 +71,6 @@ On OS X, the other dependencies can be easily installed via [Homebrew](http://br
 
 `HandBrakeCLI` is also available via [Homebrew Cask](http://caskroom.io/), an extension to Homebrew:
 
-    brew install caskroom/cask/brew-cask
     brew cask install handbrakecli
 
 On Linux, package management systems vary so it's best consult the indexes for those systems.
