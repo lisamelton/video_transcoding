@@ -206,7 +206,7 @@ HERE
       @dry_run                    = false
       @vbv_maxrate_2160p          = 16000
       @vbv_maxrate_1080p          = 8000
-      @vbv_maxrate_720p           = 6000
+      @vbv_maxrate_720p           = 5000
       @vbv_maxrate_480p           = 2500
       @quick                      = false
       @crop                       = {:top => 0, :bottom => 0, :left => 0, :right => 0}
@@ -307,7 +307,7 @@ HERE
         Console.warn 'Using deprecated option: --big'
         @vbv_maxrate_2160p  = 16000
         @vbv_maxrate_1080p  = 8000
-        @vbv_maxrate_720p   = 6000
+        @vbv_maxrate_720p   = @old_behavior ? 6000 : 5000
         @vbv_maxrate_480p   = @old_behavior ? 3000 : 2500
         @ac3_bitrate        = 640
         @pass_ac3_bitrate   = 640
@@ -611,6 +611,7 @@ HERE
 
       opts.on '--old-behavior' do
         @old_behavior = true
+        @vbv_maxrate_720p = 6000 if @vbv_maxrate_720p == 5000
         @vbv_maxrate_480p = 3000 if @vbv_maxrate_480p == 2500
         @abr_bitrate = nil
         @vbr_quality = nil
