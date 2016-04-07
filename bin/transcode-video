@@ -302,16 +302,6 @@ HERE
         @vbv_maxrate_480p   = 2000
       end
 
-      opts.on '--big' do
-        Console.warn 'Using deprecated option: --big'
-        @vbv_maxrate_2160p  = 16000
-        @vbv_maxrate_1080p  = 8000
-        @vbv_maxrate_720p   = @old_behavior ? 6000 : 5000
-        @vbv_maxrate_480p   = @old_behavior ? 3000 : 2500
-        @ac3_bitrate        = 640
-        @pass_ac3_bitrate   = 640
-      end
-
       opts.on '--quick' do
         @quick = true
         force_handbrake_option 'encoder-preset', 'medium'
