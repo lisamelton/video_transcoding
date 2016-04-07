@@ -165,7 +165,6 @@ External subtitle options:
                       (can be used multiple times)
 
 Advanced options:
-    --old-behavior  use old ratecontrol system and video bitrate limits
     --abr BITRATE   use modified ABR ratecontrol at average video bitrate
     --vbr QUALITY   use true VBR ratecontrol at constant video quality (0-51)
 -E, --encoder-option NAME=VALUE|_NAME
@@ -610,6 +609,7 @@ HERE
       end
 
       opts.on '--old-behavior' do
+        Console.warn 'Using deprecated option: --old-behavior'
         @old_behavior = true
         @vbv_maxrate_720p = 6000 if @vbv_maxrate_720p == 5000
         @vbv_maxrate_480p = 3000 if @vbv_maxrate_480p == 2500
