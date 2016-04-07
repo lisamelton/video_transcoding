@@ -56,9 +56,9 @@ Output options:
     --dry-run       don't transcode, just show `HandBrakeCLI` command and exit
 
 Quality options:
-    --small, --small-video
-                    lower default limits for both video and AC-3 audio bitrates
-                      or for video only, trading some quality for reduced size
+    --small         lower video bitrate target and AC-3 audio bitrate limits,
+                      trading some quality for reduced size
+    --small-video   lower video bitrate target only
     --quick         trade some precision for 45-50% increase in encoding speed
                       (more than 15% speedier than x264 encoder "fast" preset)
                       (avoids quality loss of "faster" and "veryfast" presets)
