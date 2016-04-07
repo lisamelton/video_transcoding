@@ -94,8 +94,8 @@ So, the `transcode-video` tool configures the [x264 video encoder](http://www.vi
 Input resolution | Target video bitrate
 --- | ---
 1080p or Blu-ray video | 8000 Kbps
-720p | 5000 Kbps
-480i, 576p or DVD video | 2500 Kbps
+720p | 4000 Kbps
+480i, 576p or DVD video | 2000 Kbps
 
 When audio transcoding is required, it's done in [AAC format](https://en.wikipedia.org/wiki/Advanced_Audio_Coding) and, if the original is [multi-channel surround sound](https://en.wikipedia.org/wiki/Surround_sound), in [Dolby Digital AC-3 format](https://en.wikipedia.org/wiki/Dolby_Digital). Meaning the output can contain two tracks from the same source in different formats. And mono, stereo and surround inputs are all handled differently.
 
@@ -202,8 +202,8 @@ Video bitrate targets are lowered 33-37% depending upon the video resolution of 
 Input resolution | Target video bitrate with `--small`
 --- | ---
 1080p or Blu-ray video | 5000 Kbps
-720p | 4000 Kbps
-480i, 576p or DVD video | 2000 Kbps
+720p | 3000 Kbps
+480i, 576p or DVD video | 1600 Kbps
 
 Dolby Digital AC-3 audio bitrate limits are lowered 40%. However, there's no impact on the bitrate of mono and stereo AAC audio tracks.
 
