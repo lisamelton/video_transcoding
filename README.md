@@ -474,7 +474,7 @@ Use the `--mp4` or `--m4v` options if your target player can't handle Matroska f
 
 Use the `--small` option if you're short on storage space.
 
-Use the `--quick` option if you're in a hurry or you have a huge number of files to transcode.
+Use the `--quick` option if you're in a hurry.
 
 Apply unambiguous crop values from `detect-crop` after review.
 
