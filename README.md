@@ -457,14 +457,14 @@ Preset name | Note
 `faster` | use with caution
 `fast` | good but you might want to use `--quick` instead
 `medium` | default
-`slow` | use with caution
-`slower` | use with caution
-`veryslow` | use with caution
+`slow` | smaller but not obviously higher quality
+`slower` | smaller but not obviously higher quality
+`veryslow` | smaller but not obviously higher quality
 `placebo` | not recommended
 
 Presets faster than `medium` trade precision for more speed. That tradeoff is acceptable for the `fast` preset. But you may notice occasional quality loss problems when using the `faster` or `veryfast` presets.
 
-Presets slower than `medium` trade encoding speed for more compression efficiency. Any quality improvement using these presets may not be perceptible for most input. And on rare occasions, these presets lower quality noticeably.
+Presets slower than `medium` trade encoding speed for more compression efficiency. Any quality improvement using these presets may not be perceptible for most input.
 
 ### Recommended `transcode-video` usage
 
