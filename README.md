@@ -213,8 +213,6 @@ Mono | AAC only | 80 Kbps | none
 Stereo | AAC only | 160 Kbps | none
 Surround | AC-3 only, up to 448 Kbps | 160 Kbps | 384 Kbps with 5.1 channels
 
-This makes the output of `transcode-video` very near the same size as videos from the iTunes Store, including their audio tracks.
-
 With `--small`, noisy video and complex surround audio have the most potential for perceptible quality loss.
 
 #### Improving performance
@@ -474,7 +472,7 @@ Use the default settings whenever possible.
 
 Use the `--mp4` or `--m4v` options if your target player can't handle Matroska format.
 
-Use the `--small` option if you're short on storage space or you want your files near the same size as those from the iTunes Store.
+Use the `--small` option if you're short on storage space.
 
 Use the `--quick` option if you're in a hurry or you have a huge number of files to transcode.
 
