@@ -205,8 +205,8 @@ HERE
       @dry_run                    = false
       @vbv_maxrate_2160p          = 16000
       @vbv_maxrate_1080p          = 8000
-      @vbv_maxrate_720p           = 5000
-      @vbv_maxrate_480p           = 2500
+      @vbv_maxrate_720p           = 4000
+      @vbv_maxrate_480p           = 2000
       @quick                      = false
       @crop                       = {:top => 0, :bottom => 0, :left => 0, :right => 0}
       @main_audio                 = nil
@@ -289,8 +289,8 @@ HERE
       opts.on '--small' do
         @vbv_maxrate_2160p  = 10000
         @vbv_maxrate_1080p  = 5000
-        @vbv_maxrate_720p   = 4000
-        @vbv_maxrate_480p   = 2000
+        @vbv_maxrate_720p   = @old_behavior ? 4000 : 3000
+        @vbv_maxrate_480p   = @old_behavior ? 2000 : 1600
         @ac3_bitrate        = 384
         @pass_ac3_bitrate   = 448
       end
@@ -298,8 +298,8 @@ HERE
       opts.on '--small-video' do
         @vbv_maxrate_2160p  = 10000
         @vbv_maxrate_1080p  = 5000
-        @vbv_maxrate_720p   = 4000
-        @vbv_maxrate_480p   = 2000
+        @vbv_maxrate_720p   = @old_behavior ? 4000 : 3000
+        @vbv_maxrate_480p   = @old_behavior ? 2000 : 1600
       end
 
       opts.on '--quick' do
@@ -601,8 +601,8 @@ HERE
       opts.on '--old-behavior' do
         Console.warn 'Using deprecated option: --old-behavior'
         @old_behavior = true
-        @vbv_maxrate_720p = 6000 if @vbv_maxrate_720p == 5000
-        @vbv_maxrate_480p = 3000 if @vbv_maxrate_480p == 2500
+        @vbv_maxrate_720p = 6000
+        @vbv_maxrate_480p = 3000
         @abr_bitrate = nil
         @vbr_quality = nil
       end
