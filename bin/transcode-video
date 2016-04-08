@@ -75,6 +75,9 @@ Video options:
     --pixel-aspect X:Y
                     set pixel aspect ratio (default: 1:1)
                       (e.g.: make X larger than Y to stretch horizontally)
+    --target BITRATE
+                    set video bitrate target (default: based on input)
+                      (can be exceeded to maintain video quality)
     --force-rate FPS
                     force constant video frame rate
                       (`23.976` applied automatically for some inputs)
@@ -209,6 +212,7 @@ HERE
       @vbv_maxrate_480p           = 2000
       @quick                      = false
       @crop                       = {:top => 0, :bottom => 0, :left => 0, :right => 0}
+      @target_bitrate             = nil
       @main_audio                 = nil
       @extra_audio                = []
       @audio_name                 = {}
@@ -361,6 +365,12 @@ HERE
         else
           fail UsageError, "invalid pixel aspect argument: #{arg}"
         end
+      end
+
+      opts.on '--target ARG', Integer do |arg|
+        @target_bitrate = arg
+        @abr_bitrate = nil
+        @vbr_quality = nil
       end
 
       opts.on '--force-rate ARG' do |arg|
@@ -808,17 +818,27 @@ HERE
 
         handbrake_options['quality'] = @old_behavior ? '16' : '1'
 
-        unless media.info[:directory]
-          bitrate = ((((media.info[:size] * 8) / media.info[:duration]) / 1000) / 1000) * 1000
+        if @target_bitrate.nil?
+          unless media.info[:directory]
+            bitrate = ((((media.info[:size] * 8) / media.info[:duration]) / 1000) / 1000) * 1000
 
-          if bitrate < vbv_maxrate
-            min_bitrate = vbv_maxrate / 2
+            if bitrate < vbv_maxrate
+              min_bitrate = vbv_maxrate / 2
 
-            if bitrate < min_bitrate
-              vbv_maxrate = min_bitrate
-            else
-              vbv_maxrate = bitrate
+              if bitrate < min_bitrate
+                vbv_maxrate = min_bitrate
+              else
+                vbv_maxrate = bitrate
+              end
             end
+          end
+        else
+          if @target_bitrate < 2
+            vbv_maxrate = 2
+          elsif @target_bitrate > 300000
+            vbv_maxrate = 300000
+          else
+            vbv_maxrate = @target_bitrate
           end
         end
 
