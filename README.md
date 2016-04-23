@@ -6,7 +6,7 @@ Tools to transcode, inspect and convert videos.
 
 Hi, I'm [Don Melton](http://donmelton.com/). I created these tools to transcode my collection of Blu-ray Discs and DVDs into a smaller, more portable format while remaining high enough quality to be mistaken for the originals.
 
-What makes these tools unique is the special rate control system which achieves those goals.
+What makes these tools unique is the special ratecontrol system which achieves those goals.
 
 This package is based on my original collection of [Video Transcoding Scripts](https://github.com/donmelton/video-transcoding-scripts) written in Bash. While still available online, those scripts are no longer in active development. Users are encouraged to install this Ruby Gem instead.
 
@@ -31,13 +31,15 @@ Even if you don't try any of my tools, you may find this "README" document helpf
 * [Rationale](#rationale)
 * [Usage](#usage)
 * [Guide](#guide)
+* [FAQ](#faq)
+* [History](#history)
 * [Feedback](#feedback)
 * [Acknowledgements](#acknowledgements)
 * [License](#license)
 
 ## Installation
 
-My Video Transcoding tools are designed to work on OS X, Linux and Windows. They're packaged as a Gem and require Ruby version 2.0 or later. See "[Installing Ruby](https://www.ruby-lang.org/en/documentation/installation/)" if don't have the proper version on your platform.
+My Video Transcoding tools are designed to work on OS X, Linux and Windows. They're packaged as a Gem and require Ruby version 2.0 or later. See "[Installing Ruby](https://www.ruby-lang.org/en/documentation/installation/)" if you don't have the proper version on your platform.
 
 Use this command to install the package: 
 
@@ -46,6 +48,12 @@ Use this command to install the package:
 You may need to prefix that command with `sudo` in some environments: 
 
     sudo gem install video_transcoding
+
+### Updating
+
+Use this command, or the variation prefixed with `sudo`, to update the package:
+
+    gem update video_transcoding
 
 ### Requirements
 
@@ -73,7 +81,7 @@ On OS X, the other dependencies can be easily installed via [Homebrew](http://br
 
     brew cask install handbrakecli
 
-On Linux, package management systems vary so it's best consult the indexes for those systems.
+On Linux, package management systems vary so it's best consult the indexes for those systems. But there's a Homebrew port available called [Linuxbrew](http://linuxbrew.sh/) and it doesn't require root access.
 
 On Windows, it's best to search the Web for the appropriate binary or add-on package manager. The [VideoHelp](http://www.videohelp.com) and [Cygwin](https://cygwin.com/) sites are a good place to start.
 
@@ -89,7 +97,7 @@ HandBrake is a powerful video transcoding tool but it's complicated to configure
 
 HandBrake's "AppleTV 3" preset is closest to what I want but transcoding "[Planet Terror (2007)](http://www.blu-ray.com/movies/Planet-Terror-Blu-ray/1248/)" with it results in a huge video bitrate of 19.9 Mbps, very near the original of 22.9 Mbps. And transcoding "[The Girl with the Dragon Tattoo (2011)](http://www.blu-ray.com/movies/The-Girl-with-the-Dragon-Tattoo-Blu-ray/35744/)," while much smaller in output size, lacks detail compared to the original.
 
-So, the `transcode-video` tool configures the [x264 video encoder](http://www.videolan.org/developers/x264.html) within HandBrake to use a [constrained variable bitrate (CVBR)](https://en.wikipedia.org/wiki/Variable_bitrate) mode, and to automatically target bitrates appropriate for different input resolutions.
+So, the `transcode-video` tool configures the [x264 video encoder](http://www.videolan.org/developers/x264.html) within HandBrake to use a modified [constrained variable bitrate (CVBR)](https://en.wikipedia.org/wiki/Variable_bitrate) mode, and to automatically target bitrates appropriate for different input resolutions.
 
 Input resolution | Target video bitrate
 --- | ---
@@ -344,6 +352,26 @@ Which prints out something like this:
 
 Just copy and paste the sample commands to preview or transcode.
 
+If HandBrake and MPlayer disagree about the cropping values, then `detect-crop` prints out something like this:
+
+    Results differ...
+
+    # From HandBrakeCLI:
+
+    mplayer -really-quiet -nosound -vf rectangle=1920:816:0:132 '/path/to/Movie.mkv'
+    mplayer -really-quiet -nosound -vf crop=1920:816:0:132 '/path/to/Movie.mkv'
+
+    transcode-video --crop 132:132:0:0 '/path/to/Movie.mkv'
+
+    # From mplayer:
+
+    mplayer -really-quiet -nosound -vf rectangle=1920:820:0:130 '/path/to/Movie.mkv'
+    mplayer -really-quiet -nosound -vf crop=1920:820:0:130 '/path/to/Movie.mkv'
+
+    transcode-video --crop 130:130:0:0 '/path/to/Movie.mkv'
+
+You'll then need to preview both and decide which to use.
+
 When input is a disc image directory instead of a single file, the `detect-crop` tool doesn't use MPlayer, nor does it print out commands to preview the crop.
 
 Be aware that the algorithm to determine optimal shape always crops from the top and bottom or from the left and right, never from both axes.
@@ -437,9 +465,9 @@ I have four rules when preparing my own media for transcoding:
 
 * [DTS-HD Master Audio](https://en.wikipedia.org/wiki/DTS-HD_Master_Audio) is the most popular high definition, lossless audio format. It's used on more than 80% of all Blu-ray Discs.
 
-* HandBrake, FFmpeg, MPlayer and other Open Source software can't decode the lossless portion of a DTS-HD audio track. They're only able to extract the non-HD, lossy core which is in [DTS format](https://en.wikipedia.org/wiki/DTS_(sound_system)).
+* Currently, HandBrake can't decode the lossless portion of a DTS-HD audio track. It's only able to extract the non-HD, lossy core which is in [DTS format](https://en.wikipedia.org/wiki/DTS_(sound_system)).
 
-* But MakeMKV can [decode DTS-HD with some help from additional software](http://www.makemkv.com/dtshd/) and convert it into FLAC format which can then be decoded by HandBrake and most other software. Once again, MakeMKV can only do this when it converts the video into a single `.mkv` file.
+* But MakeMKV can decode DTS-HD and convert it into FLAC format which can then be decoded by HandBrake and most other software. Once again, MakeMKV can only do this when it converts the video into a single `.mkv` file.
 
 ### Understanding the x264 preset system
 
@@ -554,6 +582,224 @@ The transcoding process is started by executing the script:
 The path is first deleted from the `queue.txt` file and then passed as an argument to the `transcode-video.` tool. To pause after `transcode-video` returns, simply insert a blank line at the top of the `queue.txt` file.
 
 These examples are written in Bash and only supply crop values. But almost any scripting language can be used and any option can be changed on a per input basis.
+
+## FAQ
+
+### Should I worry about all these `VBV underflow` warnings?
+
+No, these warnings are simply a side effect of my special ratecontrol system. The x264 video encoder within HandBrake is just being overly chatty. Ignore it. Nothing is wrong with the output from `transcode-video`.
+
+### Can you make a GUI version of your tools?
+
+My command line tools have the same behavior and scriptable interface across multiple platforms. Developing a GUI application with those requirements is not an investment that I want to make.
+
+Plus, I wouldn't use a GUI for these tasks. And it's a bad idea to develop software that you won't use yourself.
+
+### When will you add support for H.265 video?
+
+[High Efficiency Video Coding](https://en.wikipedia.org/wiki/High_Efficiency_Video_Coding) or H.265  is the likely successor to [H.264](https://en.wikipedia.org/wiki/H.264/MPEG-4_AVC), which is the format currently output by `transcode-video`. HandBrake has supported H.265 ever since it included the [x265 video encoder](http://x265.org/).
+
+While the x265 encoder can produce the same quality as the x264 encoder at a lower bitrate, it's considerably slower. So slow, in fact, as to not be practical for home transcoding.
+
+More importantly, my default ratecontrol system can't be applied with the x265 encoder. That's because x265 doesn't allow access to `qpmax`, critical for maintaining quality in certain situations. There's a [bug open on x265](https://bitbucket.org/multicoreware/x265/issues/232/add-option-to-specify-qpmax) about this now. When that's fixed, I'll consider adding support.
+
+### What about hardware-based video transcoding?
+
+Using hardware with [Intel Quick Sync Video](https://en.wikipedia.org/wiki/Intel_Quick_Sync_Video) instead of software like x264 is certainly faster. HandBrake even supports that hardware on some platforms. However, my default ratecontrol system can't be applied to existing hardware encoders because they lack API to change the necessary settings.
+
+Also, keep in mind that hardware encoders are typically designed for realtime video chat or other similar duties. To maintain that performance, they often take shortcuts with video quality like reducing reference frames, lowering subpixel motion estimation, etc. Such an approach is the equivalent of using the `veryfast` preset with a software encoder. That's fine for video chat but I wouldn't recommend it for transcoding your disc collection.
+
+### Can you add support for Enhanced AC-3 audio?
+
+[Dolby Digital Plus](https://en.wikipedia.org/wiki/Dolby_Digital_Plus) or Enhanced AC-3 is a successor to the Dolby Digital AC-3 audio format. AC-3 is the format currently output by `transcode-video` when surround audio is used as input. As of this writing, HandBrake only supports Enhanced AC-3 in development builds.
+
+The original AC-3 format is limited to 5.1 audio channels. This means that any 7.1 channel audio track, typically available on Blu-ray Discs, needs to be downmixed during transcoding. The advantage to Enhanced AC-3 is that it can support up to 13.1 audio channels, so no downmixing is necessary.
+
+I'll consider adding support once Enhanced AC-3 is available in an official HandBrake release.
+
+### How do you assess video transcoding quality?
+
+I compare by visual inspection. Always with the video in motion, never frame by frame. It's tedious but after years of practice I know which portions of which videos are problematic and difficult to transcode. And I look at those first.
+
+In addition, I use the `query-handbrake-log` tool to report on `ratefactor`, the average P-frame quantizer, to get a relative quality assessment from the x264 encoder.
+
+What I don't use are [peak signal-to-noise ratios](https://en.wikipedia.org/wiki/Peak_signal-to-noise_ratio) or a [structural similarity index](https://en.wikipedia.org/wiki/Structural_similarity) in an attempt to objectively compare quality. Although both metrics are available to the x264 encoder, enabling either of them ironically disables key psychovisual optimizations that improve quality.
+
+### What options do you use with `transcode-video`?
+
+I use the default settings. That's why they're the defaults.
+
+Of course, I apply crop values as necessary. And I let `transcode-video` automatically burn any forced subtitles into the output video track when the "forced" flag is enabled in the original.
+
+I never include separate subtitle tracks, but I do add audio commentary tracks.
+
+For a few problematic videos, I have to apply options like `--force-rate 23.976 --filter detelecine`. But that's rare.
+
+## History
+
+### 0.7.0
+
+Thursday, April 7, 2016
+
+* Once again, lower the video bitrate targets for 480p and 720p output in `transcode-video`. Note that 1080p and 2160p targets still remain unchanged.
+* Update the "README" document to:
+    * Reflect changes to the 480p and 720p video bitrate targets.
+    * Revise description of and recommendation for the `--quick` option.
+    * Revise warnings about using slower x264 presets.
+* Add a `--target` option to `transcode-video` allowing explicit control of the video bitrate target.
+* Deprecate the `--old-behavior` option in `transcode-video`.
+* Remove the deprecated `--big` option in `transcode-video`.
+* Separate `--small` and `--small-video` in the `--help` output of `transcode-video`.
+
+### 0.6.0
+
+Sunday, April 3, 2016
+
+* Revise the default ratecontrol system and video bitrate targets in `transcode-video`:
+    * Raise the quality target by lowering the constant ratefactor (CRF) from `16` to `1`, the lowest lossy CRF value available with the x264 video encoder. This significantly improves video quality but also raises bitrates much closer to the targets, thereby increasing output file sizes for some inputs.
+    * Raise the quality limit by setting `qpmax`, the x264 quantizer maximum, to `34`. This prevents x264 from occasionally generating a single, but still noticeable, very low quality frame because the CRF value is set so low.
+    * Lower the video bitrate targets for 480p and 720p output to keep bitrates and file sizes closer to that produced by the old ratecontrol system. Note that 1080p and 2160p targets remain unchanged.
+    * Add an `--old-behavior` option to restore the old ratecontrol system and video bitrate targets for users not yet wanting to change over. This option is only temporary and will soon be deprecated and then removed.
+    * Update the "README" document to reflect changes to the 480p and 720p video bitrate targets.
+* Remove an obsolete `brew install caskroom/cask/brew-cask` line from the "README" document. Via #54 from @timsutton.
+
+### 0.5.1
+
+Thursday, February 25, 2016
+
+* Don't fail if the `ffmpeg` version string can't be parsed. Via #43 from @rementis, @Lambdafive and @kford.
+* Remove the deprecated `--cvbr` option in `transcode-video`.
+
+### 0.5.0
+
+Thursday, January 14, 2016
+
+* Raise the default video bitrate targets and AC-3 audio bitrate limits in `transcode-video`:
+    * Deprecate the `--big` option since its behavior is now the default. An informal survey via Twitter and Facebook showed that about 90% of users (including myself) responding were always using the `--big` option anyway to get higher quality.
+    * Add a `--small` option to restore the old video bitrate targets and AC-3 audio bitrate limits.
+    * Add a `--small-video` option to restore only the old video bitrate targets. Via Facebook from @DaveHamilton.
+    * Update the "README" document to reflect all these changes.
+* Move `--abr` and `--vbr` to the advanced options section in the `--help` output of `transcode-video`.
+* Deprecate the experimental `--cvbr` option in `transcode-video`.
+
+### 0.4.0
+
+Monday, January 1, 2016
+
+* Add a `--cvbr` option to `transcode-video`. This implements a very experimental variation of the default ratecontrol system with a target bitrate as its single argument. Use it for evaluation purposes only.
+
+### 0.3.1
+
+Friday, January 8, 2016
+
+* Fix compatibility with development/nightly builds of `HandBrakeCL` in `transcode-video`:
+    * Always force the x264 `medium` preset to override the new `veryfast` default value. Via #36 from @cnrd.
+    * Explicitly set the encoder profile to `high` to override the new `main` default value.
+    * Explicitly (and dynamically) set the encoder level to override the new `4.0` default value. 
+* Fix a stupid regression from version 0.2.8 caused by a typo in the patch for the SubRip-format text file offset fix to `transcode-video`. Via #37 from @bpharriss.
+* Be more lenient about `--encoder-option` arguments in `transcode-video` so `8x8dct` is allowed.
+* Always print the `HandBrakeCLI` version string to diagnostic output even if it can't be parsed.
+
+### 0.3.0
+
+Tuesday, January 5, 2016
+
+* Add a `--abr` option to `transcode-video`. This implements a modified average bitrate (ABR) ratecontrol system with a target bitrate as its single argument. It produces a much more predictable output size but lower quality than the default ratecontrol system. It can sometimes be handy but use it with caution.
+* Add a `--vbr` option to `transcode-video`. This implements a true VBR ratecontrol system with a constant ratefactor as its single argument, much like HandBrake's default behavior when using its `--quality` option. It's useful mostly for comparison testing against the default ratecontrol system.
+* Update all copyright notices to the year 2016.
+
+### 0.2.8
+
+Tuesday, January 5, 2016
+
+* Prevent the `--bind-srt-language` option in `transcode-video` from also setting the SubRip-format text file offset to the same value. This was a stupid copy and paste error since the initial project version. Via #25 from @arikalish.
+* Don't fail if the `HandBrakeCLI` version string can't be parsed. Via #29 from @paulbailey.
+* Don't fail if the `mp4track` version string can't be parsed. Via #27 from @dgibbs64.
+* Add a missing preposition to the last bullet point of the "Why MakeMKV?" section in the "README" document. Via #32 from @eventualbuddha.
+
+### 0.2.7
+
+Tuesday, July 7, 2015
+
+* Apply the `--subtitle-forced` option when scanning subtitles in `transcode-video`. Via #20 from @rhapsodians.
+
+### 0.2.6
+
+Wednesday, May 20, 2015
+
+* Prevent the user's file format choice from corrupting the output path in `transcode-video` and `convert-video`. Via #5 from @arikalish.
+
+### 0.2.5
+
+Sunday, May 17, 2015
+
+* Simplify the calculation of `vbv-bufsize` in `transcode-video`.
+
+### 0.2.4
+
+Friday, May 15, 2015
+
+* Prevent an undefined method error if `HandBrakeCLI` removes tracks during scan. Via #15 from @blackoctopus.
+
+### 0.2.3
+
+Tuesday, May 12, 2015
+
+* No longer fail on invalid audio and subtitle track information when parsing scan output from `HandBrakeCLI`. Via #11 from @eltito51 and #13 from @tchjunky.
+
+### 0.2.2
+
+Monday, May 11, 2015
+
+* Ensure the AC-3 passthru bitrate in `transcode-video` is never below the AC-3 encoding bitrate.
+
+### 0.2.1
+
+Sunday, May 10, 2015
+
+* Fix the `--main-audio` option in `transcode-video` by ensuring the `resolve_main_audio` method actually returns a result. Via #9 from @JMoVS.
+
+### 0.2.0
+
+Saturday, May 9, 2015
+
+* Rewrite the automatic frame rate and deinterlace logic in `transcode-video` to match the behavior of the old `transcode-video.sh` script on which the tool is based.
+* Clarify in `--help` output that `transcode-video` audio copy policies only apply to main and explicitly added audio tracks.
+* Ignore the sometimes missing patch version when checking MPlayer.
+* Mention in the "README" document that custom track names and external subtitle file names are allowed to contain commas.
+
+### 0.1.4
+
+Friday, May 8, 2015
+
+* Fix a stupid regression from version 0.1.2 caused by the line endings fix on Windows. Via #7 from @brandonedling.
+
+### 0.1.3
+
+Friday, May 8, 2015
+
+* Check the extra version number for MPlayer to accept all builds. Via #6 from @CallumKerrEdwards.
+
+### 0.1.2
+
+Thursday, May 7, 2015
+
+* Fix handling of DOS-style line endings when parsing scan output from `HandBrakeCLI` on Windows. Via #4 from @CallumKerrEdwards and @commandtab.
+* Disable automatic subtitle burning in `transcode-video` when input is MP4 format.
+* Clarify usage of `--copy-audio` option in the "README" document.
+* Fix some section links in the "README" document. Via #3 from @vitorgalvao.
+
+### 0.1.1
+
+Wednesday, May 6, 2015
+
+* Add a workaround in the `Media` class `initialize` method for no required keyword arguments in Ruby 2.0. Via #1 from @cadonau and #2 from @CallumKerrEdwards.
+
+### 0.1.0
+
+Tuesday, May 5, 2015
+
+* Initial project version.
 
 ## Feedback
 
