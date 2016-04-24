@@ -71,6 +71,8 @@ Video options:
                       (use `--crop auto` for `HandBrakeCLI` behavior)
     --no-constrain-crop
                     don't constrain `--crop detect` to optimal shape
+    --fallback-crop handbrake|mplayer|none
+                    select fallback crop values if `--crop detect` fails
     --720p          fit video within 1280x720 pixel bounds
     --max-width WIDTH, --max-height HEIGHT
                     fit video within horizontal and/or vertical pixel bounds
@@ -215,6 +217,7 @@ HERE
       @quick                      = false
       @crop                       = {:top => 0, :bottom => 0, :left => 0, :right => 0}
       @constrain_crop             = true
+      @fallback_crop              = nil
       @target_bitrate             = nil
       @main_audio                 = nil
       @extra_audio                = []
@@ -340,6 +343,15 @@ HERE
 
       opts.on '--no-constrain-crop' do
         @constrain_crop = false
+      end
+
+      opts.on '--fallback-crop ARG' do |arg|
+        @fallback_crop = case arg
+        when 'handbrake', 'mplayer', 'none'
+          arg.to_sym
+        else
+          fail UsageError, "invalid fallback crop argument: #{arg}"
+        end
       end
 
       opts.on '--720p' do
@@ -891,20 +903,30 @@ HERE
         width, height = media.info[:width], media.info[:height]
         hb_crop = media.info[:autocrop]
         hb_crop = Crop.constrain(hb_crop, width, height) if @constrain_crop
+        crop = hb_crop
 
         unless media.info[:directory]
           mp_crop = Crop.detect(media.path, media.info[:duration], width, height)
           mp_crop = Crop.constrain(mp_crop, width, height) if @constrain_crop
 
           if hb_crop != mp_crop
-            Console.error 'Results differ...'
-            Console.error "From HandBrakeCLI: #{Crop.handbrake_string(hb_crop)}"
-            Console.error "From mplayer:      #{Crop.handbrake_string(mp_crop)}"
-            fail "crop detection failed: #{media.path}"
+            crop = case @fallback_crop
+            when :handbrake
+              hb_crop
+            when :mplayer
+              mp_crop
+            when :none
+              {:top => 0, :bottom => 0, :left => 0, :right => 0}
+            else
+              Console.error 'Results differ...'
+              Console.error "From HandBrakeCLI: #{Crop.handbrake_string(hb_crop)}"
+              Console.error "From mplayer:      #{Crop.handbrake_string(mp_crop)}"
+              fail "crop detection failed: #{media.path}"
+            end
           end
         end
 
-        hb_crop
+        crop
       elsif @crop == :auto
         nil
       else
