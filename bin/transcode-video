@@ -175,7 +175,9 @@ External subtitle options:
 
 Advanced options:
     --abr BITRATE   use modified ABR ratecontrol at average video bitrate
+                      (more predictable size but lower quality than default)
     --vbr QUALITY   use true VBR ratecontrol at constant video quality (0-51)
+                      (unpredictable size but useful for comparison to default)
 -E, --encoder-option NAME=VALUE|_NAME
                     pass x264 video encoder option by name with value
                       or disable use of option by prefixing name with "_"
