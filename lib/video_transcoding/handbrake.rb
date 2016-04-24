@@ -55,6 +55,8 @@ module VideoTranscoding
 
       if output =~ /ca_aac/
         properties[:aac_encoder] = 'ca_aac'
+      elsif output =~ /fdk_aac/
+        properties[:aac_encoder] = 'fdk_aac'
       else
         properties[:aac_encoder] = 'av_aac'
       end
