@@ -135,7 +135,7 @@ module VideoTranscoding
       subtitle_track  = 0
 
       @scan.each_line do |line|
-        if line =~ /[ ]+Stream #0\.([0-9]+)[^ ]*: (Video|Audio|Subtitle): (.*)/
+        if line =~ /[ ]+Stream #0[.:]([0-9]+)[^ ]*: (Video|Audio|Subtitle): (.*)/
           stream      = $1.to_i
           type        = $2
           attributes  = $3
@@ -164,7 +164,7 @@ module VideoTranscoding
                 track_info[:default] = false
               end
 
-              if @scan =~ /[ ]+Stream #0\.#{stream}[^ ]*: Audio: [^\n]+\n[ ]+Metadata:\r?\n^[ ]+title[ ]+: ([^\r\n]+)/m
+              if @scan =~ /[ ]+Stream #0[.:]#{stream}[^ ]*: Audio: [^\n]+\n[ ]+Metadata:\r?\n^[ ]+title[ ]+: ([^\r\n]+)/m
                 track_info[:name] = $1
               else
                 track_info[:name] = nil
@@ -189,7 +189,7 @@ module VideoTranscoding
                 track_info[:forced] = false
               end
 
-              if @scan =~ /[ ]+Stream #0\.#{stream}[^ ]*: Subtitle: [^\n]+\n[ ]+Metadata:\r?\n^[ ]+title[ ]+: ([^\r\n]+)/m
+              if @scan =~ /[ ]+Stream #0[.:]#{stream}[^ ]*: Subtitle: [^\n]+\n[ ]+Metadata:\r?\n^[ ]+title[ ]+: ([^\r\n]+)/m
                 track_info[:name] = $1
               else
                 track_info[:name] = nil
