@@ -69,6 +69,8 @@ Video options:
     --crop T:B:L:R  set video crop values (default: 0:0:0:0)
                       (use `--crop detect` for optimal crop values)
                       (use `--crop auto` for `HandBrakeCLI` behavior)
+    --no-constrain-crop
+                    don't constrain `--crop detect` to optimal shape
     --720p          fit video within 1280x720 pixel bounds
     --max-width WIDTH, --max-height HEIGHT
                     fit video within horizontal and/or vertical pixel bounds
@@ -212,6 +214,7 @@ HERE
       @vbv_maxrate_480p           = 2000
       @quick                      = false
       @crop                       = {:top => 0, :bottom => 0, :left => 0, :right => 0}
+      @constrain_crop             = true
       @target_bitrate             = nil
       @main_audio                 = nil
       @extra_audio                = []
@@ -333,6 +336,10 @@ HERE
         else
           fail UsageError, "invalid crop values: #{arg}"
         end
+      end
+
+      opts.on '--no-constrain-crop' do
+        @constrain_crop = false
       end
 
       opts.on '--720p' do
@@ -882,11 +889,12 @@ HERE
     def resolve_crop(media)
       if @crop == :detect
         width, height = media.info[:width], media.info[:height]
-        hb_crop = Crop.constrain(media.info[:autocrop], width, height)
+        hb_crop = media.info[:autocrop]
+        hb_crop = Crop.constrain(hb_crop, width, height) if @constrain_crop
 
         unless media.info[:directory]
           mp_crop = Crop.detect(media.path, media.info[:duration], width, height)
-          mp_crop = Crop.constrain(mp_crop, width, height)
+          mp_crop = Crop.constrain(mp_crop, width, height) if @constrain_crop
 
           if hb_crop != mp_crop
             Console.error 'Results differ...'
