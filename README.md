@@ -637,6 +637,27 @@ For a few problematic videos, I have to apply options like `--force-rate 23.976 
 
 ## History
 
+### 0.8.0
+
+Sunday, April 24, 2016
+
+* Add a `--no-constrain-crop` option to `transcode-video`. This changes the behavior of `--crop detect` to mimic the `--no-constrain` option in the `detect-crop` tool.
+* Add a `--fallback-crop` option to `transcode-video`. This selects fallback crop values, from HandBrake, MPlayer or no crop at all, if `--crop detect` fails. This makes the new `--no-constrain-crop` option more useful since failure is more likely without constraints. Via #56 from @cameronks.
+* Add a `--aac-encoder` option to `transcode-video`. This gives Windows and Linux users access to the Fraunhofer FDK AAC encoder if it's compiled into their version of `HandBrakeCLI`. Via #35 from @cnrd.
+* Allow a colon (":") instead of a just period (".") to separate the two numerical components of a stream identifier when parsing scan output from `HandBrakeCLI`. This ensures compatibility with different versions of libavcodec and should fix several mysterious bugs on some Linux configurations. Via #30 and #41 from @dgibbs64.
+* Maintain 480p video bitrate targets in `transcode-video` when scaling down to 480p using `--max-width 854 --max-height 480`. Via #58 from @mschout.
+* Remove the deprecated `--old-behavior` option in `transcode-video`.
+* Clarify the purpose of `--abr` and `--vbr` in the `--help` output of `transcode-video`.
+* Update the "README" document to:
+    * Add "FAQ" section. Via #26 from @reiesu and #59 from @dgibbs64.
+    * Add this "History" section.
+    * Spell "rate control" as one word, like a real transcoding geek.
+    * Insert a missing "you" in the first paragraph of the "Installation" section.
+    * Mention and link to Linuxbrew in the "Requirements" section.
+    * Describe the default ratecontrol system as a "modified constrained variable bitrate (CVBR) mode."
+    * Add example output when HandBrake and MPlayer disagree to the "Using `detect-crop`" section. Via #18 from @alanwsmith.
+    * Update the status of DTS-HD decoding for HandBrake and MakeMKV in the "Why convert lossless audio?" section.
+
 ### 0.7.0
 
 Thursday, April 7, 2016
