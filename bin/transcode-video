@@ -233,7 +233,6 @@ HERE
       @srt_language               = {}
       @srt_encoding               = {}
       @srt_offset                 = {}
-      @old_behavior               = false
       @abr_bitrate                = nil
       @vbr_quality                = nil
       @encoder_options            = {}
@@ -293,8 +292,8 @@ HERE
       opts.on '--small' do
         @vbv_maxrate_2160p  = 10000
         @vbv_maxrate_1080p  = 5000
-        @vbv_maxrate_720p   = @old_behavior ? 4000 : 3000
-        @vbv_maxrate_480p   = @old_behavior ? 2000 : 1600
+        @vbv_maxrate_720p   = 3000
+        @vbv_maxrate_480p   = 1600
         @ac3_bitrate        = 384
         @pass_ac3_bitrate   = 448
       end
@@ -302,8 +301,8 @@ HERE
       opts.on '--small-video' do
         @vbv_maxrate_2160p  = 10000
         @vbv_maxrate_1080p  = 5000
-        @vbv_maxrate_720p   = @old_behavior ? 4000 : 3000
-        @vbv_maxrate_480p   = @old_behavior ? 2000 : 1600
+        @vbv_maxrate_720p   = 3000
+        @vbv_maxrate_480p   = 1600
       end
 
       opts.on '--quick' do
@@ -608,15 +607,6 @@ HERE
         @srt_offset[@srt_file.size - 1] = arg
       end
 
-      opts.on '--old-behavior' do
-        Console.warn 'Using deprecated option: --old-behavior'
-        @old_behavior = true
-        @vbv_maxrate_720p = 6000
-        @vbv_maxrate_480p = 3000
-        @abr_bitrate = nil
-        @vbr_quality = nil
-      end
-
       opts.on '--abr ARG', Integer do |arg|
         @abr_bitrate = arg
         @vbr_quality = nil
@@ -816,7 +806,7 @@ HERE
           handbrake_options['encoder-level'] = 'auto'
         end
 
-        handbrake_options['quality'] = @old_behavior ? '16' : '1'
+        handbrake_options['quality'] = '1'
 
         if @target_bitrate.nil?
           unless media.info[:directory]
@@ -845,7 +835,7 @@ HERE
         encoder_options['vbv-maxrate']  = vbv_maxrate.to_s
         encoder_options['vbv-bufsize']  = (@encoder_options.fetch('vbv-maxrate', vbv_maxrate).to_i / 2).to_s
         encoder_options['crf-max']      = '25'
-        encoder_options['qpmax']        = '34' unless @old_behavior
+        encoder_options['qpmax']        = '34'
       else
         unless @abr_bitrate.nil?
           handbrake_options['vb'] = @abr_bitrate.to_s
