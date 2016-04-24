@@ -790,7 +790,7 @@ HERE
       elsif width > 1280 or height > 720
         handbrake_options['encoder-level'] = '4.0'
         vbv_maxrate = @vbv_maxrate_1080p
-      elsif width > 720 or height > 576
+      elsif width * height > 720 * 576
         handbrake_options['encoder-level'] = '3.1'
         vbv_maxrate = @vbv_maxrate_720p
       else
