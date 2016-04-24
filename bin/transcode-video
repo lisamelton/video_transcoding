@@ -131,6 +131,8 @@ Audio options:
                       or try to copy all track names in same manner
                       (only applies to main and explicitly added audio tracks)
                       (can be used multiple times)
+    --aac-encoder NAME
+                    use named AAC audio encoder (default: platform dependent)
     --no-audio      disable all audio output
 
 Subtitle options:
@@ -228,6 +230,7 @@ HERE
       @pass_ac3_bitrate           = 640
       @copy_audio                 = []
       @copy_audio_name            = []
+      @aac_encoder                = nil
       @burn_subtitle              = nil
       @force_subtitle             = nil
       @extra_subtitle             = []
@@ -506,6 +509,14 @@ HERE
           else
             @copy_audio_name << $MATCH.to_i unless @copy_audio_name.first == :all
           end
+        end
+      end
+
+      opts.on '--aac-encoder ARG' do |arg|
+        if arg =~/_aac$/
+          @aac_encoder = arg
+        else
+          fail UsageError, "invalid aac encoder argument: #{arg}"
         end
       end
 
@@ -978,7 +989,8 @@ HERE
         if copy or (info[:format] == 'AAC' and info[:channels] <= 2.0)
           encoders << 'copy'
         else
-          encoders << HandBrake.aac_encoder
+          @aac_encoder ||= HandBrake.aac_encoder
+          encoders << @aac_encoder
         end
 
         bitrates << ''
