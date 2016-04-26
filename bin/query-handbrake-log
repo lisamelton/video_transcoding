@@ -132,7 +132,11 @@ HERE
               if fps_line.nil?
                 fps_line = line
               elsif fps_line_2.nil?
-                fps_line_2 = line
+                if fps_line =~ / ([0.]+) fps$/
+                  fps_line = line
+                else
+                  fps_line_2 = line
+                end
               end
             end
 
