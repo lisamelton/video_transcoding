@@ -217,7 +217,7 @@ HERE
           else
             Console.debug ratefactor_line
 
-            if ratefactor_line =~ /Avg QP:([0-9.]+)/
+            if ratefactor_line =~ /Avg QP: ?([0-9.]+)/
               report << "#{$1} #{video}"
             else
               fail "ratefactor not found: #{log}"
