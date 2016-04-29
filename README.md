@@ -637,6 +637,13 @@ For a few problematic videos, I have to apply options like `--force-rate 23.976 
 
 ## History
 
+### 0.8.1
+
+Thursday, April 28, 2016
+
+* Fix a bug where `query-handbrake-log` reported the wrong `time` or `speed` when parsing .log files containing output from HandBrake subtitle scan mode, i.e. when using `--burn-subtitle scan` or `--force-subtitle scan` from `transcode-video`. Via #46 from @martinpickett.
+* Fix a bug where `query-handbrake-log ratefactor` failed if the number it was searching for was less than 10. This was due to HandBrake unexpectedly inserting a space before that number. Honestly, I doubt this ever happend before the new ratecontrol system debuted in 0.6.0. That's how good the new ratecontrol system is. #61 from @bmhayward
+
 ### 0.8.0
 
 Sunday, April 24, 2016
