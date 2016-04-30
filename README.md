@@ -637,39 +637,39 @@ For a few problematic videos, I have to apply options like `--force-rate 23.976 
 
 ## History
 
-### 0.8.1
+### [0.8.1](https://github.com/donmelton/video_transcoding/releases/tag/0.8.1)
 
 Thursday, April 28, 2016
 
-* Fix a bug where `query-handbrake-log` reported the wrong `time` or `speed` when parsing .log files containing output from HandBrake subtitle scan mode, i.e. when using `--burn-subtitle scan` or `--force-subtitle scan` from `transcode-video`. Via #46 from @martinpickett.
-* Fix a bug where `query-handbrake-log ratefactor` failed if the number it was searching for was less than 10. This was due to HandBrake unexpectedly inserting a space before that number. Honestly, I doubt this ever happend before the new ratecontrol system debuted in 0.6.0. That's how good the new ratecontrol system is. Via #61 from @bmhayward.
+* Fix a bug where `query-handbrake-log` reported the wrong `time` or `speed` when parsing .log files containing output from HandBrake subtitle scan mode, i.e. when using `--burn-subtitle scan` or `--force-subtitle scan` from `transcode-video`. Via [ #46](https://github.com/donmelton/video_transcoding/issues/46) from [@martinpickett](https://github.com/martinpickett).
+* Fix a bug where `query-handbrake-log ratefactor` failed if the number it was searching for was less than 10. This was due to HandBrake unexpectedly inserting a space before that number. Honestly, I doubt this ever happend before the new ratecontrol system debuted in 0.6.0. That's how good the new ratecontrol system is. Via [ #61](https://github.com/donmelton/video_transcoding/issues/61) from [@bmhayward](https://github.com/bmhayward).
 
-### 0.8.0
+### [0.8.0](https://github.com/donmelton/video_transcoding/releases/tag/0.8.0)
 
 Sunday, April 24, 2016
 
 * Add a `--no-constrain-crop` option to `transcode-video`. This changes the behavior of `--crop detect` to mimic the `--no-constrain` option in the `detect-crop` tool.
-* Add a `--fallback-crop` option to `transcode-video`. This selects fallback crop values, from HandBrake, MPlayer or no crop at all, if `--crop detect` fails. This makes the new `--no-constrain-crop` option more useful since failure is more likely without constraints. Via #56 from @cameronks.
-* Add a `--aac-encoder` option to `transcode-video`. This gives Windows and Linux users access to the Fraunhofer FDK AAC encoder if it's compiled into their version of `HandBrakeCLI`. Via #35 from @cnrd.
-* Allow a colon (":") instead of a just period (".") to separate the two numerical components of a stream identifier when parsing scan output from `HandBrakeCLI`. This ensures compatibility with different versions of libavcodec and should fix several mysterious bugs on some Linux configurations. Via #30 and #41 from @dgibbs64.
+* Add a `--fallback-crop` option to `transcode-video`. This selects fallback crop values, from HandBrake, MPlayer or no crop at all, if `--crop detect` fails. This makes the new `--no-constrain-crop` option more useful since failure is more likely without constraints. Via [ #56](https://github.com/donmelton/video_transcoding/issues/56) from [@cameronks](https://github.com/cameronks).
+* Add a `--aac-encoder` option to `transcode-video`. This gives Windows and Linux users access to the Fraunhofer FDK AAC encoder if it's compiled into their version of `HandBrakeCLI`. Via [ #35](https://github.com/donmelton/video_transcoding/pull/35) from [@cnrd](https://github.com/cnrd).
+* Allow a colon (":") instead of a just period (".") to separate the two numerical components of a stream identifier when parsing scan output from `HandBrakeCLI`. This ensures compatibility with different versions of libavcodec and should fix several mysterious bugs on some Linux configurations. Via [ #30](https://github.com/donmelton/video_transcoding/issues/30) and [ #41](https://github.com/donmelton/video_transcoding/issues/41) from [@dgibbs64](https://github.com/dgibbs64).
 * Maintain 480p video bitrate targets in `transcode-video` when scaling down to 480p using `--max-width 854 --max-height 480`. Via #58 from @mschout.
 * Remove the deprecated `--old-behavior` option in `transcode-video`.
 * Clarify the purpose of `--abr` and `--vbr` in the `--help` output of `transcode-video`.
 * Update the "README" document to:
-    * Add "FAQ" section. Via #26 from @reiesu and #59 from @dgibbs64.
+    * Add "FAQ" section. Via [ #26](https://github.com/donmelton/video_transcoding/issues/26) from [@reiesu](https://github.com/reiesu) and [ #59](https://github.com/donmelton/video_transcoding/issues/59) from [@dgibbs64](https://github.com/dgibbs64).
     * Add this "History" section.
     * Spell "rate control" as one word, like a real transcoding geek.
     * Insert a missing "you" in the first paragraph of the "Installation" section.
     * Mention and link to Linuxbrew in the "Requirements" section.
     * Describe the default ratecontrol system as a "modified constrained variable bitrate (CVBR) mode."
-    * Add example output when HandBrake and MPlayer disagree to the "Using `detect-crop`" section. Via #18 from @alanwsmith.
+    * Add example output when HandBrake and MPlayer disagree to the "Using `detect-crop`" section. Via [ #18](https://github.com/donmelton/video_transcoding/issues/18) from [@alanwsmith](https://github.com/alanwsmith).
     * Update the status of DTS-HD decoding for HandBrake and MakeMKV in the "Why convert lossless audio?" section.
 
-### 0.7.0
+### [0.7.0](https://github.com/donmelton/video_transcoding/releases/tag/0.7.0)
 
 Thursday, April 7, 2016
 
-* Once again, lower the video bitrate targets for 480p and 720p output in `transcode-video`. Note that 1080p and 2160p targets still remain unchanged.
+* Once again, lower the video bitrate targets for 480p and 720p output in `transcode-video`. Note that 1080p and 2160p targets still remain unchanged. Via [ #55](https://github.com/donmelton/video_transcoding/issues/55).
 * Update the "README" document to:
     * Reflect changes to the 480p and 720p video bitrate targets.
     * Revise description of and recommendation for the `--quick` option.
@@ -679,7 +679,7 @@ Thursday, April 7, 2016
 * Remove the deprecated `--big` option in `transcode-video`.
 * Separate `--small` and `--small-video` in the `--help` output of `transcode-video`.
 
-### 0.6.0
+### [0.6.0](https://github.com/donmelton/video_transcoding/releases/tag/0.6.0)
 
 Sunday, April 3, 2016
 
@@ -689,46 +689,46 @@ Sunday, April 3, 2016
     * Lower the video bitrate targets for 480p and 720p output to keep bitrates and file sizes closer to that produced by the old ratecontrol system. Note that 1080p and 2160p targets remain unchanged.
     * Add an `--old-behavior` option to restore the old ratecontrol system and video bitrate targets for users not yet wanting to change over. This option is only temporary and will soon be deprecated and then removed.
     * Update the "README" document to reflect changes to the 480p and 720p video bitrate targets.
-* Remove an obsolete `brew install caskroom/cask/brew-cask` line from the "README" document. Via #54 from @timsutton.
+* Remove an obsolete `brew install caskroom/cask/brew-cask` line from the "README" document. Via [ #54](https://github.com/donmelton/video_transcoding/pull/54) from [@timsutton](https://github.com/timsutton).
 
-### 0.5.1
+### [0.5.1](https://github.com/donmelton/video_transcoding/releases/tag/0.5.1)
 
 Thursday, February 25, 2016
 
-* Don't fail if the `ffmpeg` version string can't be parsed. Via #43 from @rementis, @Lambdafive and @kford.
+* Don't fail if the `ffmpeg` version string can't be parsed. Via [ #43](https://github.com/donmelton/video_transcoding/issues/43) from [@rementis](https://github.com/rementis), [@Lambdafive](https://github.com/Lambdafive) and [@kford](https://github.com/kford).
 * Remove the deprecated `--cvbr` option in `transcode-video`.
 
-### 0.5.0
+### [0.5.0](https://github.com/donmelton/video_transcoding/releases/tag/0.5.0)
 
 Thursday, January 14, 2016
 
 * Raise the default video bitrate targets and AC-3 audio bitrate limits in `transcode-video`:
     * Deprecate the `--big` option since its behavior is now the default. An informal survey via Twitter and Facebook showed that about 90% of users (including myself) responding were always using the `--big` option anyway to get higher quality.
     * Add a `--small` option to restore the old video bitrate targets and AC-3 audio bitrate limits.
-    * Add a `--small-video` option to restore only the old video bitrate targets. Via Facebook from @DaveHamilton.
+    * Add a `--small-video` option to restore only the old video bitrate targets. Via Facebook from [@DaveHamilton](https://github.com/DaveHamilton).
     * Update the "README" document to reflect all these changes.
 * Move `--abr` and `--vbr` to the advanced options section in the `--help` output of `transcode-video`.
 * Deprecate the experimental `--cvbr` option in `transcode-video`.
 
-### 0.4.0
+### [0.4.0](https://github.com/donmelton/video_transcoding/releases/tag/0.4.0)
 
 Monday, January 11, 2016
 
 * Add a `--cvbr` option to `transcode-video`. This implements a very experimental variation of the default ratecontrol system with a target bitrate as its single argument. Use it for evaluation purposes only.
 
-### 0.3.1
+### [0.3.1](https://github.com/donmelton/video_transcoding/releases/tag/0.3.1)
 
 Friday, January 8, 2016
 
 * Fix compatibility with development/nightly builds of `HandBrakeCL` in `transcode-video`:
-    * Always force the x264 `medium` preset to override the new `veryfast` default value. Via #36 from @cnrd.
+    * Always force the x264 `medium` preset to override the new `veryfast` default value. Via [ #36](https://github.com/donmelton/video_transcoding/pull/36) from [@cnrd](https://github.com/cnrd).
     * Explicitly set the encoder profile to `high` to override the new `main` default value.
     * Explicitly (and dynamically) set the encoder level to override the new `4.0` default value. 
-* Fix a stupid regression from version 0.2.8 caused by a typo in the patch for the SubRip-format text file offset fix to `transcode-video`. Via #37 from @bpharriss.
+* Fix a stupid regression from version 0.2.8 caused by a typo in the patch for the SubRip-format text file offset fix to `transcode-video`. Via [ #37](https://github.com/donmelton/video_transcoding/issues/37) from [@bpharriss](https://github.com/bpharriss).
 * Be more lenient about `--encoder-option` arguments in `transcode-video` so `8x8dct` is allowed.
 * Always print the `HandBrakeCLI` version string to diagnostic output even if it can't be parsed.
 
-### 0.3.0
+### [0.3.0](https://github.com/donmelton/video_transcoding/releases/tag/0.3.0)
 
 Tuesday, January 5, 2016
 
@@ -736,58 +736,58 @@ Tuesday, January 5, 2016
 * Add a `--vbr` option to `transcode-video`. This implements a true VBR ratecontrol system with a constant ratefactor as its single argument, much like HandBrake's default behavior when using its `--quality` option. It's useful mostly for comparison testing against the default ratecontrol system.
 * Update all copyright notices to the year 2016.
 
-### 0.2.8
+### [0.2.8](https://github.com/donmelton/video_transcoding/releases/tag/0.2.8)
 
 Tuesday, January 5, 2016
 
-* Prevent the `--bind-srt-language` option in `transcode-video` from also setting the SubRip-format text file offset to the same value. This was a stupid copy and paste error since the initial project version. Via #25 from @arikalish.
-* Don't fail if the `HandBrakeCLI` version string can't be parsed. Via #29 from @paulbailey.
-* Don't fail if the `mp4track` version string can't be parsed. Via #27 from @dgibbs64.
-* Add a missing preposition to the last bullet point of the "Why MakeMKV?" section in the "README" document. Via #32 from @eventualbuddha.
+* Prevent the `--bind-srt-language` option in `transcode-video` from also setting the SubRip-format text file offset to the same value. This was a stupid copy and paste error since the initial project version. Via [ #25](https://github.com/donmelton/video_transcoding/pull/25) from [@arikalish](https://github.com/arikalish).
+* Don't fail if the `HandBrakeCLI` version string can't be parsed. Via [ #29](https://github.com/donmelton/video_transcoding/issues/29) from [@paulbailey](https://github.com/paulbailey).
+* Don't fail if the `mp4track` version string can't be parsed. Via [ #27](https://github.com/donmelton/video_transcoding/issues/27) from [@dgibbs64](https://github.com/dgibbs64).
+* Add a missing preposition to the last bullet point of the "Why MakeMKV?" section in the "README" document. Via [ #32](https://github.com/donmelton/video_transcoding/pull/32) from [@eventualbuddha](https://github.com/eventualbuddha).
 
-### 0.2.7
+### [0.2.7](https://github.com/donmelton/video_transcoding/releases/tag/0.2.7)
 
 Tuesday, July 7, 2015
 
-* Apply the `--subtitle-forced` option when scanning subtitles in `transcode-video`. Via #20 from @rhapsodians.
+* Apply the `--subtitle-forced` option when scanning subtitles in `transcode-video`. Via [ #20](https://github.com/donmelton/video_transcoding/issues/20) from [@rhapsodians](https://github.com/rhapsodians).
 
-### 0.2.6
+### [0.2.6](https://github.com/donmelton/video_transcoding/releases/tag/0.2.6)
 
 Wednesday, May 20, 2015
 
-* Prevent the user's file format choice from corrupting the output path in `transcode-video` and `convert-video`. Via #5 from @arikalish.
+* Prevent the user's file format choice from corrupting the output path in `transcode-video` and `convert-video`. Via [ #5](https://github.com/donmelton/video_transcoding/issues/5) from [@arikalish](https://github.com/arikalish).
 
-### 0.2.5
+### [0.2.5](https://github.com/donmelton/video_transcoding/releases/tag/0.2.5)
 
 Sunday, May 17, 2015
 
 * Simplify the calculation of `vbv-bufsize` in `transcode-video`.
 
-### 0.2.4
+### [0.2.4](https://github.com/donmelton/video_transcoding/releases/tag/0.2.4)
 
 Friday, May 15, 2015
 
-* Prevent an undefined method error if `HandBrakeCLI` removes tracks during scan. Via #15 from @blackoctopus.
+* Prevent an undefined method error if `HandBrakeCLI` removes tracks during scan. Via [ #15](https://github.com/donmelton/video_transcoding/issues/15) from [@blackoctopus](https://github.com/blackoctopus).
 
-### 0.2.3
+### [0.2.3](https://github.com/donmelton/video_transcoding/releases/tag/0.2.3)
 
 Tuesday, May 12, 2015
 
-* No longer fail on invalid audio and subtitle track information when parsing scan output from `HandBrakeCLI`. Via #11 from @eltito51 and #13 from @tchjunky.
+* No longer fail on invalid audio and subtitle track information when parsing scan output from `HandBrakeCLI`. Via [ #11](https://github.com/donmelton/video_transcoding/issues/11) from [@eltito51](https://github.com/eltito51) and [ #13](https://github.com/donmelton/video_transcoding/issues/13) from [@tchjunky](https://github.com/tchjunky).
 
-### 0.2.2
+### [0.2.2](https://github.com/donmelton/video_transcoding/releases/tag/0.2.2)
 
 Monday, May 11, 2015
 
 * Ensure the AC-3 passthru bitrate in `transcode-video` is never below the AC-3 encoding bitrate.
 
-### 0.2.1
+### [0.2.1](https://github.com/donmelton/video_transcoding/releases/tag/0.2.1)
 
 Sunday, May 10, 2015
 
-* Fix the `--main-audio` option in `transcode-video` by ensuring the `resolve_main_audio` method actually returns a result. Via #9 from @JMoVS.
+* Fix the `--main-audio` option in `transcode-video` by ensuring the `resolve_main_audio` method actually returns a result. Via [ #9](https://github.com/donmelton/video_transcoding/issues/9) from [@JMoVS](https://github.com/JMoVS).
 
-### 0.2.0
+### [0.2.0](https://github.com/donmelton/video_transcoding/releases/tag/0.2.0)
 
 Saturday, May 9, 2015
 
@@ -796,34 +796,34 @@ Saturday, May 9, 2015
 * Ignore the sometimes missing patch version when checking MPlayer.
 * Mention in the "README" document that custom track names and external subtitle file names are allowed to contain commas.
 
-### 0.1.4
+### [0.1.4](https://github.com/donmelton/video_transcoding/releases/tag/0.1.4)
 
 Friday, May 8, 2015
 
-* Fix a stupid regression from version 0.1.2 caused by the line endings fix on Windows. Via #7 from @brandonedling.
+* Fix a stupid regression from version 0.1.2 caused by the line endings fix on Windows. Via [ #7](https://github.com/donmelton/video_transcoding/issues/7) from [@brandonedling](https://github.com/brandonedling).
 
-### 0.1.3
+### [0.1.3](https://github.com/donmelton/video_transcoding/releases/tag/0.1.3)
 
 Friday, May 8, 2015
 
-* Check the extra version number for MPlayer to accept all builds. Via #6 from @CallumKerrEdwards.
+* Check the extra version number for MPlayer to accept all builds. Via [ #6](https://github.com/donmelton/video_transcoding/issues/6) from [@CallumKerrEdwards](https://github.com/CallumKerrEdwards).
 
-### 0.1.2
+### [0.1.2](https://github.com/donmelton/video_transcoding/releases/tag/0.1.2)
 
 Thursday, May 7, 2015
 
-* Fix handling of DOS-style line endings when parsing scan output from `HandBrakeCLI` on Windows. Via #4 from @CallumKerrEdwards and @commandtab.
+* Fix handling of DOS-style line endings when parsing scan output from `HandBrakeCLI` on Windows. Via [ #4](https://github.com/donmelton/video_transcoding/issues/4) from [@CallumKerrEdwards](https://github.com/CallumKerrEdwards) and [@commandtab](https://github.com/commandtab).
 * Disable automatic subtitle burning in `transcode-video` when input is MP4 format.
-* Clarify usage of `--copy-audio` option in the "README" document.
-* Fix some section links in the "README" document. Via #3 from @vitorgalvao.
+* Clarify usage of `--copy-audio` option in the "README" document. Via [ #5](https://github.com/donmelton/video_transcoding/issues/5) from [@arikalish](https://github.com/arikalish).
+* Fix some section links in the "README" document. Via [ #3](https://github.com/donmelton/video_transcoding/pull/3) from [@vitorgalvao](https://github.com/vitorgalvao).
 
-### 0.1.1
+### [0.1.1](https://github.com/donmelton/video_transcoding/releases/tag/0.1.1)
 
 Wednesday, May 6, 2015
 
-* Add a workaround in the `Media` class `initialize` method for no required keyword arguments in Ruby 2.0. Via #1 from @cadonau and #2 from @CallumKerrEdwards.
+* Add a workaround in the `Media` class `initialize` method for no required keyword arguments in Ruby 2.0. Via [ #1](https://github.com/donmelton/video_transcoding/pull/1) from [@cadonau](https://github.com/cadonau) and [ #2](https://github.com/donmelton/video_transcoding/issues/2) from [@CallumKerrEdwards](https://github.com/CallumKerrEdwards).
 
-### 0.1.0
+### [0.1.0](https://github.com/donmelton/video_transcoding/releases/tag/0.1.0)
 
 Tuesday, May 5, 2015
 
