@@ -712,7 +712,7 @@ Thursday, January 14, 2016
 
 ### 0.4.0
 
-Monday, January 1, 2016
+Monday, January 11, 2016
 
 * Add a `--cvbr` option to `transcode-video`. This implements a very experimental variation of the default ratecontrol system with a target bitrate as its single argument. Use it for evaluation purposes only.
 
