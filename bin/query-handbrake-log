@@ -185,7 +185,7 @@ HERE
                 duration = ($1.to_i * 60 * 60) + ($2.to_i * 60) + $3.to_i
                 fail "frame rate not found: #{log}" if rate_line.nil?
                 Console.debug rate_line
-                rate = rate_line.sub(/^.*: /, '').sub(/^.*constant /, '').sub(/ fps.*$/, '').to_f
+                rate = rate_line.sub(/^.*: [^0-9]*/, '').sub(/ fps.*$/, '').to_f
                 seconds = ((duration * rate) / fps.to_f).to_i
                 hours   = seconds / (60 * 60)
                 minutes = (seconds / 60) % 60
