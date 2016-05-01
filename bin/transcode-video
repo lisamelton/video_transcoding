@@ -96,15 +96,15 @@ Video options:
 
 Audio options:
     --main-audio TRACK[=NAME]
-                    select main audio track with optional name
-                      (default: 1 or first in selected language)
+                    select main track by number assigning it an optional name
+                      (default: 1 or first selected by `--add-audio` language)
                       (default output can be two audio tracks,
                         both surround and stereo, i.e. "width" is `double`)
-    --add-audio TRACK[=NAME]|language[=CODE[,...]]|all
+    --add-audio TRACK[=NAME]|language=CODE[,...]|all
                     add track selected by number assigning it an optional name
                       or add tracks selected by one or more languages
                       or add all tracks
-                      (language is indicated by ISO 639-2 code, e.g.: `eng`)
+                      (language code must be ISO 639-2 format, e.g.: `eng`)
                       (multiple languages are separated by commas)
                       (default output is single AAC audio track,
                         i.e. "width" is `stereo`)
