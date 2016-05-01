@@ -39,6 +39,7 @@ r,  ratefactor      average P-frame quantizer for transcoding
 
 Options:
     --reverse       reverse direction of sort
+    --tabular       use tab character as field delimiter and surpress labels
 
 -v, --verbose       increase diagnostic information
 -q, --quiet         decrease     "           "
@@ -51,6 +52,7 @@ HERE
     def initialize
       super
       @reverse  = false
+      @tabular  = false
       @info     = nil
       @logs     = []
       @paths    = []
@@ -58,6 +60,7 @@ HERE
 
     def define_options(opts)
       opts.on('--reverse') { @reverse = true }
+      opts.on('--tabular') { @tabular = true }
     end
 
     def configure
@@ -103,6 +106,16 @@ HERE
         prefix = File.dirname(@paths.abbrev.keys.min_by { |key| key.size }) + File::SEPARATOR
       else
         prefix = ''
+      end
+
+      if @tabular
+        delimiter = "\t"
+        fps_label = ''
+        kbps_label = ''
+      else
+        delimiter = ' '
+        fps_label = ' fps'
+        kbps_label = ' kbps'
       end
 
       report = []
@@ -153,9 +166,9 @@ HERE
         when :time, :speed
           if fps_line.nil?
             if @info == :time
-              report << "00:00:00 #{video}"
+              report << "00:00:00#{delimiter}#{video}"
             else
-              report << "00.000000 fps #{video}"
+              report << "00.000000#{fps_label}#{delimiter}#{video}"
             end
           else
             Console.debug fps_line
@@ -190,34 +203,34 @@ HERE
                 hours   = seconds / (60 * 60)
                 minutes = (seconds / 60) % 60
                 seconds = seconds % 60
-                report << format("%02d:%02d:%02d %s", hours, minutes, seconds, video)
+                report << format("%02d:%02d:%02d%s%s", hours, minutes, seconds, delimiter, video)
               else
                 fail "duration not found: #{log}"
               end
             else
-              report << "#{fps} fps #{video}"
+              report << "#{fps}#{fps_label}#{delimiter}#{video}"
             end
           end
         when :bitrate
           if bitrate_line.nil?
-            report << "0000.00 kbps #{video}"
+            report << "0000.00#{kbps_label}#{delimiter}#{video}"
           else
             Console.debug bitrate_line
 
-            if bitrate_line =~ /[0-9.]+ kbps/
-              report << "#{$MATCH} #{video}"
+            if bitrate_line =~ /([0-9.]+) kbps/
+              report << "#{$1}#{kbps_label}#{delimiter}#{video}"
             else
               fail "bitrate not found: #{log}"
             end
           end
         when :ratefactor
           if ratefactor_line.nil?
-            report << "00.00 #{video}"
+            report << "00.00#{delimiter}#{video}"
           else
             Console.debug ratefactor_line
 
             if ratefactor_line =~ /Avg QP: ?([0-9.]+)/
-              report << "#{$1} #{video}"
+              report << "#{$1}#{delimiter}#{video}"
             else
               fail "ratefactor not found: #{log}"
             end
