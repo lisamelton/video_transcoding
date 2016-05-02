@@ -641,6 +641,26 @@ For a few problematic videos, I have to apply options like `--force-rate 23.976 
 
 ## History
 
+### [0.9.0](https://github.com/donmelton/video_transcoding/releases/tag/0.9.0)
+
+Monday, May 2, 2016
+
+* Revise the syntax and behavior of the `--main-audio`, `--add-audio` and `--audio-width` options in `transcode-video`:
+    * Allow selecting the main audio output track by finding the first input track in a specific language. For example, `--main-audio spa` can now use a language code to select the first Spanish track. Previously, only track numbers were allowed as main audio selection arguments. Via [ #8](https://github.com/donmelton/video_transcoding/issues/8) from [@JMoVS](https://github.com/JMoVS).
+    * Allow assignment of an optional name to the main audio track when using a language code. For example, `--main-audio spa="Other Dialogue"` sets the track name in the same manner as using a track number.
+    * Restrict the default main audio track to the first track, i.e. track number `1`, if the `--main-audio` option is not used. Previously, the default main audio track could be the first track selected by the `--add-audio` option when a language code argument was used. This was a hack because, at that time, the `--main-audio` option itself couldn't select by language.
+    * No longer require or even allow `language=` to prefix a language code argument when using the `--add-audio` option. For example, use `--add-audio fra` to add all the French language tracks. This is much easier to type.
+    * Add argument shortcuts to select the `main` track or `other` non-main tracks when using the `--audio-width` option. Previously, tracks were selected only by track number or `all` at once. The `main` shortcut is useful when the main audio track number is unknown because it was selected using a language code. The `other` shortcut is useful when `all` would also modify the main audio track.
+* Revise the syntax of the `--add-subtitle` option in `transcode-video` to match the change to the `--add-audio` option which no longer requires or even allows `language=` to prefix a language code argument.
+* Add a `--tabular` option to `query-handbrake-log` in order to better format its output report for later import into a spreadsheet application. This uses a tab character instead of a single space as the field delimiter and suppresses the `fps` and `kbps` labels. Via [ #64](https://github.com/donmelton/video_transcoding/issues/64).
+* Fix a bug where `query-handbrake-log time` reported the wrong result when parsing .log files from output using a forced frame rate. It's possible this was a regression due to a change in HandBrake.
+* Remove a stray "TODO" comment line in `query-handbrake-log`.
+* Update the "README" document to:
+    * Revise the "Understanding audio" section to reflect new syntax and behavior in `transcode-video`.
+    * Add links to the "History" section for release numbers, pull requests, issues and contributors.
+    * Correct the release date for version 0.4.0 in the "History" section.
+    * Insert a missing "Via" and period in the 0.8.1 release information.
+
 ### [0.8.1](https://github.com/donmelton/video_transcoding/releases/tag/0.8.1)
 
 Thursday, April 28, 2016
