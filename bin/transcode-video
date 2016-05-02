@@ -98,7 +98,7 @@ Audio options:
     --main-audio TRACK[=NAME]|LANGUAGE[=NAME]
                     select main track by number or first with language code
                       assigning it an optional name
-                      (default: 1 or first selected by `--add-audio` language)
+                      (default: first track, i.e. 1)
                       (language code must be ISO 639-2 format, e.g.: `eng`)
                       (default output can be two audio tracks,
                         both surround and stereo, i.e. "width" is `double`)
@@ -1074,14 +1074,6 @@ HERE
 
           unless track.nil?
             @audio_name[track] = @audio_name[:main] if @audio_name.include? :main
-          end
-        end
-      end
-
-      if track.nil?
-        unless @audio_language.empty?
-          track, _ = media.info[:audio].find do |_, info|
-            @audio_language.include? info[:language]
           end
         end
 
