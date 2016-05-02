@@ -145,11 +145,11 @@ Subtitle options:
     --force-subtitle TRACK|scan
                     add track selected by number and set forced flag
                       or scan for forced track in same language as main audio
-    --add-subtitle TRACK|language[=CODE[,...]]|all
+    --add-subtitle TRACK|LANGUAGE[,LANGUAGE,...]|all
                     add track selected by number
-                      or add tracks selected by one or more languages
+                      or add tracks selected with one or more language codes
                       or add all tracks
-                      (language is indicated by ISO 639-2 code, e.g.: `eng`)
+                      (language code must be ISO 639-2 format, e.g.: `eng`)
                       (multiple languages are separated by commas)
                       (can be used multiple times)
     --no-auto-burn  don't automatically burn first forced subtitle
@@ -577,19 +577,15 @@ HERE
       end
 
       opts.on '--add-subtitle ARG' do |arg|
-        if arg =~ /^(?:([1-9][0-9]*)|lang(?:uage)?=([a-z]{3}(?:,[a-z]{3})*)|(all))$/
-          if $3.nil?
-            if $2.nil?
-              unless @extra_subtitle.first.is_a? Symbol
-                @extra_subtitle << $1.to_i
-              end
-            elsif @extra_subtitle.first != :all
-              @extra_subtitle = [:language] 
-              @subtitle_language = $2.split(',')
-            end
-          else
+        if arg =~ /^(?:([1-9][0-9]*)|([a-z]{3}(?:,[a-z]{3})*))$/
+          if $2.nil?
+            @extra_subtitle << $1.to_i unless @extra_subtitle.first.is_a? Symbol
+          elsif $2 == 'all'
             @extra_subtitle = [:all]
             @subtitle_language = []
+          elsif @extra_subtitle.first != :all
+            @extra_subtitle = [:language]
+            @subtitle_language = $2.split(',')
           end
         else
           fail UsageError, "invalid add subtitle argument: #{arg}"
