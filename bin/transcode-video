@@ -95,9 +95,11 @@ Video options:
                       (can be used multiple times)
 
 Audio options:
-    --main-audio TRACK[=NAME]
-                    select main track by number assigning it an optional name
+    --main-audio TRACK[=NAME]|LANGUAGE[=NAME]
+                    select main track by number or first with language code
+                      assigning it an optional name
                       (default: 1 or first selected by `--add-audio` language)
+                      (language code must be ISO 639-2 format, e.g.: `eng`)
                       (default output can be two audio tracks,
                         both surround and stereo, i.e. "width" is `double`)
     --add-audio TRACK[=NAME]|LANGUAGE[,LANGUAGE,...]|all
@@ -224,6 +226,7 @@ HERE
       @fallback_crop              = nil
       @target_bitrate             = nil
       @main_audio                 = nil
+      @main_audio_language        = nil
       @extra_audio                = []
       @audio_name                 = {}
       @audio_language             = []
@@ -432,10 +435,17 @@ HERE
       end
 
       opts.on '--main-audio ARG' do |arg|
-        if arg =~ /^([1-9][0-9]*)(?:=(.+))?$/
-          track = $1.to_i
-          @main_audio = track
-          @audio_name[track] = $2 unless $2.nil?
+        if arg =~ /^(?:([1-9][0-9]*)(?:=(.+))?|([a-z]{3})(?:=(.+))?)$/
+          if $3.nil?
+            track = $1.to_i
+            @main_audio = track
+            @audio_name[track] = $2 unless $2.nil?
+            @main_audio_language = nil
+          else
+            @main_audio_language = $3
+            @audio_name[:main] = $4 unless $4.nil?
+            @main_audio = nil
+          end
         else
           fail UsageError, "invalid main audio argument: #{arg}"
         end
@@ -1055,6 +1065,18 @@ HERE
 
     def resolve_main_audio(media)
       track = @main_audio
+
+      if track.nil?
+        unless @main_audio_language.nil?
+          track, _ = media.info[:audio].find do |_, info|
+            @main_audio_language == info[:language]
+          end
+
+          unless track.nil?
+            @audio_name[track] = @audio_name[:main] if @audio_name.include? :main
+          end
+        end
+      end
 
       if track.nil?
         unless @audio_language.empty?
