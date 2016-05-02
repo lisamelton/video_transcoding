@@ -259,9 +259,15 @@ However, be aware that `detect` can fail if HandBrake and MPlayer disagree about
 
 By default, the `transcode-video` tool selects the first audio track in the input as the main audio track. This is the first track in the output and the default track for playback.
 
-But you can select any audio track as the main track. In this case, track number 3:
+But you can select any input audio track as the main track. In this case, track number 3:
 
     transcode-video --main-audio 3 "/path/to/Movie.mkv"
+
+Or you can select the first input audio track in a specific language using a three-letter code instead of a track index number. This command selects the first Spanish language track:
+
+    transcode-video --main-audio spa "/path/to/Movie.mkv"
+
+If no track in the target language is found, then selection defaults to the first audio track in the input.
 
 You can also give the main audio track a custom name:
 
@@ -269,7 +275,7 @@ You can also give the main audio track a custom name:
 
 Unlike `HandBrakeCLI`, custom track names are allowed to contain commas.
 
-By default, only one audio track is selected. But you can add additional tracks, also with custom names:
+By default, only one track is selected as the main audio or default track. But you can add additional tracks, also with custom names:
 
     transcode-video --add-audio 4 --add-audio 5="Director Commentary" "/path/to/Movie.mkv"
 
@@ -277,11 +283,9 @@ Or you can add all audio tracks with a single option and argument:
 
     transcode-video --add-audio all "/path/to/Movie.mkv"
 
-You can even add audio tracks selected by their three-letter language code. This command adds all French and Spanish language tracks:
+You can also add audio tracks selected by their three-letter language code. This command adds all French and Spanish language tracks in the same order they're found in the input:
 
-    transcode-video --add-audio language=fre,spa "/path/to/Movie.mkv"
-
-If no main audio track has been selected before adding tracks by language code, the first track added becomes the main audio track.
+    transcode-video --add-audio fra,spa "/path/to/Movie.mkv"
 
 By default, the main audio track is transcoded in AAC format and, if the original is multi-channel surround sound, in Dolby Digital AC-3 format. Meaning the output can contain two tracks from the same source in different formats. So, main audio output is "wide" enough for "double" tracks.
 
@@ -289,23 +293,23 @@ Also by default, any added audio tracks are only transcoded in AAC format. Meani
 
 However, you can change the "width" of main audio or additional audio output using the `--audio-width` option. There are three possible widths: `double`, `surround` and `stereo`.
 
-Use this command to treat any additional audio tracks just like the main audio track:
+Use this command to treat any other additional audio tracks just like the main audio track:
 
-    transcode-video --audio-width all=double "/path/to/Movie.mkv"
+    transcode-video --audio-width other=double "/path/to/Movie.mkv"
 
 Or use this command to make main audio output as a single track but still allow it in surround format:
 
-    transcode-video --audio-width 1=surround "/path/to/Movie.mkv"
+    transcode-video --audio-width main=surround "/path/to/Movie.mkv"
 
 If possible, audio is first passed through in its original format, providing that format is either AC-3 or AAC. This hardly ever works for Blu-ray Discs but it often will for DVDs and other random videos.
 
-However, you can copy the original audio track, provided HandBrake and your selected file format support it:
+However, you can still copy audio tracks and maintain their original format, provided HandBrake and your selected file format support it:
 
-    transcode-video --copy-audio 1 "/path/to/Movie.mkv"
+    transcode-video --copy-audio all "/path/to/Movie.mkv"
 
-The `--copy-audio` option doesn't implicitly add the audio track to be copied. The previous command works because `1` identifies the main audio track and it's included by default. To copy a different track, you must first add it:
+The `--copy-audio` option doesn't implicitly add audio tracks to be copied. Since only the main audio track is included by default, the previous command only tries to copy that track. To also copy another track, you must first add it:
 
-    transcode-video --add-audio 4 --copy-audio 4 "/path/to/Movie.mkv"
+    transcode-video --add-audio 4 --copy-audio all "/path/to/Movie.mkv"
 
 Be aware that copying audio tracks in their original format will likely defeat two very important goals of transcoding: portability and compression.
 
