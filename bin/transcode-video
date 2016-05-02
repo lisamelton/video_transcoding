@@ -452,7 +452,7 @@ HERE
       end
 
       opts.on '--add-audio ARG' do |arg|
-        if arg =~ /^(?:([1-9][0-9]*)(?:=(.+))?|(?:lang(?:uage)?=)?([a-z]{3}(?:,[a-z]{3})*))$/
+        if arg =~ /^(?:([1-9][0-9]*)(?:=(.+))?|([a-z]{3}(?:,[a-z]{3})*))$/
           if $3.nil?
             track = $1.to_i
             @extra_audio << track unless @extra_audio.first.is_a? Symbol
