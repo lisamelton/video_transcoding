@@ -111,8 +111,9 @@ Audio options:
                       (default output is single AAC audio track,
                         i.e. "width" is `stereo`)
                       (can be used multiple times)
-    --audio-width TRACK|all=double|surround|stereo
-                    set audio output "width" for specific track or all tracks
+    --audio-width TRACK|main|other|all=double|surround|stereo
+                    set audio output "width" for specific track by number
+                      or main track or other non-main tracks or all tracks
                       with `double` to allow room for two output tracks
                       with `surround` to allow single surround or stereo track
                       with `stereo` to allow only single stereo track
@@ -470,10 +471,15 @@ HERE
       end
 
       opts.on '--audio-width ARG' do |arg|
-        if arg =~ /^([1-9][0-9]*|all)=(double|surround|stereo)$/
+        if arg =~ /^([1-9][0-9]*|main|other|all)=(double|surround|stereo)$/
           width = $2.to_sym
 
-          if $1 == 'all'
+          case $1
+          when 'main'
+            @audio_width[:main] = width
+          when 'other'
+            @audio_width[:other] = width
+          when 'all'
             @audio_width[:main] = width
             @audio_width[:other] = width
           else
