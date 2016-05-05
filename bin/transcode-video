@@ -79,9 +79,11 @@ Video options:
     --pixel-aspect X:Y
                     set pixel aspect ratio (default: 1:1)
                       (e.g.: make X larger than Y to stretch horizontally)
-    --target BITRATE
-                    set video bitrate target (default: based on input)
+    --target [2160p=|1080p=|720p=|480p=]BITRATE
+                    set video bitrate target for a specific resolution,
+                    or for any resolution (default: based on input)
                       (can be exceeded to maintain video quality)
+                      (can be used multiple times)
     --force-rate FPS
                     force constant video frame rate
                       (`23.976` applied automatically for some inputs)
@@ -394,10 +396,26 @@ HERE
         end
       end
 
-      opts.on '--target ARG', Integer do |arg|
-        @target_bitrate = arg
-        @abr_bitrate = nil
-        @vbr_quality = nil
+      opts.on '--target ARG' do |arg|
+        if arg =~ /^(\d+p)=([1-9][0-9]*)$/
+          bitrate = $2.to_i
+          case $1
+          when '2160p'
+            @vbv_maxrate_2160p = bitrate
+          when '1080p'
+            @vbv_maxrate_1080p = bitrate
+          when '720p'
+            @vbv_maxrate_720p = bitrate
+          when '480p'
+            @vbv_maxrate_480p = bitrate
+          else
+            fail UsageError, "invalid target video bitrate resolution: #{$1}"
+          end
+        else
+          @target_bitrate = arg.to_i
+          @abr_bitrate = nil
+          @vbr_quality = nil
+        end
       end
 
       opts.on '--force-rate ARG' do |arg|
