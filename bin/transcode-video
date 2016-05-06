@@ -313,6 +313,7 @@ HERE
         @vbv_maxrate_480p   = 1600
         @ac3_bitrate        = 384
         @pass_ac3_bitrate   = 448
+        @target_bitrate     = nil
       end
 
       opts.on '--small-video' do
@@ -320,6 +321,7 @@ HERE
         @vbv_maxrate_1080p  = 5000
         @vbv_maxrate_720p   = 3000
         @vbv_maxrate_480p   = 1600
+        @target_bitrate     = nil
       end
 
       opts.on '--quick' do
