@@ -412,6 +412,7 @@ HERE
           else
             fail UsageError, "invalid target video bitrate resolution: #{$1}"
           end
+
           @target_bitrate = nil
         else
           unless arg =~ /^[1-9][0-9]*$/
