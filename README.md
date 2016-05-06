@@ -641,6 +641,14 @@ For a few problematic videos, I have to apply options like `--force-rate 23.976 
 
 ## History
 
+### [0.10.0](https://github.com/donmelton/video_transcoding/releases/tag/0.10.0)
+
+Friday, May 6, 2016
+
+* Add resolution-specific qualifiers to the `--target` option in `transcode-video`. This allows different video bitrate targets for inputs with different resolutions. For example, you can use `--target 1080p=6500` alone to change the target for Blu-ray Discs and not DVDs. Or you could combine that with `--target 480p=2500` to affect both resolutions. Via [ #68](https://github.com/donmelton/video_transcoding/pull/68) from [@turley](https://github.com/turley).
+* Fix a bug in `transcode-video` where video bitrate targets were not reset when the `--small` or `--small-video` options followed the `--target` option on the command line.
+* Fix a bug where `query-handbrake-log` would fail for `time` or `speed` on OS X or Linux when parsing .log files created on Windows. This was due to a regular expression not expecting a carriage return (CR) before a line feed (LF), i.e. a Windows-style line ending (CRLF). Via [ #67](https://github.com/donmelton/video_transcoding/issues/67) from [@lambdan](https://github.com/lambdan).
+
 ### [0.9.0](https://github.com/donmelton/video_transcoding/releases/tag/0.9.0)
 
 Monday, May 2, 2016
