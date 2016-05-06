@@ -145,7 +145,7 @@ HERE
               if fps_line.nil?
                 fps_line = line
               elsif fps_line_2.nil?
-                if fps_line =~ / ([0.]+) fps$/
+                if fps_line =~ / ([0.]+) fps\r?$/
                   fps_line = line
                 else
                   fps_line_2 = line
@@ -173,7 +173,7 @@ HERE
           else
             Console.debug fps_line
 
-            if fps_line =~ / ([0-9.]+) fps$/
+            if fps_line =~ / ([0-9.]+) fps\r?$/
               fps = $1
             else
               fail "fps not found: #{log}"
@@ -182,7 +182,7 @@ HERE
             unless fps_line_2.nil?
               Console.debug fps_line_2
 
-              if fps_line_2 =~ / ([0-9.]+) fps$/
+              if fps_line_2 =~ / ([0-9.]+) fps\r?$/
                 fps_2 = $1
                 fps = (1 / ((1 / fps.to_f) + (1 / fps_2.to_f))).round(6).to_s
               else
