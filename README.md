@@ -74,7 +74,7 @@ On OS X, the other dependencies can be easily installed via [Homebrew](http://br
 
     brew install ffmpeg mkvtoolnix mp4v2 mplayer
 
-`HandBrakeCLI` is also available via [Homebrew Cask](http://caskroom.io/), an extension to Homebrew:
+`HandBrakeCLI` is also available via [Caskroom](http://caskroom.io/), an extension to Homebrew:
 
     brew cask install handbrakecli
 
