@@ -72,10 +72,7 @@ You can download the command line version of HandBrake, called `HandBrakeCLI`, h
 
 On OS X, the other dependencies can be easily installed via [Homebrew](http://brew.sh/), an add-on package manager:
 
-    brew install ffmpeg
-    brew install mkvtoolnix
-    brew install mp4v2
-    brew install mplayer
+    brew install ffmpeg mkvtoolnix mp4v2 mplayer
 
 `HandBrakeCLI` is also available via [Homebrew Cask](http://caskroom.io/), an extension to Homebrew:
 
