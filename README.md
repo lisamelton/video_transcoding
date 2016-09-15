@@ -16,7 +16,7 @@ Most of the tools in this package are essentially intelligent wrappers around Op
 Transcode video file or disc image directory into format and size similar to popular online downloads.
 
 * [`detect-crop`](#why-detect-crop)
-Detect optimal crop values for video file or disc image directory.
+Detect crop values for video file or disc image directory.
 
 * [`convert-video`](#why-convert-video)
 Convert video file from Matroska to MP4 format or from MP4 to Matroksa format without transcoding video.
@@ -117,17 +117,11 @@ But most of these default settings and automatic behaviors can be easily overrid
 
 ### Why `detect-crop`?
 
-Removing the black, non-content borders of a video during transcoding is not about making the edges of the output look pretty. Those edges are usually not visible anyway when viewed full screen.
-
-Cropping is about faster transcoding and higher quality. Fewer pixels to read and write almost always leads to a speed improvement. Fewer pixels also means the x264 encoder within HandBrake doesn't waste bitrate on non-content.
-
 HandBrake applies automatic crop detection by default. While it's usually correct, it does guess wrong often enough not to be trusted without review. For example, HandBrake's default behavior removes the top and bottom 140 pixels from "[The Dark Knight (2008)](http://www.blu-ray.com/movies/The-Dark-Knight-Blu-ray/743/)" and "[The Hunger Games: Catching Fire (2013)](http://www.blu-ray.com/movies/The-Hunger-Games-Catching-Fire-Blu-ray/67923/)," losing significant portions of their full-frame content.
-
-And sometimes HandBrake only crops a few pixels from one or more edges, which is too small of a difference in size to improve performance or quality.
 
 This is why `transcode-video` doesn't allow HandBrake to apply cropping by default.
 
-Instead, the `detect-crop` tool leverages both HandBrake and MPlayer, with additional measurements and constraints, to find the optimal video cropping bounds. It then indicates whether those two programs agree. To aid in review, this tool prints commands to the terminal console allowing the recommended (or disputed) crop to be displayed, as well as a sample command line for `transcode-video` itself.
+Instead, the `detect-crop` tool leverages both HandBrake and MPlayer to find the video cropping bounds. It then indicates whether those two programs agree. To aid in review, this tool prints commands to the terminal console allowing the recommended (or disputed) crop to be displayed, as well as a sample command line for `transcode-video` itself.
 
 ### Why `convert-video`?
 
@@ -247,7 +241,7 @@ This command removes the left and right 240 pixels, typical of a 4:3 classic TV 
 
     transcode-video --crop 0:0:240:240 "/path/to/Movie.mkv"
 
-Use the `detect-crop` tool to determine the optimal cropping bounds.
+Use the `detect-crop` tool to determine the cropping bounds before transcoding.
 
 You can also call the `detect-crop` logic from `transcode-video` with the single `detect` argument:
 
@@ -343,7 +337,7 @@ Unlike `HandBrakeCLI`, external subtitle file names are allowed to contain comma
 
 ### Using `detect-crop`
 
-The command to find the optimal video cropping bounds is as simple as:
+The command to find the video cropping bounds is as simple as:
 
     detect-crop "/path/to/Movie.mkv"
 
@@ -377,8 +371,6 @@ If HandBrake and MPlayer disagree about the cropping values, then `detect-crop` 
 You'll then need to preview both and decide which to use.
 
 When input is a disc image directory instead of a single file, the `detect-crop` tool doesn't use MPlayer, nor does it print out commands to preview the crop.
-
-Be aware that the algorithm to determine optimal shape always crops from the top and bottom or from the left and right, never from both axes.
 
 ### Using `convert-video`
 
@@ -508,7 +500,7 @@ Use the `--small` option if you're short on storage space.
 
 Use the `--quick` option if you're in a hurry.
 
-Apply unambiguous crop values from `detect-crop` after review.
+Use `detect-crop` before transcoding to manually review and apply the best crop values.
 
 Don't add audio tracks in their original format that aren't AAC or Dolby Digital AC-3.
 
