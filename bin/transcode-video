@@ -449,7 +449,7 @@ HERE
       end
 
       opts.on '--filter ARG' do |arg|
-        if arg =~ /^([a-z]+)(?:=(.+))?$/
+        if arg =~ /^([a-z0-9-]+)(?:=(.+))?$/
           case $1
           when 'deinterlace', 'decomb', 'detelecine', 'denoise', 'nlmeans',
           'nlmeans-tune', 'deblock', 'rotate', 'grayscale'
