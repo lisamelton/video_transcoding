@@ -22,7 +22,7 @@ HERE
 
     def usage
       <<HERE
-Detect optimal crop values for video file or disc image directory.
+Detect crop values for video file or disc image directory.
 
 Usage: #{$PROGRAM_NAME} [OPTION]... [FILE|DIRECTORY]...
 
