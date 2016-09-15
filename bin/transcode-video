@@ -121,9 +121,9 @@ Audio options:
                       with `stereo` to allow only single stereo track
                       (can be used multiple times)
     --ac3-bitrate 384|448|640
-                    set AC-3 audio bitrate (default: 384)
+                    set AC-3 audio bitrate (default: 640)
     --pass-ac3-bitrate 384|448|640
-                    set AC-3 audio pass-through bitrate (default: 448)
+                    set AC-3 audio pass-through bitrate (default: 640)
     --copy-audio TRACK|all
                     try to copy track selected by number in its original format
                       falling back to AC-3 format if original not allowed
