@@ -29,7 +29,7 @@ Usage: #{$PROGRAM_NAME} [OPTION]... [FILE|DIRECTORY]...
     --scan          list title(s) and tracks in video media and exit
     --title NUMBER  select numbered title in video media
                       (default: main feature or first listed)
-    --no-constrain  don't constrain crop to optimal shape
+    --constrain     constrain crop to optimal shape
     --values-only   output only unambiguous crop values, not commands
 
 -v, --verbose       increase diagnostic information
@@ -46,15 +46,20 @@ HERE
       super
       @scan         = false
       @title        = nil
-      @constrain    = true
+      @constrain    = false
       @values_only  = false
     end
 
     def define_options(opts)
       opts.on('--scan')               { @scan = true }
       opts.on('--title ARG', Integer) { |arg| @title = arg }
-      opts.on('--no-constrain')       { @constrain = false }
+      opts.on('--constrain')          { @constrain = true }
       opts.on('--values-only')        { @values_only = true }
+
+      opts.on '--no-constrain' do
+        Console.warn 'Using deprecated option: --no-constrain'
+        @constrain = false
+      end
     end
 
     def configure

@@ -67,10 +67,10 @@ Quality options:
 
 Video options:
     --crop T:B:L:R  set video crop values (default: 0:0:0:0)
-                      (use `--crop detect` for optimal crop values)
+                      (use `--crop detect` for `detect-crop` behavior)
                       (use `--crop auto` for `HandBrakeCLI` behavior)
-    --no-constrain-crop
-                    don't constrain `--crop detect` to optimal shape
+    --constrain-crop
+                    constrain `--crop detect` to optimal shape
     --fallback-crop handbrake|mplayer|none
                     select fallback crop values if `--crop detect` fails
     --720p          fit video within 1280x720 pixel bounds
@@ -225,7 +225,7 @@ HERE
       @vbv_maxrate_480p           = 2000
       @quick                      = false
       @crop                       = {:top => 0, :bottom => 0, :left => 0, :right => 0}
-      @constrain_crop             = true
+      @constrain_crop             = false
       @fallback_crop              = nil
       @target_bitrate             = nil
       @main_audio                 = nil
@@ -354,7 +354,12 @@ HERE
         end
       end
 
+      opts.on '--constrain-crop' do
+        @constrain_crop = true
+      end
+
       opts.on '--no-constrain-crop' do
+        Console.warn 'Using deprecated option: --no-constrain-crop'
         @constrain_crop = false
       end
 
