@@ -635,6 +635,19 @@ For a few problematic videos, I have to apply options like `--force-rate 23.976 
 
 ## History
 
+### [0.11.0](https://github.com/donmelton/video_transcoding/releases/tag/0.11.0)
+
+Thursday, September 15, 2016
+
+* Change the behavior of `detect-crop` and the `--crop detect` function of `transcode-video` to no longer constrain the crop by default. Add a `--constrain` option to `detect-crop` and a `--constrain-crop` option to `transcode-video` to restore the old behavior. Also, deprecate the `--no-constrain` option of `detect-crop` and the `--no-constrain-crop` option of `transcode-video` since both are no longer necessary. Via [ #81](https://github.com/donmelton/video_transcoding/issues/81).
+* Update the "README" document to:
+    * Revise multiple sections about the changes to cropping behavior.
+    * Revise the description of the `--small` option in multiple sections.
+    * Revise how I use `transcode-video` in the "FAQ" section.
+* Add support for the `comb-detect`, `hqdn3d` and `pad` filters to `transcode-video`.
+* Fix a bug in `transcode-video` where the `--filter` option failed when `nlmeans-tune` was used as a argument. This was due to a regular expression only allowing lowercase alpha characters and not hyphens.
+* Update the default AC-3 audio and pass-through bitrates in the `--help` output of `transcode-video` to 640 Kbps, matching the behavior of the code since version 0.5.0.
+
 ### [0.10.0](https://github.com/donmelton/video_transcoding/releases/tag/0.10.0)
 
 Friday, May 6, 2016
