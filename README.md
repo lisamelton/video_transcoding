@@ -623,13 +623,15 @@ What I don't use are [peak signal-to-noise ratios](https://en.wikipedia.org/wiki
 
 ### What options do you use with `transcode-video`?
 
-I use the default settings. That's why they're the defaults.
+Instead of the default size, I use the `--small` option for more space savings.
 
-Of course, I apply crop values as necessary. And I let `transcode-video` automatically burn any forced subtitles into the output video track when the "forced" flag is enabled in the original.
+I never use the `--crop detect` function of `transcode-video` because I don't trust either `HandBrakeCLI` or `mplayer` to always get it right without supervision. Instead, I use the separate `detect-crop` tool before transcoding to manually review and apply the best crop values.
+
+I let `transcode-video` automatically burn any forced subtitles into the output video track when the "forced" flag is enabled in the original.
 
 I never include separate subtitle tracks, but I do add audio commentary tracks.
 
-For a few problematic videos, I have to apply options like `--force-rate 23.976 --filter detelecine`. But that's rare.
+For a few problematic videos, I have to apply options like `--force-rate 23.976 --filter detelecine`. For others, options like `--encoder-option zones=...` to adjust bitrate distribution. But both of these cases are rare.
 
 ## History
 
