@@ -195,7 +195,7 @@ The `.m4v` file extension is more "iTunes-friendly," but the file content itself
 
 #### Reducing output size
 
-If reducing output size is more important to you than quality, use the `--small` option:
+If reducing output size is more important to you than a possible loss in quality, use the `--small` option:
 
     transcode-video --small "/path/to/Movie.mkv"
 
@@ -227,7 +227,7 @@ The `--quick` option is also more than 15% speedier than the x264 video encoder'
 
 Be aware that output files are slightly larger when using the `--quick` option since the loss of precision is also a loss of efficiency.
 
-Performance also improves slightly using the `--small` option due to fewer calculations being made and fewer bits being written to disk.
+Performance also improves using the `--small` option due to fewer calculations being made and fewer bits being written to disk.
 
 #### Cropping
 
@@ -496,7 +496,7 @@ Use the default settings whenever possible.
 
 Use the `--mp4` or `--m4v` options if your target player can't handle Matroska format.
 
-Use the `--small` option if you're short on storage space.
+Use the `--small` option if you want more space savings.
 
 Use the `--quick` option if you're in a hurry.
 
