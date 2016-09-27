@@ -623,7 +623,9 @@ What I don't use are [peak signal-to-noise ratios](https://en.wikipedia.org/wiki
 
 ### What options do you use with `transcode-video`?
 
-Instead of the default size, I use the `--small` option for more space savings.
+I use the default settings. That's why they're the defaults.
+
+But sometimes I use the `--small` option for more space savings.
 
 I never use the `--crop detect` function of `transcode-video` because I don't trust either `HandBrakeCLI` or `mplayer` to always get it right without supervision. Instead, I use the separate `detect-crop` tool before transcoding to manually review and apply the best crop values.
 
