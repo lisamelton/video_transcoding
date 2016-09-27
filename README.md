@@ -595,9 +595,11 @@ Plus, I wouldn't use a GUI for these tasks. And it's a bad idea to develop softw
 
 [High Efficiency Video Coding](https://en.wikipedia.org/wiki/High_Efficiency_Video_Coding) or H.265  is the likely successor to [H.264](https://en.wikipedia.org/wiki/H.264/MPEG-4_AVC), which is the format currently output by `transcode-video`. HandBrake has supported H.265 ever since it included the [x265 video encoder](http://x265.org/).
 
-While the x265 encoder can produce the same quality as the x264 encoder at a lower bitrate, it's considerably slower. So slow, in fact, as to not be practical for home transcoding.
+My ratecontrol system can't be applied with the current version of the x265 encoder in HandBrake because it doesn't allow access to `qpmax`, critical for maintaining quality in certain situations. I'll consider adding support once the [fix for `qpmax` support in x265](https://bitbucket.org/multicoreware/x265/issues/232/add-option-to-specify-qpmax) is available in an official HandBrake release.
 
-More importantly, my default ratecontrol system can't be applied with the x265 encoder. That's because x265 doesn't allow access to `qpmax`, critical for maintaining quality in certain situations. There's a [bug open on x265](https://bitbucket.org/multicoreware/x265/issues/232/add-option-to-specify-qpmax) about this now. When that's fixed, I'll consider adding support.
+But support also requires equivalent quality at a smaller size when using my rate control system. And performance is an issue. While speed continues to improve, the x265 encoder is still considerably slower than the current H.264 system.
+
+In the meantime, I recommend using the `--small` option to reduce output size. As a bonus, it's also faster.
 
 ### What about hardware-based video transcoding?
 
@@ -611,7 +613,7 @@ Also, keep in mind that hardware encoders are typically designed for realtime vi
 
 The original AC-3 format is limited to 5.1 audio channels. This means that any 7.1 channel audio track, typically available on Blu-ray Discs, needs to be downmixed during transcoding. The advantage to Enhanced AC-3 is that it can support up to 13.1 audio channels, so no downmixing is necessary.
 
-I'll consider adding support once Enhanced AC-3 is available in an official HandBrake release.
+Unfortunately, Enhanced AC-3 output is currently limited to 5.1 audio channels in HandBrake development builds. I'll consider adding support once an Enhanced AC-3 feature without that limitation is available in an official HandBrake release.
 
 ### How do you assess video transcoding quality?
 
