@@ -639,6 +639,17 @@ For a few problematic videos, I have to apply options like `--force-rate 23.976 
 
 ## History
 
+### [0.11.1](https://github.com/donmelton/video_transcoding/releases/tag/0.11.1)
+
+Monday, September 26, 2016
+
+* Add `queue-import-file` and anything starting with `preset` to the list of unsupported `HandBrakeCLI` options.
+* Back out a change from version 0.3.1 to optimize setting the encoder level to behave more like past versions. This made no actual difference in the output video, only the `.log` file.
+* Update the "README" document to:
+    * Clarify tradeoffs when using the x264 preset system.
+    * Revise the status of H.265 and Enhanced AC-3 support.
+    * Tweak the description of how I use `transcode-video`. Again.
+
 ### [0.11.0](https://github.com/donmelton/video_transcoding/releases/tag/0.11.0)
 
 Thursday, September 15, 2016
