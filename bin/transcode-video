@@ -873,14 +873,7 @@ HERE
         vbv_maxrate = @vbv_maxrate_480p
       end
 
-      preset = @handbrake_options.fetch('encoder-preset', 'medium')
-
       if @abr_bitrate.nil? and @vbr_quality.nil?
-        case preset
-        when 'ultrafast', 'superfast', 'veryfast', 'faster', 'fast', 'medium'
-          handbrake_options['encoder-level'] = 'auto'
-        end
-
         handbrake_options['quality'] = '1'
 
         if @target_bitrate.nil?
@@ -920,7 +913,7 @@ HERE
         handbrake_options['quality'] = @vbr_quality.to_s.gsub(/\.0+$/, '') unless @vbr_quality.nil?
       end
 
-      if @quick and preset == 'medium'
+      if @quick and @handbrake_options.fetch('encoder-preset', 'medium') == 'medium'
         encoder_options['ref']          = '1'
         encoder_options['weightp']      = '1'
         encoder_options['subme']        = '6'
