@@ -471,7 +471,7 @@ The `--preset` option in `transcode-video` controls the x264 video encoder, not 
 
     transcode-video --preset fast "/path/to/Movie.mkv"
 
-The x264 presets are supposed to trade encoding speed for compression efficiency, and their names attempt to reflect this. However, that's not quite how they always work.
+The x264 preset names (mostly) reflect their relative speed compared to the default, `medium`.
 
 Preset name | Note
 --- | --- | ---
@@ -481,14 +481,14 @@ Preset name | Note
 `faster` | use with caution
 `fast` | good but you might want to use `--quick` instead
 `medium` | default
-`slow` | smaller but not obviously higher quality
-`slower` | smaller but not obviously higher quality
-`veryslow` | smaller but not obviously higher quality
+`slow` | <!---->
+`slower` | <!---->
+`veryslow` | <!---->
 `placebo` | not recommended
 
-Presets faster than `medium` trade precision for more speed. That tradeoff is acceptable for the `fast` preset. But you may notice occasional quality loss problems when using the `faster` or `veryfast` presets.
+Presets faster than `medium` trade precision and compression efficiency for more speed. That tradeoff is acceptable for the `fast` preset. But you may notice occasional quality loss problems when using the `faster` or `veryfast` presets.
 
-Presets slower than `medium` trade encoding speed for more compression efficiency. Any quality improvement using these presets may not be perceptible for most input.
+Presets slower than `medium` trade encoding speed for more precision and compression efficiency. Any quality improvement using these presets may not be perceptible for most input.
 
 ### Recommended `transcode-video` usage
 
