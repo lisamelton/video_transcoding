@@ -732,8 +732,8 @@ HERE
 
     def filter_handbrake_option(name)
       case name
-      when 'help', 'update', 'preset', 'preset-list', 'input', 'title',
-      'scan', 'main-feature', 'previews', 'output', 'format',
+      when 'help', 'update', /^preset/, 'queue-import-file', 'input',
+      'title', 'scan', 'main-feature', 'previews', 'output', 'format',
       'encoder-preset-list', 'encoder-tune-list', 'encoder-profile-list',
       'encoder-level-list'
         fail UsageError, "unsupported HandBrakeCLI option name: #{name}"
