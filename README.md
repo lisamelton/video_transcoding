@@ -83,7 +83,7 @@ On OS X, the other dependencies can be easily installed via [Homebrew](http://br
 
 On Linux, package management systems vary so it's best consult the indexes for those systems. But there's a Homebrew port available called [Linuxbrew](http://linuxbrew.sh/) and it doesn't require root access.
 
-On Windows, it's best to search the Web for the appropriate binary or add-on package manager. The [VideoHelp](http://www.videohelp.com) and [Cygwin](https://cygwin.com/) sites are a good place to start.
+On Windows, it's best to search the Web for the appropriate binary or add-on package manager. The [VideoHelp](http://www.videohelp.com) and [Cygwin](https://cygwin.com/) sites are a good place to start. You can alternatively try your luck with Windows 10's Linux subsystem as outlined in [in this Gist](https://gist.github.com/JMoVS/75f3c6b344648deef59bc761e5e5a0e6).
 
 When installing `HandBrakeCLI` or other downloaded programs, make sure the executable binary is in a directory listed in your `PATH` environment variable. On Unix-style systems like OS X and Linux, that directory might be `/usr/local/bin`.
 
