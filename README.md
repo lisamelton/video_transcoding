@@ -481,9 +481,9 @@ Preset name | Note
 `faster` | use with caution
 `fast` | good but you might want to use `--quick` instead
 `medium` | default
-`slow` | <!---->
-`slower` | <!---->
-`veryslow` | <!---->
+`slow` | &#8203;
+`slower` | &#8203;
+`veryslow` | &#8203;
 `placebo` | not recommended
 
 Presets faster than `medium` trade precision and compression efficiency for more speed. That tradeoff is acceptable for the `fast` preset. But you may notice occasional quality loss problems when using the `faster` or `veryfast` presets.
