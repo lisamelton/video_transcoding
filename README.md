@@ -195,30 +195,6 @@ To create MP4 output with the `.m4v` file extension instead of `.mp4`, use the `
 
 The `.m4v` file extension is more "iTunes-friendly," but the file content itself is exactly the same as a file with the `.mp4` extension.
 
-#### Reducing output size
-
-If reducing output size is more important to you than a possible loss in quality, use the `--small` option:
-
-    transcode-video --small "/path/to/Movie.mkv"
-
-Video bitrate targets are lowered 33-37% depending upon the video resolution of your input.
-
-Input resolution | Target video bitrate with `--small`
---- | ---
-1080p or Blu-ray video | 5000 Kbps
-720p | 3000 Kbps
-480i, 576p or DVD video | 1600 Kbps
-
-Dolby Digital AC-3 audio bitrate limits are lowered 40%. However, there's no impact on the bitrate of mono and stereo AAC audio tracks.
-
-Input channels | Pass through<br />with `--small` | AAC track<br />with `--small` | AC-3 track<br />with `--small`
---- | --- | --- | ---
-Mono | AAC only | 80 Kbps | none
-Stereo | AAC only | 160 Kbps | none
-Surround | AC-3 only, up to 448 Kbps | 160 Kbps | 384 Kbps with 5.1 channels
-
-With `--small`, noisy video and complex surround audio have the most potential for perceptible quality loss.
-
 #### Improving performance
 
 If you're willing to trade some precision for a 45-50% increase in video encoding speed, use the `--quick` option:
@@ -228,8 +204,6 @@ If you're willing to trade some precision for a 45-50% increase in video encodin
 The `--quick` option is also more than 15% speedier than the x264 video encoder's "fast" preset and it avoids the occasional quality loss problems of the "faster" and "veryfast" presets.
 
 Be aware that output files are slightly larger when using the `--quick` option since the loss of precision is also a loss of efficiency.
-
-Performance also improves using the `--small` option due to fewer calculations being made and fewer bits being written to disk.
 
 #### Cropping
 
@@ -498,8 +472,6 @@ Use the default settings whenever possible.
 
 Use the `--mp4` or `--m4v` options if your target player can't handle Matroska format.
 
-Use the `--small` option if you want more space savings.
-
 Use the `--quick` option if you're in a hurry.
 
 Use `detect-crop` before transcoding to manually review and apply the best crop values.
@@ -600,8 +572,6 @@ Plus, I wouldn't use a GUI for these tasks. And it's a bad idea to develop softw
 My ratecontrol system can't be applied with the current version of the x265 encoder in HandBrake because it doesn't allow access to `qpmax`, critical for maintaining quality in certain situations. I'll consider adding support once the [fix for `qpmax` support in x265](https://bitbucket.org/multicoreware/x265/issues/232/add-option-to-specify-qpmax) is available in an official HandBrake release.
 
 But support also requires equivalent quality at a smaller size when using my rate control system. And performance is an issue. While speed continues to improve, the x265 encoder is still considerably slower than the current H.264 system.
-
-In the meantime, I recommend using the `--small` option to reduce output size. As a bonus, it's also faster.
 
 ### What about hardware-based video transcoding?
 
