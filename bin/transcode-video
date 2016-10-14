@@ -913,11 +913,7 @@ HERE
             end
           end
         else
-          if @target_bitrate < 2
-            vbv_maxrate = 2
-          else
-            vbv_maxrate = @target_bitrate
-          end
+          vbv_maxrate = @target_bitrate
         end
 
         encoder_options['vbv-maxrate']  = vbv_maxrate.to_s
