@@ -56,9 +56,15 @@ Output options:
     --dry-run       don't transcode, just show `HandBrakeCLI` command and exit
 
 Quality options:
-    --small         lower video bitrate target and AC-3 audio bitrate limits,
-                      trading some quality for reduced size
-    --small-video   lower video bitrate target only
+    --target big|small
+                    apply video bitrate target macro for all input resolutions
+                      (`big` trades some size for increased quality)
+                      (`small` trades some quality for reduced size)
+    --target [2160p=|1080p=|720p=|480p=]BITRATE
+                    set video bitrate target (default: based on input)
+                      or target for specific input resolution
+                      (can be exceeded to maintain video quality)
+                      (can be used multiple times)
     --quick         trade some precision for 45-50% increase in encoding speed
                       (more than 15% speedier than x264 encoder "fast" preset)
                       (avoids quality loss of "faster" and "veryfast" presets)
@@ -79,11 +85,6 @@ Video options:
     --pixel-aspect X:Y
                     set pixel aspect ratio (default: 1:1)
                       (e.g.: make X larger than Y to stretch horizontally)
-    --target [1080p=|720p=|480p=]BITRATE
-                    set video bitrate target (default: based on input)
-                      or target for specific input resolution
-                      (can be exceeded to maintain video quality)
-                      (can be used multiple times)
     --force-rate FPS
                     force constant video frame rate
                       (`23.976` applied automatically for some inputs)
@@ -219,10 +220,10 @@ HERE
       @format                     = :mkv
       @log                        = true
       @dry_run                    = false
-      @vbv_maxrate_2160p          = 16000
-      @vbv_maxrate_1080p          = 8000
-      @vbv_maxrate_720p           = 4000
-      @vbv_maxrate_480p           = 2000
+      @vbv_maxrate_2160p          = 12000
+      @vbv_maxrate_1080p          = 6000
+      @vbv_maxrate_720p           = 3000
+      @vbv_maxrate_480p           = 1500
       @quick                      = false
       @crop                       = {:top => 0, :bottom => 0, :left => 0, :right => 0}
       @constrain_crop             = false
@@ -306,21 +307,63 @@ HERE
       opts.on('--no-log')             { @log = false }
       opts.on('--dry-run')            { @dry_run = true }
 
+      opts.on '--target ARG' do |arg|
+        case arg
+        when 'big'
+          @vbv_maxrate_2160p  = 16000
+          @vbv_maxrate_1080p  = 8000
+          @vbv_maxrate_720p   = 4000
+          @vbv_maxrate_480p   = 2000
+        when 'small'
+          @vbv_maxrate_2160p  = 8000
+          @vbv_maxrate_1080p  = 4000
+          @vbv_maxrate_720p   = 2000
+          @vbv_maxrate_480p   = 1000
+        when /^([0-9]+p)=([1-9][0-9]*)$/
+          bitrate = $2.to_i
+
+          case $1
+          when '2160p'
+            @vbv_maxrate_2160p = bitrate
+          when '1080p'
+            @vbv_maxrate_1080p = bitrate
+          when '720p'
+            @vbv_maxrate_720p = bitrate
+          when '480p'
+            @vbv_maxrate_480p = bitrate
+          else
+            fail UsageError, "invalid target video bitrate resolution: #{$1}"
+          end
+
+          @target_bitrate = nil
+        else
+          unless arg =~ /^[1-9][0-9]*$/
+            fail UsageError, "invalid rate argument: #{arg}"
+          end
+          @target_bitrate = arg.to_i
+        end
+
+        @abr_bitrate = nil
+        @vbr_quality = nil
+      end
+
       opts.on '--small' do
-        @vbv_maxrate_2160p  = 10000
-        @vbv_maxrate_1080p  = 5000
-        @vbv_maxrate_720p   = 3000
-        @vbv_maxrate_480p   = 1600
+        Console.warn 'Using deprecated option: --small'
+        @vbv_maxrate_2160p  = 8000
+        @vbv_maxrate_1080p  = 4000
+        @vbv_maxrate_720p   = 2000
+        @vbv_maxrate_480p   = 1000
         @ac3_bitrate        = 384
         @pass_ac3_bitrate   = 448
         @target_bitrate     = nil
       end
 
       opts.on '--small-video' do
-        @vbv_maxrate_2160p  = 10000
-        @vbv_maxrate_1080p  = 5000
-        @vbv_maxrate_720p   = 3000
-        @vbv_maxrate_480p   = 1600
+        Console.warn 'Using deprecated option: --small-video'
+        @vbv_maxrate_2160p  = 8000
+        @vbv_maxrate_1080p  = 4000
+        @vbv_maxrate_720p   = 2000
+        @vbv_maxrate_480p   = 1000
         @target_bitrate     = nil
       end
 
@@ -401,35 +444,6 @@ HERE
         else
           fail UsageError, "invalid pixel aspect argument: #{arg}"
         end
-      end
-
-      opts.on '--target ARG' do |arg|
-        if arg =~ /^([0-9]+p)=([1-9][0-9]*)$/
-          bitrate = $2.to_i
-
-          case $1
-          when '2160p'
-            @vbv_maxrate_2160p = bitrate
-          when '1080p'
-            @vbv_maxrate_1080p = bitrate
-          when '720p'
-            @vbv_maxrate_720p = bitrate
-          when '480p'
-            @vbv_maxrate_480p = bitrate
-          else
-            fail UsageError, "invalid target video bitrate resolution: #{$1}"
-          end
-
-          @target_bitrate = nil
-        else
-          unless arg =~ /^[1-9][0-9]*$/
-            fail UsageError, "invalid rate argument: #{arg}"
-          end
-          @target_bitrate = arg.to_i
-        end
-
-        @abr_bitrate = nil
-        @vbr_quality = nil
       end
 
       opts.on '--force-rate ARG' do |arg|
@@ -901,7 +915,7 @@ HERE
         end
 
         encoder_options['vbv-maxrate']  = vbv_maxrate.to_s
-        encoder_options['vbv-bufsize']  = (@encoder_options.fetch('vbv-maxrate', vbv_maxrate).to_i / 2).to_s
+        encoder_options['vbv-bufsize']  = (@encoder_options.fetch('vbv-maxrate', vbv_maxrate).to_i * 2).to_s
         encoder_options['crf-max']      = '25'
         encoder_options['qpmax']        = '34'
       else
