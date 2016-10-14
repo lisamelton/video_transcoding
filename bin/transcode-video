@@ -907,8 +907,6 @@ HERE
         else
           if @target_bitrate < 2
             vbv_maxrate = 2
-          elsif @target_bitrate > 300000
-            vbv_maxrate = 300000
           else
             vbv_maxrate = @target_bitrate
           end
