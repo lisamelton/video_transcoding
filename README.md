@@ -609,6 +609,24 @@ For a few problematic videos, I have to apply options like `--force-rate 23.976 
 
 ## History
 
+### [0.12.0](https://github.com/donmelton/video_transcoding/releases/tag/0.12.0)
+
+Friday, October 14, 2016
+
+* Revise the ratecontrol system and default target video bitrates in `transcode-video` so that output is smaller and transcoding is faster. Via [ #90](https://github.com/donmelton/video_transcoding/issues/90).
+    * Increase the value of `vbv-bufsize` to be twice that of `vbv-maxrate`, the target. This is much more likely to produce an output video bitrate nearer to that target.
+    * Lower the targets to accomodate this new accuracy and avoid wasting bitrate and time on unneeded quality.
+* Deprecate the `--small` and `--small-video` options in `transcode-video`.
+* Add a variation of the `--target` option with `big` and `small` arguments to `transcode-video`. The `small` macro provides output similar to, but still smaller than, the old `--small-video` option. The `big` macro provides output even larger than the old ratecontrol system and targets.
+* Remove unnecessary boundary checking of the target video bitrate in `transcode-video`.
+* Modify `transcode-video` so adding `--handbrake-option encoder=x265` is all that is needed to enable _experimental_ HEVC transcoding. Use this _only_ with `HandBrakeCLI` nightly builds from September 29, 2016, or later.
+* Update the "README" document to:
+    * Revise the default target video bitrates.
+    * Remove all references to the `--small` option since it's now deprecated.
+    * Add the Windows Subsystem for Linux as a possible installation platform. Via [ #89](https://github.com/donmelton/video_transcoding/pull/89) from [@JMoVS](https://github.com/JMoVS).
+    * Replace visible HTML comments with zero-width spaces.
+    * Tweak the description of how I use `transcode-video`. Yes, again.
+
 ### [0.11.1](https://github.com/donmelton/video_transcoding/releases/tag/0.11.1)
 
 Monday, September 26, 2016
