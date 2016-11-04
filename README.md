@@ -39,7 +39,7 @@ Even if you don't try any of my tools, you may find this "README" document helpf
 
 ## Installation
 
-My Video Transcoding tools are designed to work on OS X, Linux and Windows. They're packaged as a Gem and require Ruby version 2.0 or later. See "[Installing Ruby](https://www.ruby-lang.org/en/documentation/installation/)" if you don't have the proper version on your platform.
+My Video Transcoding tools are designed to work on macOS, Linux and Windows. They're packaged as a Gem and require Ruby version 2.0 or later. See "[Installing Ruby](https://www.ruby-lang.org/en/documentation/installation/)" if you don't have the proper version on your platform.
 
 Use this command to install the package: 
 
@@ -70,7 +70,7 @@ You can download the command line version of HandBrake, called `HandBrakeCLI`, h
 
 <https://handbrake.fr/downloads2.php>
 
-On OS X, the other dependencies can be easily installed via [Homebrew](http://brew.sh/), an add-on package manager:
+On macOS, the other dependencies can be easily installed via [Homebrew](http://brew.sh/), an add-on package manager:
 
     brew install ffmpeg
     brew install mkvtoolnix
@@ -87,7 +87,7 @@ On Windows, it's best to search the Web for the appropriate binary or add-on pac
 
 <https://gist.github.com/JMoVS/75f3c6b344648deef59bc761e5e5a0e6>
 
-When installing `HandBrakeCLI` or other downloaded programs, make sure the executable binary is in a directory listed in your `PATH` environment variable. On Unix-style systems like OS X and Linux, that directory might be `/usr/local/bin`.
+When installing `HandBrakeCLI` or other downloaded programs, make sure the executable binary is in a directory listed in your `PATH` environment variable. On Unix-style systems like macOS and Linux, that directory might be `/usr/local/bin`.
 
 ## Rationale
 
@@ -411,7 +411,7 @@ I have four rules when preparing my own media for transcoding:
 
 #### Why MakeMKV?
 
-* It runs on most desktop computer platforms like OS X, Windows and Linux. There's even a free version available to try before you buy.
+* It runs on most desktop computer platforms like macOS, Windows and Linux. There's even a free version available to try before you buy.
 
 * It was designed to decrypt and extract a video track, usually the main feature of a disc and convert it into a single Matroska format `.mkv` file. And it does this really, really well.
 
@@ -663,7 +663,7 @@ Friday, May 6, 2016
 
 * Add resolution-specific qualifiers to the `--target` option in `transcode-video`. This allows different video bitrate targets for inputs with different resolutions. For example, you can use `--target 1080p=6500` alone to change the target for Blu-ray Discs and not DVDs. Or you could combine that with `--target 480p=2500` to affect both resolutions. Via [ #68](https://github.com/donmelton/video_transcoding/pull/68) from [@turley](https://github.com/turley).
 * Fix a bug in `transcode-video` where video bitrate targets were not reset when the `--small` or `--small-video` options followed the `--target` option on the command line.
-* Fix a bug where `query-handbrake-log` would fail for `time` or `speed` on OS X or Linux when parsing .log files created on Windows. This was due to a regular expression not expecting a carriage return (CR) before a line feed (LF), i.e. a Windows-style line ending (CRLF). Via [ #67](https://github.com/donmelton/video_transcoding/issues/67) from [@lambdan](https://github.com/lambdan).
+* Fix a bug where `query-handbrake-log` would fail for `time` or `speed` on macOS or Linux when parsing .log files created on Windows. This was due to a regular expression not expecting a carriage return (CR) before a line feed (LF), i.e. a Windows-style line ending (CRLF). Via [ #67](https://github.com/donmelton/video_transcoding/issues/67) from [@lambdan](https://github.com/lambdan).
 
 ### [0.9.0](https://github.com/donmelton/video_transcoding/releases/tag/0.9.0)
 
