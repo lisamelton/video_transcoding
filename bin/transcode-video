@@ -255,7 +255,7 @@ HERE
       @vbr_quality                = nil
       @encoder_options            = {}
       @disable_encoder_options    = []
-      @handbrake_options          = {'encoder-preset' => 'medium'}
+      @handbrake_options          = {}
       @disable_handbrake_options  = []
       @temporary                  = nil
     end
@@ -873,6 +873,35 @@ HERE
 
       handbrake_options[anamorphic] = nil unless @handbrake_options.has_key? 'custom-anamorphic'
 
+      unless @handbrake_options.has_key? 'rate'
+        rate = '30'
+        fps = media.info[:fps]
+
+        if fps == 29.97
+          if media.info[:mpeg2]
+            rate = '23.976'
+          else
+            unless  @handbrake_options.has_key? 'deinterlace' or
+                    @handbrake_options.has_key? 'decomb' or
+                    @handbrake_options.has_key? 'detelecine'
+              handbrake_options['deinterlace'] = nil
+            end
+          end
+        elsif media.info[:mpeg2]
+          case fps
+          when 23.976, 24.0, 25.0
+            rate = fps.to_s
+          end
+        end
+
+        handbrake_options['rate'] = rate
+        handbrake_options['pfr'] = nil if rate == '30'
+      end
+
+      encoder = @handbrake_options.fetch('encoder', 'x264')
+      return unless encoder == 'x264' or encoder == 'x265'
+      handbrake_options['encoder-preset'] = 'medium'
+
       if width > 1920 or height > 1080
         encoder_level = '5.1'
         vbv_maxrate = @vbv_maxrate_2160p
@@ -887,7 +916,7 @@ HERE
         vbv_maxrate = @vbv_maxrate_480p
       end
 
-      case @handbrake_options.fetch('encoder', 'x264')
+      case encoder
       when 'x264'
         handbrake_options['encoder-profile'] = 'high'
         handbrake_options['encoder-level'] = encoder_level
@@ -929,37 +958,14 @@ HERE
         handbrake_options['quality'] = @vbr_quality.to_s.gsub(/\.0+$/, '') unless @vbr_quality.nil?
       end
 
-      if @quick and @handbrake_options.fetch('encoder-preset', 'medium') == 'medium'
+      if  @quick and
+          @handbrake_options.fetch('encoder-preset', 'medium') == 'medium' and
+          encoder == 'x264'
         encoder_options['ref']          = '1'
         encoder_options['weightp']      = '1'
         encoder_options['subme']        = '6'
         encoder_options['mixed-refs']   = '0'
         encoder_options['rc-lookahead'] = '30'
-      end
-
-      unless @handbrake_options.has_key? 'rate'
-        rate = '30'
-        fps = media.info[:fps]
-
-        if fps == 29.97
-          if media.info[:mpeg2]
-            rate = '23.976'
-          else
-            unless  @handbrake_options.has_key? 'deinterlace' or
-                    @handbrake_options.has_key? 'decomb' or
-                    @handbrake_options.has_key? 'detelecine'
-              handbrake_options['deinterlace'] = nil
-            end
-          end
-        elsif media.info[:mpeg2]
-          case fps
-          when 23.976, 24.0, 25.0
-            rate = fps.to_s
-          end
-        end
-
-        handbrake_options['rate'] = rate
-        handbrake_options['pfr'] = nil if rate == '30'
       end
     end
 
