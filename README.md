@@ -573,6 +573,12 @@ My ratecontrol system can't be applied with the current version of the x265 enco
 
 But support also requires equivalent quality at a smaller size when using my rate control system. And performance is an issue. While speed continues to improve, the x265 encoder is still considerably slower than the current H.264 system.
 
+You can try _experimental_ HEVC transcoding now with an advanced option:
+
+    transcode-video --handbrake-option encoder=x265 "/path/to/Movie.mkv"
+
+But use this _only_ with `HandBrakeCLI` nightly builds from September 29, 2016, or later.
+
 ### What about hardware-based video transcoding?
 
 Using hardware with [Intel Quick Sync Video](https://en.wikipedia.org/wiki/Intel_Quick_Sync_Video) instead of software like x264 is certainly faster. HandBrake even supports that hardware on some platforms. However, my default ratecontrol system can't be applied to existing hardware encoders because they lack API to change the necessary settings.
