@@ -6,7 +6,7 @@ Tools to transcode, inspect and convert videos.
 
 Hi, I'm [Don Melton](http://donmelton.com/). I created these tools to transcode my collection of Blu-ray Discs and DVDs into a smaller, more portable format while remaining high enough quality to be mistaken for the originals.
 
-What makes these tools unique is the special ratecontrol system which achieves those goals.
+What makes these tools unique is the [special ratecontrol system](#explanation) which achieves those goals.
 
 This package is based on my original collection of [Video Transcoding Scripts](https://github.com/donmelton/video-transcoding-scripts) written in Bash. While still available online, those scripts are no longer in active development. Users are encouraged to install this Ruby Gem instead.
 
@@ -31,6 +31,7 @@ Even if you don't try any of my tools, you may find this "README" document helpf
 * [Rationale](#rationale)
 * [Usage](#usage)
 * [Guide](#guide)
+* [Explanation](#explanation)
 * [FAQ](#faq)
 * [History](#history)
 * [Feedback](#feedback)
@@ -552,6 +553,53 @@ The transcoding process is started by executing the script:
 The path is first deleted from the `queue.txt` file and then passed as an argument to the `transcode-video.` tool. To pause after `transcode-video` returns, simply insert a blank line at the top of the `queue.txt` file.
 
 These examples are written in Bash and only supply crop values. But almost any scripting language can be used and any option can be changed on a per input basis.
+
+## Explanation
+
+### How my special ratecontrol system works
+
+When using `transcode-video`, you might notice two lines in the console output containing something like this:
+
+```
+options: vbv-maxrate=6000:vbv-bufsize=12000:crf-max=25:qpmax=34
+
+quality: 1.00 (RF)
+
+```
+
+These are actually the settings used by my special ratecontrol system to configure the x264 video encoder within HandBrake.
+
+My system attempts to produce the highest possible video quality near a target bitrate. That target is automatically determined by `transcode-video` using the resolution of the input. For example, the default target for 1080p output is `6000` Kbps, which is about one-fifth the video bitrate found on a typical Blu-ray Disc.
+
+The average bitrate (ABR) mode in x264 is normally used to target a specific bitrate. But the ABR algorithm often sacrifices quality in order to maintain that bitrate. Getting acceptable quality with ABR requires multiple passes through the input, a process too slow for many people. And even multiple-pass ABR won't provide sufficient quality for some 1080p video input when bitrate targets are as low as `6000` Kbps.
+
+Instead, I leverage the constant quality ratecontrol system in x264. This algorithm uses a constant ratefactor (CRF) to target a specific quality instead of a bitrate. A CRF is represented by a number from `0` to `51` with lower values indicating higher quality. The special value of `0` is for lossless output.
+
+Unfortunately, the output bitrate is extremely unpredictable when using this CRF-based system. Typically, people pick a middle-level CRF value as their quality target and just hope for the best. This is what most of the presets built into HandBrake do, choosing a CRF of `20` or `22`.
+
+But such a strategy can result in output larger than its input or, worse, output too low in quality to be mistaken for that input.
+
+So I set the target CRF value to `1`, the best possible "lossy" quality. Normally this would produce a huge output bitrate but I also manipulate the video buffering verifier (VBV) model within x264 to constrain that bitrate.
+
+Typically, the VBV model limits the output bitrate to a generous `25000` Kbps for video playback on devices like the Apple TV or Roku. But I reduce the VBV maximum bitrate (`vbv-maxrate`) to my target, e.g. `6000` Kbps for 1080p output.
+
+With this approach, x264 chooses the lowest CRF value, and therefore the highest quality, which fits below that ceiling, even if that's usually not a a CRF value of `1`.
+
+But manipulating only CRF and `vbv-maxrate` will not produce high enough quality output in some cases. Why? Sometimes you need a much higher bitrate for complex or difficult to encode passages than what is allowed by `vbv-maxrate`.
+
+Along with the target CRF value of `1`, I set a maximum CRF (`crf-max`) value of `25`, raising the minimum quality. This allows `vbv-maxrate` to become a "soft" ceiling so that the output bitrate can exceed the target when necessary to maintain that quality.
+
+But just adding a maximum CRF value is not enough. When under pressure to fit within all these constraints, x264 will sometimes generate a single, but still noticeable, very low quality frame. Why? Even though `crf-max` is set to `25`, individual frames can still use a higher quantizer value (QP) of much less quality.
+
+As part of the encoding process, x264 calculates a quantizer value (QP) for each macroblock within a frame of video. A QP is represented by a number from `0` to `69` with lower values indicating higher quality.
+
+So I set a maximum quantizer (`qpmax`) value of `34`, again raising the minimum quality. The occasional bad frame is still there, but it's no longer noticeable because it's now of sufficient quality to blend in with the others.
+
+There's a final change required for the VBV model. I need to set the VBV buffer size (`vbv-bufsize`) so that my previous adjustment of `vbv-maxrate` is honored by x264. Otherwise the encoder will just ignore the VBV.
+
+It's safe to set `vbv-bufsize` anywhere in the range from one half to twice that of `vbv-maxrate`. However, that larger `vbv-bufsize` value produces an output bitrate closest to, on average, that of the target. So, if `vbv-maxrate` is `6000` Kbps, then I set `vbv-bufsize` to `12000` Kbps.
+
+All these settings are essential for transcoding Blu-ray Discs and DVDs into a smaller, more portable format while remaining high enough quality to be mistaken for the originals. And `transcode-video` handles that configuration automatically for you.
 
 ## FAQ
 
