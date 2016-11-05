@@ -663,6 +663,16 @@ For a few problematic videos, I have to apply options like `--force-rate 23.976 
 
 ## History
 
+### [0.12.1](https://github.com/donmelton/video_transcoding/releases/tag/0.12.1)
+
+Friday, November 4, 2016
+
+* Modify `transcode-video` to enable the `--quick` option only for the x264 video encoder and enable my special ratecontrol system only for the x264 and x265 encoders.
+* Update the "README" document to:
+    * Revise the H.265 answer in the "FAQ" section to show how you can try _experimental_ HEVC transcoding now.
+    * Use new canonical "macOS" name.
+    * Add "Explanation" section describing how my special ratecontrol system works.
+
 ### [0.12.0](https://github.com/donmelton/video_transcoding/releases/tag/0.12.0)
 
 Friday, October 14, 2016
