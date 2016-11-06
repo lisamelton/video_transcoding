@@ -369,7 +369,8 @@ HERE
 
       opts.on '--quick' do
         @quick = true
-        force_handbrake_option 'encoder-preset', 'medium'
+        @handbrake_options.delete 'encoder'
+        @handbrake_options.delete 'encoder-preset'
       end
 
       opts.on '--preset ARG' do |arg|
@@ -439,6 +440,8 @@ HERE
           force_handbrake_option 'pixel-aspect', arg
           force_handbrake_option 'custom-anamorphic', nil
           @handbrake_options.delete 'display-width'
+          @handbrake_options.delete 'non-anamorphic'
+          @handbrake_options.delete 'auto-anamorphic'
           @handbrake_options.delete 'strict-anamorphic'
           @handbrake_options.delete 'loose-anamorphic'
         else
@@ -868,7 +871,7 @@ HERE
           height = adjusted_height
         end
       else
-        anamorphic = 'strict-anamorphic'
+        anamorphic = HandBrake.auto_anamorphic
       end
 
       handbrake_options[anamorphic] = nil unless @handbrake_options.has_key? 'custom-anamorphic'

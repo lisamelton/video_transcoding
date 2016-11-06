@@ -40,24 +40,54 @@ module VideoTranscoding
       Tool.use(COMMAND_NAME)
     end
 
+    def auto_anamorphic
+      properties = Tool.properties(COMMAND_NAME)
+
+      unless properties.has_key? :auto_anamorphic
+        if help_text =~ /auto-anamorphic/
+          properties[:auto_anamorphic] = 'auto-anamorphic'
+        else
+          properties[:auto_anamorphic] = 'strict-anamorphic'
+        end
+      end
+
+      properties[:auto_anamorphic]
+    end
+
     def aac_encoder
       properties = Tool.properties(COMMAND_NAME)
-      return properties[:aac_encoder] if properties.has_key? :aac_encoder
-      output = ''
 
-      begin
-        IO.popen([Tool.use(COMMAND_NAME), '--help'], :err=>[:child, :out]) { |io| output = io.read }
-      rescue SystemCallError => e
-        raise "#{COMMAND_NAME} AAC encoder unknown: #{e}"
+      unless properties.has_key? :aac_encoder
+        if help_text =~ /ca_aac/
+          properties[:aac_encoder] = 'ca_aac'
+        else
+          properties[:aac_encoder] = 'av_aac'
+        end
       end
 
-      fail "#{COMMAND_NAME} failed during execution" unless $CHILD_STATUS.exitstatus == 0
+      properties[:aac_encoder]
+    end
 
-      if output =~ /ca_aac/
-        properties[:aac_encoder] = 'ca_aac'
-      else
-        properties[:aac_encoder] = 'av_aac'
+    private
+
+    def help_text
+      properties = Tool.properties(COMMAND_NAME)
+
+      unless properties.has_key? :help_text
+        properties[:help_text] = ''
+
+        begin
+          IO.popen([Tool.use(COMMAND_NAME), '--help'], :err=>[:child, :out]) do |io|
+            properties[:help_text] = io.read
+          end
+        rescue SystemCallError => e
+          raise "#{COMMAND_NAME} help text unavailable: #{e}"
+        end
+
+        fail "#{COMMAND_NAME} failed during execution" unless $CHILD_STATUS.exitstatus == 0
       end
+
+      properties[:help_text]
     end
   end
 end
