@@ -663,6 +663,14 @@ For a few problematic videos, I have to apply options like `--force-rate 23.976 
 
 ## History
 
+### [0.12.2](https://github.com/donmelton/video_transcoding/releases/tag/0.12.2)
+
+Sunday, November 6, 2016
+
+* Modify `transcode-video` to use HandBrake's new "auto-anamorphic" API, if available, instead of "strict-anamorphic". The HandBrake team removed the "strict-anamorphic" API on October 31, 2016, breaking `transcode-video` when it's used with the latest nightly builds. Via [ #67](https://github.com/donmelton/video_transcoding/issues/96) from [@iokui](https://github.com/iokui).
+* Add "auto-anamorphic" and "non-anamorphic" to the list of HandBrake APIs disabled when the `--pixel-aspect` option is used with `transcode-video`.
+* Re-enable the x264 video encoder when the `--quick` option is used with `transcode-video`.
+
 ### [0.12.1](https://github.com/donmelton/video_transcoding/releases/tag/0.12.1)
 
 Friday, November 4, 2016
