@@ -42,11 +42,11 @@ Even if you don't try any of my tools, you may find this "README" document helpf
 
 My Video Transcoding tools are designed to work on macOS, Linux and Windows. They're packaged as a Gem and require Ruby version 2.0 or later. See "[Installing Ruby](https://www.ruby-lang.org/en/documentation/installation/)" if you don't have the proper version on your platform.
 
-Use this command to install the package:
+Use this command to install the package: 
 
     gem install video_transcoding
 
-You may need to prefix that command with `sudo` in some environments:
+You may need to prefix that command with `sudo` in some environments: 
 
     sudo gem install video_transcoding
 
@@ -82,17 +82,6 @@ On macOS, the other dependencies can be easily installed via [Homebrew](http://b
 
     brew cask install handbrakecli
 
-If you wish to use Docker, [a pre-built image](https://hub.docker.com/r/ntodd/video-transcoding/) with all dependencies is available:
-
-    # Docker for Mac & Linux (mounts the current directory)
-    docker run -itv `pwd`:/data ntodd/video-transcoding /bin/bash
-
-    # Docker for Windows (mounts the specified directory)
-    docker run -itv C:\My\Current\Path:/data ntodd/video-transcoding /bin/bash
-
-    # Update to the latest image
-    docker pull ntodd/video-transcoding
-
 On Linux, package management systems vary so it's best consult the indexes for those systems. But there's a Homebrew port available called [Linuxbrew](http://linuxbrew.sh/) and it doesn't require root access.
 
 On Windows, it's best to search the Web for the appropriate binary or add-on package manager. The [VideoHelp](http://www.videohelp.com) and [Cygwin](https://cygwin.com/) sites are a good place to start. Or you could try installing into the [Windows Subsystem for Linux](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux) as described here:
@@ -100,6 +89,8 @@ On Windows, it's best to search the Web for the appropriate binary or add-on pac
 <https://gist.github.com/JMoVS/75f3c6b344648deef59bc761e5e5a0e6>
 
 When installing `HandBrakeCLI` or other downloaded programs, make sure the executable binary is in a directory listed in your `PATH` environment variable. On Unix-style systems like macOS and Linux, that directory might be `/usr/local/bin`.
+
+Alternatively, [a pre-built image](https://hub.docker.com/r/ntodd/video-transcoding/) with usage instructions is available.
 
 ## Rationale
 
@@ -306,7 +297,7 @@ But you can select any subtitle track for burning. In this case, track number 3:
 You can also use a special "scan" mode of HandBrake to find any embedded forced subtitle track that's in the same language as the main audio track:
 
     transcode-video --burn-subtitle scan "/path/to/Movie.mkv"
-
+    
 Be aware that using this special "scan" mode does not always work. Sometimes it won't find any track or, worse, it will find the wrong track. And you won't know whether it worked until the transcoding is complete.
 
 Burning subtitles into the output video works best for "forced" rather than optional subtitles. But it's still a much better idea than adding subtitle tracks in their original format to the output file.
@@ -398,7 +389,7 @@ The speed of transcoding in frames per second, sorted from fast to slow. Since m
 The final video bitrate of the transcoded output, sorted from low to high. Very useful since most media query tools only provide approximate bitrates for Matroska files, if at all.
 
 * `ratefactor`
-Technically this is the average P-frame quantizer for transcoding, sorted from low to high. But you should consider it a relative quality assessment by the x264 video encoder.
+Technically this is the average P-frame quantizer for transcoding, sorted from low to high. But you should consider it a relative quality assessment by the x264 video encoder. 
 
 One of these information types is required as an argument:
 
@@ -848,7 +839,7 @@ Friday, January 8, 2016
 * Fix compatibility with development/nightly builds of `HandBrakeCL` in `transcode-video`:
     * Always force the x264 `medium` preset to override the new `veryfast` default value. Via [ #36](https://github.com/donmelton/video_transcoding/pull/36) from [@cnrd](https://github.com/cnrd).
     * Explicitly set the encoder profile to `high` to override the new `main` default value.
-    * Explicitly (and dynamically) set the encoder level to override the new `4.0` default value.
+    * Explicitly (and dynamically) set the encoder level to override the new `4.0` default value. 
 * Fix a stupid regression from version 0.2.8 caused by a typo in the patch for the SubRip-format text file offset fix to `transcode-video`. Via [ #37](https://github.com/donmelton/video_transcoding/issues/37) from [@bpharriss](https://github.com/bpharriss).
 * Be more lenient about `--encoder-option` arguments in `transcode-video` so `8x8dct` is allowed.
 * Always print the `HandBrakeCLI` version string to diagnostic output even if it can't be parsed.
