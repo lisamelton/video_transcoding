@@ -90,6 +90,8 @@ On Windows, it's best to search the Web for the appropriate binary or add-on pac
 
 When installing `HandBrakeCLI` or other downloaded programs, make sure the executable binary is in a directory listed in your `PATH` environment variable. On Unix-style systems like macOS and Linux, that directory might be `/usr/local/bin`.
 
+Alternatively, [a pre-built Docker image](https://hub.docker.com/r/ntodd/video-transcoding/) with usage instructions is available.
+
 ## Rationale
 
 ### Why `transcode-video`?
