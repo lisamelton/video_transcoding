@@ -662,6 +662,15 @@ For a few problematic videos, I have to apply options like `--force-rate 23.976 
 
 ## History
 
+### [0.12.3](https://github.com/donmelton/video_transcoding/releases/tag/0.12.3)
+
+Tuesday, December 6, 2016
+
+* Increase the speed and quality of the `--quick` option. Encoding is now _70-80% faster_ than the default setting with _no easily perceptible loss in video quality_. The improvement is so good that I no longer recommend using x264 presets to speed things up. Via [ #104](https://github.com/donmelton/video_transcoding/issues/104).
+* Update the "README" document to:
+    * Revise the "Understanding the x264 preset system" section to suggest using `--quick` or `--target big` instead of faster or slower presets.
+    * Add Docker virtualization software installation instructions. Via [ #98](https://github.com/donmelton/video_transcoding/issues/98) from [@ntodd](https://github.com/ntodd).
+
 ### [0.12.2](https://github.com/donmelton/video_transcoding/releases/tag/0.12.2)
 
 Sunday, November 6, 2016
