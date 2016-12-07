@@ -65,9 +65,9 @@ Quality options:
                       or target for specific input resolution
                       (can be exceeded to maintain video quality)
                       (can be used multiple times)
-    --quick         trade some precision for 45-50% increase in encoding speed
-                      (more than 15% speedier than x264 encoder "fast" preset)
-                      (avoids quality loss of "faster" and "veryfast" presets)
+    --quick         increase encoding speed by 70-80%
+                      with no easily perceptible loss in video quality
+                      (avoids quality problems associated with x264 presets)
     --preset veryfast|faster|fast|slow|slower|veryslow
                     apply x264 encoder preset
 
@@ -964,9 +964,8 @@ HERE
       if  @quick and
           @handbrake_options.fetch('encoder-preset', 'medium') == 'medium' and
           encoder == 'x264'
+        encoder_options['partitions']   = 'none'
         encoder_options['ref']          = '1'
-        encoder_options['weightp']      = '1'
-        encoder_options['subme']        = '6'
         encoder_options['mixed-refs']   = '0'
         encoder_options['rc-lookahead'] = '30'
       end
