@@ -446,26 +446,21 @@ I have four rules when preparing my own media for transcoding:
 
 The `--preset` option in `transcode-video` controls the x264 video encoder, not the other preset system built into HandBrake. It takes a preset name as its single argument:
 
-    transcode-video --preset fast "/path/to/Movie.mkv"
+    transcode-video --preset slow "/path/to/Movie.mkv"
 
 The x264 preset names (mostly) reflect their relative speed compared to the default, `medium`.
 
-Preset name | Note
---- | --- | ---
-`ultrafast` | not recommended
-`superfast` | not recommended
-`veryfast` | use with caution
-`faster` | use with caution
-`fast` | good but you might want to use `--quick` instead
-`medium` | default
-`slow` | &#8203;
-`slower` | &#8203;
-`veryslow` | &#8203;
-`placebo` | not recommended
+Presets faster than `medium` trade precision and compression efficiency for more speed. You may notice quality loss problems when using these presets, especially as speed increases.
 
-Presets faster than `medium` trade precision and compression efficiency for more speed. That tradeoff is acceptable for the `fast` preset. But you may notice occasional quality loss problems when using the `faster` or `veryfast` presets.
+However, you can increase encoding speed by 70-80% with no easily perceptible loss in video quality by using the `--quick` option instead:
+
+    transcode-video --quick "/path/to/Movie.mkv"
 
 Presets slower than `medium` trade encoding speed for more precision and compression efficiency. Any quality improvement using these presets may not be perceptible for most input.
+
+A faster and more perceptible way to improve quality is to simply raise the target video bitrate 50% by using the `--target big` option and argument macro:
+
+    transcode-video --target big "/path/to/Movie.mkv"
 
 ### Recommended `transcode-video` usage
 
