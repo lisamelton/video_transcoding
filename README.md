@@ -71,16 +71,13 @@ You can download the command line version of HandBrake, called `HandBrakeCLI`, h
 
 <https://handbrake.fr/downloads2.php>
 
-On macOS, the other dependencies can be easily installed via [Homebrew](http://brew.sh/), an add-on package manager:
+On macOS, it and all other dependencies can be easily installed via [Homebrew](http://brew.sh/), an add-on package manager:
 
+    brew install handbrake
     brew install ffmpeg
     brew install mkvtoolnix
     brew install mp4v2
     brew install mplayer
-
-`HandBrakeCLI` is also available via [Homebrew Cask](http://caskroom.io/), an extension to Homebrew:
-
-    brew cask install handbrakecli
 
 On Linux, package management systems vary so it's best consult the indexes for those systems. But there's a Homebrew port available called [Linuxbrew](http://linuxbrew.sh/) and it doesn't require root access.
 
