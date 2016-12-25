@@ -77,10 +77,7 @@ On macOS, the other dependencies can be easily installed via [Homebrew](http://b
     brew install mkvtoolnix
     brew install mp4v2
     brew install mplayer
-
-`HandBrakeCLI` is also available via [Homebrew Cask](http://caskroom.io/), an extension to Homebrew:
-
-    brew cask install handbrakecli
+    brew install handbrakecli
 
 On Linux, package management systems vary so it's best consult the indexes for those systems. But there's a Homebrew port available called [Linuxbrew](http://linuxbrew.sh/) and it doesn't require root access.
 
