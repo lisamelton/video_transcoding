@@ -71,7 +71,7 @@ You can download the command line version of HandBrake, called `HandBrakeCLI`, h
 
 <https://handbrake.fr/downloads2.php>
 
-On macOS, it and all other dependencies can be easily installed via [Homebrew](http://brew.sh/), an add-on package manager:
+On macOS, `HandBrakeCLI` and all its other dependencies can be easily installed via [Homebrew](http://brew.sh/), an add-on package manager:
 
     brew install handbrake
     brew install ffmpeg
