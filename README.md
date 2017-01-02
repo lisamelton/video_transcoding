@@ -621,7 +621,7 @@ You can try _experimental_ HEVC transcoding now with an advanced option:
 
     transcode-video --handbrake-option encoder=x265 "/path/to/Movie.mkv"
 
-But use this _only_ with `HandBrakeCLI` nightly builds from September 29, 2016, or later.
+But use this _only_ with `HandBrakeCLI` version 1.0.0 or later.
 
 ### What about hardware-based video transcoding?
 
