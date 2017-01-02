@@ -68,6 +68,9 @@ Quality options:
     --quick         increase encoding speed by 70-80%
                       with no easily perceptible loss in video quality
                       (avoids quality problems associated with x264 presets)
+    --veryquick     increase encoding speed by 90-125%
+                      with little easily perceptible loss in video quality
+                      (unlike `--quick`, output size is larger than default)
     --preset veryfast|faster|fast|slow|slower|veryslow
                     apply x264 encoder preset
 
@@ -225,6 +228,7 @@ HERE
       @vbv_maxrate_720p           = 3000
       @vbv_maxrate_480p           = 1500
       @quick                      = false
+      @veryquick                  = false
       @crop                       = {:top => 0, :bottom => 0, :left => 0, :right => 0}
       @constrain_crop             = false
       @fallback_crop              = nil
@@ -369,6 +373,14 @@ HERE
 
       opts.on '--quick' do
         @quick = true
+        @veryquick = false
+        @handbrake_options.delete 'encoder'
+        @handbrake_options.delete 'encoder-preset'
+      end
+
+      opts.on '--veryquick' do
+        @veryquick = true
+        @quick = false
         @handbrake_options.delete 'encoder'
         @handbrake_options.delete 'encoder-preset'
       end
@@ -383,6 +395,7 @@ HERE
         end
 
         @quick = false
+        @veryquick = false
       end
 
       opts.on '--crop ARG' do |arg|
@@ -961,12 +974,14 @@ HERE
         handbrake_options['quality'] = @vbr_quality.to_s.gsub(/\.0+$/, '') unless @vbr_quality.nil?
       end
 
-      if  @quick and
+      if  (@quick or @veryquick) and
           @handbrake_options.fetch('encoder-preset', 'medium') == 'medium' and
           encoder == 'x264'
         encoder_options['partitions']   = 'none'
         encoder_options['ref']          = '1'
+        encoder_options['bframes']      = '1'     if @veryquick
         encoder_options['rc-lookahead'] = '30'
+        encoder_options['me']           = 'dia'   if @veryquick
       end
     end
 
