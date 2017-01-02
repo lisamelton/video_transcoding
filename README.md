@@ -631,11 +631,11 @@ Also, keep in mind that hardware encoders are typically designed for realtime vi
 
 ### Can you add support for Enhanced AC-3 audio?
 
-[Dolby Digital Plus](https://en.wikipedia.org/wiki/Dolby_Digital_Plus) or Enhanced AC-3 is a successor to the Dolby Digital AC-3 audio format. AC-3 is the format currently output by `transcode-video` when surround audio is used as input. As of this writing, HandBrake only supports Enhanced AC-3 in development builds.
+[Dolby Digital Plus](https://en.wikipedia.org/wiki/Dolby_Digital_Plus) or Enhanced AC-3 is a successor to the Dolby Digital AC-3 audio format. AC-3 is the format currently output by `transcode-video` when surround audio is used as input. HandBrake has supported Enhanced AC-3 since version 1.0.0.
 
 The original AC-3 format is limited to 5.1 audio channels. This means that any 7.1 channel audio track, typically available on Blu-ray Discs, needs to be downmixed during transcoding. The advantage to Enhanced AC-3 is that it can support up to 13.1 audio channels, so no downmixing is necessary.
 
-Unfortunately, Enhanced AC-3 output is currently limited to 5.1 audio channels in HandBrake development builds. I'll consider adding support once an Enhanced AC-3 feature without that limitation is available in an official HandBrake release.
+Unfortunately, Enhanced AC-3 output is currently limited to 5.1 audio channels in HandBrake. I'll consider adding support once an Enhanced AC-3 feature without that limitation is available.
 
 ### How do you assess video transcoding quality?
 
