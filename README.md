@@ -659,6 +659,19 @@ For a few problematic videos, I have to apply options like `--force-rate 23.976 
 
 ## History
 
+### [0.13.0](https://github.com/donmelton/video_transcoding/releases/tag/0.13.0)
+
+Monday, January 2, 2017
+
+* Modify the `--quick` option in `transcode-video` to remove the x264 `mixed-refs=0` setting because it's unnecessary when the `ref=1` setting is also applied. Via [ #108](https://github.com/donmelton/video_transcoding/issues/108).
+* Add a `--veryquick` option to `transcode-video` for encoding 90-125% faster than the default setting with little easily perceptible loss in video quality. Unlike `--quick`, its output size is larger than the default. Via [ #108](https://github.com/donmelton/video_transcoding/issues/108).
+* Remove the deprecated `--small` and `--small-video` options from `transcode-video`.
+* Update all copyright notices to the year 2017.
+* Update the "README" document to:
+    * Revise the installation instructions to reflect that `HandBrakeCLI` has been removed from Homebrew Cask (thanks to [@vitorgalvao](https://github.com/vitorgalvao)) and is now part of Homebrew Core (thanks to [@JMoVS](https://github.com/JMoVS)). Via [ #106](https://github.com/donmelton/video_transcoding/pull/106) from [@vitorgalvao](https://github.com/vitorgalvao).
+    * Revise the version of `HandBrakeCLI` required for HEVC transcoding to 1.0.0 or later in the "FAQ" section.
+    * Clarify Enhanced AC-3 audio support in the "FAQ" section.
+
 ### [0.12.3](https://github.com/donmelton/video_transcoding/releases/tag/0.12.3)
 
 Tuesday, December 6, 2016
