@@ -351,26 +351,6 @@ HERE
         @vbr_quality = nil
       end
 
-      opts.on '--small' do
-        Console.warn 'Using deprecated option: --small'
-        @vbv_maxrate_2160p  = 8000
-        @vbv_maxrate_1080p  = 4000
-        @vbv_maxrate_720p   = 2000
-        @vbv_maxrate_480p   = 1000
-        @ac3_bitrate        = 384
-        @pass_ac3_bitrate   = 448
-        @target_bitrate     = nil
-      end
-
-      opts.on '--small-video' do
-        Console.warn 'Using deprecated option: --small-video'
-        @vbv_maxrate_2160p  = 8000
-        @vbv_maxrate_1080p  = 4000
-        @vbv_maxrate_720p   = 2000
-        @vbv_maxrate_480p   = 1000
-        @target_bitrate     = nil
-      end
-
       opts.on '--quick' do
         @quick = true
         @veryquick = false
