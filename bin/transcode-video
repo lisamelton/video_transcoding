@@ -966,7 +966,6 @@ HERE
           encoder == 'x264'
         encoder_options['partitions']   = 'none'
         encoder_options['ref']          = '1'
-        encoder_options['mixed-refs']   = '0'
         encoder_options['rc-lookahead'] = '30'
       end
     end
