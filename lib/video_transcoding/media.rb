@@ -164,7 +164,7 @@ module VideoTranscoding
                 track_info[:default] = false
               end
 
-              if @scan =~ /[ ]+Stream #0[.:]#{stream}[^ ]*: Audio: [^\n]+\n[ ]+Metadata:\r?\n^[ ]+title[ ]+: ([^\r\n]+)/m
+              if @scan =~ /[ ]+Stream #0[.:]#{stream}[^ ]*: Audio: [^\n]+\n(?:[^\n]+\n)?[ ]+Metadata:\r?\n^[ ]+title[ ]+: ([^\r\n]+)/m
                 track_info[:name] = $1
               else
                 track_info[:name] = nil
@@ -189,7 +189,7 @@ module VideoTranscoding
                 track_info[:forced] = false
               end
 
-              if @scan =~ /[ ]+Stream #0[.:]#{stream}[^ ]*: Subtitle: [^\n]+\n[ ]+Metadata:\r?\n^[ ]+title[ ]+: ([^\r\n]+)/m
+              if @scan =~ /[ ]+Stream #0[.:]#{stream}[^ ]*: Subtitle: [^\n]+\n(?:[^\n]+\n)?[ ]+Metadata:\r?\n^[ ]+title[ ]+: ([^\r\n]+)/m
                 track_info[:name] = $1
               else
                 track_info[:name] = nil
