@@ -124,6 +124,9 @@ Audio options:
                       with `surround` to allow single surround or stereo track
                       with `stereo` to allow only single stereo track
                       (can be used multiple times)
+    --prefer-ac3    prefer AC-3 over AAC format when encoding or copying audio
+                      even when original track channel layout is stereo or mono
+                      (sets audio output "width" for all tracks to `surround`)
     --ac3-bitrate 384|448|640
                     set AC-3 audio bitrate (default: 640)
     --pass-ac3-bitrate 384|448|640
@@ -239,6 +242,7 @@ HERE
       @audio_name                 = {}
       @audio_language             = []
       @audio_width                = {:main => :double, :other => :stereo}
+      @prefer_ac3                 = false
       @ac3_bitrate                = 640
       @pass_ac3_bitrate           = 640
       @copy_audio                 = []
@@ -531,6 +535,12 @@ HERE
         else
           fail UsageError, "invalid audio width argument: #{arg}"
         end
+      end
+
+      opts.on '--prefer-ac3' do
+        @prefer_ac3 = true
+        @audio_width[:main] = :surround
+        @audio_width[:other] = :surround
       end
 
       opts.on '--ac3-bitrate ARG', Integer do |arg|
@@ -1090,7 +1100,7 @@ HERE
             add_stereo.call info, copy
           end
         when :surround
-          if info[:channels] > 2.0
+          if @prefer_ac3 or (info[:channels] > 2.0)
             add_surround.call info, copy
           else
             add_stereo.call info, copy
