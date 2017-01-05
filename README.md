@@ -659,6 +659,13 @@ For a few problematic videos, I have to apply options like `--force-rate 23.976 
 
 ## History
 
+### [0.14.0](https://github.com/donmelton/video_transcoding/releases/tag/0.14.0)
+
+Wednesday, January 4, 2017
+
+* Add a `--prefer-ac3` option to `transcode-video`. This prefers Dolby Digital AC-3 over AAC format when encoding or copying audio, even when the original track channel layout is stereo or mono. It also sets the audio output "width" for all tracks to `surround`. Via [ #112](https://github.com/donmelton/video_transcoding/issues/112).
+* Fix a bug in the parsing of audio and subtitle track names that was introduced by the integration of Libav version 12.0 in HandBrake on December 17, 2016, affecting `HandBrakeCLI` versions 1.0.0 and later. This caused `transcode-video` to substitute any commas with underscores in added audio track names when used with those versions of `HandBrakeCLI`.
+
 ### [0.13.0](https://github.com/donmelton/video_transcoding/releases/tag/0.13.0)
 
 Monday, January 2, 2017
