@@ -120,11 +120,12 @@ module VideoTranscoding
       end
 
       subtitle.gsub(/\r/, '').each_line do |line|
-        if line =~ /^    \+ ([0-9]+), .*\(iso639-2: ([a-z]{3})\) \((?:Text|Bitmap)\)\(([^)]+)\)/
+        if line =~ /^    \+ ([0-9]+), .*\(iso639-2: ([a-z]{3})\) \((Text|Bitmap)\)\(([^)]+)\)/
           track                   = $1.to_i
           track_info              = {}
           track_info[:language]   = $2
           track_info[:format]     = $3
+          track_info[:encoding]   = $4
           @info[:subtitle][track] = track_info
         end
       end
@@ -158,7 +159,7 @@ module VideoTranscoding
               track_info = @info[:audio][audio_track]
               track_info[:stream] = stream
 
-              if attributes =~ /\(default\)/
+              if @scan =~ /[ ]+Stream #0[.:]#{stream}[^ ]*: Audio: [^\n]+(?:\n[^\n]+)?\(default\)/m
                 track_info[:default] = true
               else
                 track_info[:default] = false
@@ -257,7 +258,7 @@ module VideoTranscoding
               track_info[:default] = flags[index]
               track_info[:name] = names[index]
             end
-          when 'text'
+          when '(sbtl)', '(subp)', 'text'
             subtitle_track += 1
 
             if @info[:subtitle].has_key? subtitle_track
@@ -269,6 +270,10 @@ module VideoTranscoding
           end
 
           index += 1
+        end
+
+        if subtitle_track > 0 and @scan =~ /[ ]+Chapter #0[.:]0: start /
+          @info[:subtitle].delete subtitle_track
         end
       end
 
