@@ -62,7 +62,6 @@ Most of the tools in this package require other software to function properly, s
 
 * `HandBrakeCLI`
 * `ffmpeg`
-* `mkvmerge`
 * `mkvpropedit`
 * `mp4track`
 * `mplayer`
@@ -370,7 +369,7 @@ Which creates this Matroska file in the current working directory:
 
 If necessary, the `convert-video` tool may transcode audio tracks to AAC or Dolby Digital AC-3 format when converting to MP4 format.
 
-Chapter markers and metadata such as track titles are preserved. However, be aware that subtitle tracks are not converted.
+Chapter markers, metadata such as track titles and most subtitles are converted. However, be aware that any Blu-ray Disc-format subtitles are ignored.
 
 ### Using `query-handbrake-log`
 
