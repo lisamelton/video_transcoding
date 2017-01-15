@@ -23,8 +23,6 @@ module VideoTranscoding
 
         if output =~ /--enable-libfdk-aac/
           properties[:aac_encoder] = 'libfdk_aac'
-        elsif output =~ /--enable-libfaac/
-          properties[:aac_encoder] = 'libfaac'
         else
           properties[:aac_encoder] = 'aac'
         end
