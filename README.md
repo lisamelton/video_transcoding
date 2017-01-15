@@ -658,6 +658,25 @@ For a few problematic videos, I have to apply options like `--force-rate 23.976 
 
 ## History
 
+### [0.15.0](https://github.com/donmelton/video_transcoding/releases/tag/0.15.0)
+
+Sunday, January 15, 2017
+
+* Modify `convert-video`, via [ #114](https://github.com/donmelton/video_transcoding/issues/114), to:
+    * Add support for text-based and DVD-style image-based subtitles. Please note that Blu-ray Disc-style image-based subtitles are _not_ supported due to MP4 format restrictions. 
+    * Add a `--no-double` option which no longer assumes input files might contain two main audio tracks whose order needs to be swapped, or that a "missing" stereo AAC audio track needs to be added to MP4 output.
+    * Change the algoritm deciding when a "missing" stereo AAC audio track is added. Previously that only happened when the first track of the input MKV file was in surround format and there were no other audio tracks. Now it won't matter how many audio tracks are in the input.
+    * Use `ffmpeg` and `mkvpropedit` for conversion to MKV format instead of just `mkvmerge` which could not convert subtitle formats.
+    * Remove the dependency on `mkvmerge` and add a dependency on `mkvpropedit`.
+    * No longer pass the `-strict experimental` arguments to `ffmpeg` when using the built-in, native AAC encoder.
+* Fix a bug preventing the detection of whether an audio track had the "default" flag set when parsing scan output from `HandBrakeCLI` versions 1.0.0 and later. This was caused by the integration of Libav version 12.0 in HandBrake on December 17, 2016.
+* Fix a long-standing bug preventing the detection of all subtitles and disambiguation with chapter information in MP4 files when parsing scan output from `mp4track`.
+* Remove support for the Freeware Advanced Audio Coder (FAAC) from the "FFmpeg" module since it's no longer included with `ffmpeg`.
+* Remove the "mkvmerge.rb" source file and any references to the "MKVmerge" module since `convert-video` no longer needs it.
+* Update the "README" document to:
+    * Remove `mkvmerge` from the "Requirements" section.
+    * Clarify subtitle support in the "Using `convert-video`" section.
+
 ### [0.14.0](https://github.com/donmelton/video_transcoding/releases/tag/0.14.0)
 
 Wednesday, January 4, 2017
