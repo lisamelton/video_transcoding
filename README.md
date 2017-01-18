@@ -612,9 +612,7 @@ Plus, I wouldn't use a GUI for these tasks. And it's a bad idea to develop softw
 
 [High Efficiency Video Coding](https://en.wikipedia.org/wiki/High_Efficiency_Video_Coding) or H.265  is the likely successor to [H.264](https://en.wikipedia.org/wiki/H.264/MPEG-4_AVC), which is the format currently output by `transcode-video`. HandBrake has supported H.265 ever since it included the [x265 video encoder](http://x265.org/).
 
-My ratecontrol system can't be applied with the current version of the x265 encoder in HandBrake because it doesn't allow access to `qpmax`, critical for maintaining quality in certain situations. I'll consider adding support once the [fix for `qpmax` support in x265](https://bitbucket.org/multicoreware/x265/issues/232/add-option-to-specify-qpmax) is available in an official HandBrake release.
-
-But support also requires equivalent quality at a smaller size when using my rate control system. And performance is an issue. While speed continues to improve, the x265 encoder is still considerably slower than the current H.264 system.
+Support also requires equivalent quality at a smaller size when using my rate control system. And performance is an issue. While speed continues to improve, the x265 encoder is still considerably slower than the current H.264 system.
 
 You can try _experimental_ HEVC transcoding now with an advanced option:
 
