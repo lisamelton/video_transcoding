@@ -131,6 +131,7 @@ module VideoTranscoding
       end
 
       @info[:h264]    = false
+      @info[:hevc]    = false
       @info[:mpeg2]   = false
       audio_track     = 0
       subtitle_track  = 0
@@ -148,6 +149,8 @@ module VideoTranscoding
 
               if attributes =~ /^h264/
                 @info[:h264] = true
+              elsif attributes =~ /^hevc/
+                @info[:hevc] = true
               elsif attributes =~ /^mpeg2video/
                 @info[:mpeg2] = true
               end

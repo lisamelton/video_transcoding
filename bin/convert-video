@@ -74,7 +74,7 @@ HERE
       media = Media.new(path: arg, allow_directory: false)
       Console.debug media.info
       output = resolve_output(media)
-      fail "no H.264 format video track: #{arg}" unless media.info[:h264]
+      fail "no compatible video track: #{arg}" unless media.info[:h264] or media.info[:hevc]
       fail "no video stream: #{arg}" unless media.info.has_key? :stream
 
       if media.info[:mkv]
