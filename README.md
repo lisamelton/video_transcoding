@@ -80,9 +80,9 @@ On macOS, `HandBrakeCLI` and all its other dependencies can be easily installed 
 
 On Linux, package management systems vary so it's best consult the indexes for those systems. But there's a Homebrew port available called [Linuxbrew](http://linuxbrew.sh/) and it doesn't require root access.
 
-On Windows, it's best to search the Web for the appropriate binary or add-on package manager. The [VideoHelp](http://www.videohelp.com) and [Cygwin](https://cygwin.com/) sites are a good place to start. Or you could try installing into the [Windows Subsystem for Linux](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux) as described here:
+On Windows, it's best to follow one of the two methods, manually installing binaries or installing into the [Windows Subsystem for Linux](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux), as described here:
 
-<https://gist.github.com/JMoVS/75f3c6b344648deef59bc761e5e5a0e6>
+<https://github.com/JMoVS/installing_video_transcoding_on_windows>
 
 When installing `HandBrakeCLI` or other downloaded programs, make sure the executable binary is in a directory listed in your `PATH` environment variable. On Unix-style systems like macOS and Linux, that directory might be `/usr/local/bin`.
 
