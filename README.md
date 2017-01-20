@@ -198,13 +198,11 @@ The `.m4v` file extension is more "iTunes-friendly," but the file content itself
 
 #### Improving performance
 
-If you're willing to trade some precision for a 45-50% increase in video encoding speed, use the `--quick` option:
+You can increase encoding speed by 70-80% with no easily perceptible loss in video quality by using the `--quick` option:
 
     transcode-video --quick "/path/to/Movie.mkv"
 
-The `--quick` option is also more than 15% speedier than the x264 video encoder's "fast" preset and it avoids the occasional quality loss problems of the "faster" and "veryfast" presets.
-
-Be aware that output files are slightly larger when using the `--quick` option since the loss of precision is also a loss of efficiency.
+The `--quick` option avoids the typical quality problems associated with the x264 video encoder's speed-based presets, especially as that speed increases.
 
 #### Cropping
 
