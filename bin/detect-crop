@@ -55,11 +55,6 @@ HERE
       opts.on('--title ARG', Integer) { |arg| @title = arg }
       opts.on('--constrain')          { @constrain = true }
       opts.on('--values-only')        { @values_only = true }
-
-      opts.on '--no-constrain' do
-        Console.warn 'Using deprecated option: --no-constrain'
-        @constrain = false
-      end
     end
 
     def configure
