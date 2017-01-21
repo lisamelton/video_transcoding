@@ -656,6 +656,19 @@ For a few problematic videos, I have to apply options like `--force-rate 23.976 
 
 ## History
 
+### [0.16.0](https://github.com/donmelton/video_transcoding/releases/tag/0.16.0)
+
+Friday, January 20, 2017
+
+* Add a `--cvbr` option to `transcode-video`. This is essentially the same as the experimental option of the same name which was removed on February 25, 2016, but now it doesn't have a bitrate argument. It enables a _simple_ constrained variable bitrate (CVBR) ratecontrol system, less constrained the default, producing a more predictable output size while avoiding `VBV underflow` warnings. Use it with `--target big` for the best results.
+* Modify the `--abr` option in `transcode-video` to no longer use a bitrate argument. Instead, it relies on the `--target` option to control bitrate, just like the default ratecontrol system and the new `--cvbr` option. So, passing a bitrate argument is now an error. But you should consider using `--cvbr` instead of `--abr` anyway since the former is almost always higher quality.
+* Remove the deprecated `--no-constrain` option from `detect-crop` and the `--no-constrain-crop` option from `transcode-video`.
+* Modify `convert-video` to allow HEVC format video along with H.264.
+* Update the "README" document to:
+    * Revise and simplify the Windows installation instructions to point users at the fine work by [@samhutchins](https://github.com/samhutchins) and [@JMoVS](https://github.com/JMoVS) on documenting their two methods. Via [ #115](https://github.com/donmelton/video_transcoding/issues/115).
+    * Revise the "Using `transcode-video`" section to correct out-of-date performance data about the `--quick` option.
+    * Revise the H.265 answer in the "FAQ" section with up-to-date information about the x265 video encoder. Via [ #118](https://github.com/donmelton/video_transcoding/pull/118).
+
 ### [0.15.0](https://github.com/donmelton/video_transcoding/releases/tag/0.15.0)
 
 Sunday, January 15, 2017
