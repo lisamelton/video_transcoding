@@ -80,7 +80,7 @@ Video options:
                       (use `--crop auto` for `HandBrakeCLI` behavior)
     --constrain-crop
                     constrain `--crop detect` to optimal shape
-    --fallback-crop handbrake|mplayer|none
+    --fallback-crop handbrake|ffmpeg|none
                     select fallback crop values if `--crop detect` fails
     --720p          fit video within 1280x720 pixel bounds
     --max-width WIDTH, --max-height HEIGHT
@@ -217,7 +217,7 @@ Other options:
 -h, --help          display this help and exit
     --version       output version information and exit
 
-Requires `HandBrakeCLI`, `mp4track`, `mplayer` and `mkvpropedit`.
+Requires `HandBrakeCLI`, `mp4track`, `ffmpeg` and `mkvpropedit`.
 HERE
     end
 
@@ -405,7 +405,7 @@ HERE
 
       opts.on '--fallback-crop ARG' do |arg|
         @fallback_crop = case arg
-        when 'handbrake', 'mplayer', 'none'
+        when 'handbrake', 'ffmpeg', 'mplayer', 'none'
           arg.to_sym
         else
           fail UsageError, "invalid fallback crop argument: #{arg}"
@@ -787,7 +787,7 @@ HERE
       @disable_handbrake_options.uniq!
       HandBrake.setup
       MP4track.setup
-      MPlayer.setup
+      FFmpeg.setup
       MKVpropedit.setup
     end
 
@@ -989,21 +989,21 @@ HERE
         crop = hb_crop
 
         unless media.info[:directory]
-          mp_crop = Crop.detect(media.path, media.info[:duration], width, height)
-          mp_crop = Crop.constrain(mp_crop, width, height) if @constrain_crop
+          ff_crop = Crop.detect(media.path, media.info[:duration], width, height)
+          ff_crop = Crop.constrain(ff_crop, width, height) if @constrain_crop
 
-          if hb_crop != mp_crop
+          if hb_crop != ff_crop
             crop = case @fallback_crop
             when :handbrake
               hb_crop
-            when :mplayer
-              mp_crop
+            when :ffmpeg, :mplayer
+              ff_crop
             when :none
               {:top => 0, :bottom => 0, :left => 0, :right => 0}
             else
               Console.error 'Results differ...'
               Console.error "From HandBrakeCLI: #{Crop.handbrake_string(hb_crop)}"
-              Console.error "From mplayer:      #{Crop.handbrake_string(mp_crop)}"
+              Console.error "From ffmpeg:       #{Crop.handbrake_string(ff_crop)}"
               fail "crop detection failed: #{media.path}"
             end
           end

@@ -9,7 +9,7 @@ module VideoTranscoding
     extend self
 
     def detect(path, duration, width, height)
-      Console.info "Detecting crop with mplayer..."
+      Console.info "Detecting crop with ffmpeg..."
       fail "media duration too short: #{duration} second(s)" if duration < 2
       steps = 10
       interval = duration / (steps + 1)
@@ -29,15 +29,19 @@ module VideoTranscoding
       (1..steps).each do |step|
         begin
           IO.popen([
-            MPlayer.command_name,
-            '-quiet',
-            '-benchmark',
-            '-vo', 'null',
-            '-ao', 'null',
-            '-vf', 'cropdetect=24:2',
-            path,
+            FFmpeg.command_name,
+            '-hide_banner',
+            '-nostdin',
+            '-noaccurate_seek',
             '-ss', (interval * step).to_s,
-            '-frames', '10'
+            '-i', path,
+            '-frames:v', '10',
+            '-filter:v', 'cropdetect=24:2',
+            '-an',
+            '-sn',
+            '-ignore_unknown',
+            '-f', 'null',
+            '-'
           ], :err=>[:child, :out]) do |io|
             io.each do |line|
               seconds = Time.now.tv_sec
@@ -47,7 +51,7 @@ module VideoTranscoding
                 last_seconds = seconds
               end
 
-              if line =~ /^\[CROP\] .* crop=([0-9]+):([0-9]+):([0-9]+):([0-9]+)/
+              if line =~ / crop=([0-9]+):([0-9]+):([0-9]+):([0-9]+)$/
                 d_width, d_height, d_x, d_y = $1.to_i, $2.to_i, $3.to_i, $4.to_i
                 crop_width  = d_width   if crop_width   < d_width
                 crop_height = d_height  if crop_height  < d_height
@@ -100,11 +104,18 @@ module VideoTranscoding
       "#{crop[:top]}:#{crop[:bottom]}:#{crop[:left]}:#{crop[:right]}"
     end
 
-    def mplayer_string(crop, width, height)
+    def player_string(crop, width, height)
       "#{width - (crop[:left] + crop[:right])}:" +
       "#{height - (crop[:top] + crop[:bottom])}:" +
       "#{crop[:left]}:" +
       "#{crop[:top]}"
+    end
+
+    def drawbox_string(crop, width, height)
+      "#{crop[:left]}:" +
+      "#{crop[:top]}:" +
+      "#{width - (crop[:left] + crop[:right])}:" +
+      "#{height - (crop[:top] + crop[:bottom])}"
     end
   end
 end

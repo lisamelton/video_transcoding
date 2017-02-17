@@ -31,6 +31,8 @@ Usage: #{$PROGRAM_NAME} [OPTION]... [FILE|DIRECTORY]...
                       (default: main feature or first listed)
     --constrain     constrain crop to optimal shape
     --values-only   output only unambiguous crop values, not commands
+    --player mpv|mplayer
+                    select player for preview commands (default: mpv)
 
 -v, --verbose       increase diagnostic information
 -q, --quiet         decrease     "           "
@@ -38,7 +40,7 @@ Usage: #{$PROGRAM_NAME} [OPTION]... [FILE|DIRECTORY]...
 -h, --help          display this help and exit
     --version       output version information and exit
 
-Requires `HandBrakeCLI` and `mplayer`.
+Requires `HandBrakeCLI` and `ffmpeg`.
 HERE
     end
 
@@ -48,6 +50,7 @@ HERE
       @title        = nil
       @constrain    = false
       @values_only  = false
+      @player       = :mpv
     end
 
     def define_options(opts)
@@ -55,11 +58,20 @@ HERE
       opts.on('--title ARG', Integer) { |arg| @title = arg }
       opts.on('--constrain')          { @constrain = true }
       opts.on('--values-only')        { @values_only = true }
+
+      opts.on '--player ARG' do |arg|
+        @player = case arg
+        when 'mpv', 'mplayer'
+          arg.to_sym
+        else
+          fail UsageError, "invalid player argument: #{arg}"
+        end
+      end
     end
 
     def configure
       HandBrake.setup
-      MPlayer.setup
+      FFmpeg.setup
     end
 
     def process_input(arg)
@@ -89,10 +101,17 @@ HERE
       end
 
       print_all = ->(crop) do
-        str = Crop.mplayer_string(crop, width, height)
         puts
-        puts "mplayer -really-quiet -nosound -vf rectangle=#{str} #{shell_path}"
-        puts "mplayer -really-quiet -nosound -vf crop=#{str} #{shell_path}"
+
+        if @player == :mpv
+          puts "mpv --no-audio --vf lavfi=[drawbox=#{Crop.drawbox_string(crop, width, height)}:invert:1] #{shell_path}"
+          puts "mpv --no-audio --vf crop=#{Crop.player_string(crop, width, height)} #{shell_path}"
+        else
+          str = Crop.player_string(crop, width, height)
+          puts "mplayer -really-quiet -nosound -vf rectangle=#{str} #{shell_path}"
+          puts "mplayer -really-quiet -nosound -vf crop=#{str} #{shell_path}"
+        end
+
         print_transcode.call crop
       end
 
@@ -103,24 +122,24 @@ HERE
           print_transcode.call hb_crop
         end
       else
-        mp_crop = Crop.detect(arg, media.info[:duration], width, height)
-        mp_crop = Crop.constrain(mp_crop, width, height) if @constrain
+        ff_crop = Crop.detect(arg, media.info[:duration], width, height)
+        ff_crop = Crop.constrain(ff_crop, width, height) if @constrain
 
-        if hb_crop == mp_crop
+        if hb_crop == ff_crop
           if @values_only
             puts Crop.handbrake_string(hb_crop)
           else
-            Console.info 'Results from HandBrakeCLI and mplayer are identical...'
+            Console.info 'Results from HandBrakeCLI and ffmpeg are identical...'
             print_all.call hb_crop
           end
         else
-          fail "results from HandBrakeCLI and mplayer differ: #{arg}" if @values_only
+          fail "results from HandBrakeCLI and ffmpeg differ: #{arg}" if @values_only
           Console.warn 'Results differ...'
           puts
           puts '# From HandBrakeCLI:'
           print_all.call hb_crop
-          puts '# From mplayer:'
-          print_all.call mp_crop
+          puts '# From ffmpeg:'
+          print_all.call ff_crop
         end
       end
     end
