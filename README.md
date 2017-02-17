@@ -10,7 +10,7 @@ What makes these tools unique is the [special ratecontrol system](#explanation) 
 
 This package is based on my original collection of [Video Transcoding Scripts](https://github.com/donmelton/video-transcoding-scripts) written in Bash. While still available online, those scripts are no longer in active development. Users are encouraged to install this Ruby Gem instead.
 
-Most of the tools in this package are essentially intelligent wrappers around Open Source software like [HandBrake](https://handbrake.fr/), [MKVToolNix](https://www.bunkus.org/videotools/mkvtoolnix/), [MPlayer](http://mplayerhq.hu/), [FFmpeg](http://ffmpeg.org/), and [MP4v2](https://code.google.com/p/mp4v2/). And they're all designed to be executed from the command line shell:
+Most of the tools in this package are essentially intelligent wrappers around Open Source software like [HandBrake](https://handbrake.fr/), [FFmpeg](http://ffmpeg.org/), [MKVToolNix](https://www.bunkus.org/videotools/mkvtoolnix/), and [MP4v2](https://code.google.com/p/mp4v2/). And they're all designed to be executed from the command line shell:
 
 * [`transcode-video`](#why-transcode-video)
 Transcode video file or disc image directory into format and size similar to popular online downloads.
@@ -64,7 +64,8 @@ Most of the tools in this package require other software to function properly, s
 * `ffmpeg`
 * `mkvpropedit`
 * `mp4track`
-* `mplayer`
+
+Previewing the output of `detect-crop` is optional, but doing so uses [`mpv`](https://mpv.io/), a free, Open Source, and cross-platform media player.
 
 You can download the command line version of HandBrake, called `HandBrakeCLI`, here:
 
@@ -76,7 +77,10 @@ On macOS, `HandBrakeCLI` and all its other dependencies can be easily installed 
     brew install ffmpeg
     brew install mkvtoolnix
     brew install mp4v2
-    brew install mplayer
+
+The optional crop previewing package can also be installed via Homebrew:
+
+    brew install mpv
 
 On Linux, package management systems vary so it's best consult the indexes for those systems. But there's a Homebrew port available called [Linuxbrew](http://linuxbrew.sh/) and it doesn't require root access.
 
@@ -124,7 +128,7 @@ HandBrake applies automatic crop detection by default. While it's usually correc
 
 This is why `transcode-video` doesn't allow HandBrake to apply cropping by default.
 
-Instead, the `detect-crop` tool leverages both HandBrake and MPlayer to find the video cropping bounds. It then indicates whether those two programs agree. To aid in review, this tool prints commands to the terminal console allowing the recommended (or disputed) crop to be displayed, as well as a sample command line for `transcode-video` itself.
+Instead, the `detect-crop` tool leverages both HandBrake and FFmpeg to find the video cropping bounds. It then indicates whether those two programs agree. To aid in review, this tool prints commands to the terminal console allowing the recommended (or disputed) crop to be displayed, as well as a sample command line for `transcode-video` itself.
 
 ### Why `convert-video`?
 
@@ -222,7 +226,7 @@ You can also call the `detect-crop` logic from `transcode-video` with the single
 
     transcode-video --crop detect "/path/to/Movie.mkv"
 
-However, be aware that `detect` can fail if HandBrake and MPlayer disagree about the cropping values.
+However, be aware that `detect` can fail if HandBrake and FFmpeg disagree about the cropping values.
 
 #### Understanding audio
 
@@ -318,34 +322,34 @@ The command to find the video cropping bounds is as simple as:
 
 Which prints out something like this:
 
-    mplayer -really-quiet -nosound -vf rectangle=1920:816:0:132 '/path/to/Movie.mkv'
-    mplayer -really-quiet -nosound -vf crop=1920:816:0:132 '/path/to/Movie.mkv'
+    mpv --no-audio --vf lavfi=[drawbox=0:132:1920:816:invert:1] '/path/to/Movie.mkv'
+    mpv --no-audio --vf crop=1920:816:0:132 '/path/to/Movie.mkv'
 
     transcode-video --crop 132:132:0:0 '/path/to/Movie.mkv'
 
 Just copy and paste the sample commands to preview or transcode.
 
-If HandBrake and MPlayer disagree about the cropping values, then `detect-crop` prints out something like this:
+If HandBrake and FFmpeg disagree about the cropping values, then `detect-crop` prints out something like this:
 
     Results differ...
 
     # From HandBrakeCLI:
 
-    mplayer -really-quiet -nosound -vf rectangle=1920:816:0:132 '/path/to/Movie.mkv'
-    mplayer -really-quiet -nosound -vf crop=1920:816:0:132 '/path/to/Movie.mkv'
+    mpv --no-audio --vf lavfi=[drawbox=0:132:1920:816:invert:1] '/path/to/Movie.mkv'
+    mpv --no-audio --vf crop=1920:816:0:132 '/path/to/Movie.mkv'
 
     transcode-video --crop 132:132:0:0 '/path/to/Movie.mkv'
 
-    # From mplayer:
+    # From ffmpeg:
 
-    mplayer -really-quiet -nosound -vf rectangle=1920:820:0:130 '/path/to/Movie.mkv'
-    mplayer -really-quiet -nosound -vf crop=1920:820:0:130 '/path/to/Movie.mkv'
+    mpv --no-audio --vf lavfi=[drawbox=0:130:1920:820:invert:1] '/path/to/Movie.mkv'
+    mpv --no-audio --vf crop=1920:820:0:130 '/path/to/Movie.mkv'
 
     transcode-video --crop 130:130:0:0 '/path/to/Movie.mkv'
 
 You'll then need to preview both and decide which to use.
 
-When input is a disc image directory instead of a single file, the `detect-crop` tool doesn't use MPlayer, nor does it print out commands to preview the crop.
+When input is a disc image directory instead of a single file, the `detect-crop` tool doesn't use FFmpeg, nor does it print out commands to preview the crop.
 
 ### Using `convert-video`
 
@@ -420,7 +424,7 @@ I have four rules when preparing my own media for transcoding:
 
 #### Why a single `.mkv` file?
 
-* Many automatic behaviors and other features in both `transcode-video` and `detect-crop` are not available when input is a disc image directory. This is because that format limits the ability of `HandBrakeCLI` and `mplayer` to detect or manipulate certain information about the video.
+* Many automatic behaviors and other features in both `transcode-video` and `detect-crop` are not available when input is a disc image directory. This is because that format limits the ability of `HandBrakeCLI` and `ffmpeg` to detect or manipulate certain information about the video.
 
 * Both forced subtitle extraction and lossless audio conversion, detailed below, are not possible when input is a disc image directory.
 
@@ -646,7 +650,7 @@ What I don't use are [peak signal-to-noise ratios](https://en.wikipedia.org/wiki
 
 I use the default settings. That's why they're the defaults.
 
-I never use the `--crop detect` function of `transcode-video` because I don't trust either `HandBrakeCLI` or `mplayer` to always get it right without supervision. Instead, I use the separate `detect-crop` tool before transcoding to manually review and apply the best crop values.
+I never use the `--crop detect` function of `transcode-video` because I don't trust either `HandBrakeCLI` or `ffmpeg` to always get it right without supervision. Instead, I use the separate `detect-crop` tool before transcoding to manually review and apply the best crop values.
 
 I let `transcode-video` automatically burn any forced subtitles into the output video track when the "forced" flag is enabled in the original.
 
