@@ -1267,11 +1267,11 @@ HERE
       end
 
       Console.debug handbrake_command
-      log_file = @log ? File.new(handbrake_options['output'] + '.log', 'w') : nil
+      log_file = @log ? File.new(handbrake_options['output'] + '.log', 'wb') : nil
       Console.info 'Transcoding with HandBrakeCLI...'
 
       begin
-        IO.popen(handbrake_command, :err=>[:child, :out]) do |io|
+        IO.popen(handbrake_command, 'rb', :err=>[:child, :out]) do |io|
           Signal.trap 'INT' do
             Process.kill 'INT', io.pid
           end
