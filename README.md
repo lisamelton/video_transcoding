@@ -660,6 +660,12 @@ For a few problematic videos, I have to apply options like `--force-rate 23.976 
 
 ## History
 
+### [0.17.1](https://github.com/donmelton/video_transcoding/releases/tag/0.17.1)
+
+Wednesday, February 22, 2017
+
+* Modify `transcode-video` to use binary file mode when reading and writing console and log output from `HandBrakeCLI`. This eliminates redundant information and "console spew" on Windows by suppressing the EOL <-> CRLF conversion. Thanks, [@samhutchins](https://github.com/samhutchins)! Via [ #130](https://github.com/donmelton/video_transcoding/issues/130).
+
 ### [0.17.0](https://github.com/donmelton/video_transcoding/releases/tag/0.17.0)
 
 Thursday, February 16, 2017
