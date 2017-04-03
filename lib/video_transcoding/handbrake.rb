@@ -14,7 +14,7 @@ module VideoTranscoding
       Tool.provide(COMMAND_NAME, ['--preset-list']) do |output, status, _|
         fail "#{COMMAND_NAME} failed during execution" unless status == 0
 
-        if output =~ /^HandBrake ([^ ]+)/
+        if output =~ /^HandBrake ([^h][^ ]+)/
           version = $1
           Console.info "#{$MATCH} found..."
 
@@ -27,7 +27,7 @@ module VideoTranscoding
 
       begin
         IO.popen([Tool.use(COMMAND_NAME), '--version'], :err=>[:child, :out]) do |io|
-          if io.read =~ /^HandBrake ([^ ]+)/
+          if io.read =~ /^HandBrake ([^h][^ ]+)/
             Console.info "#{$MATCH.strip} found..."
           end
         end
