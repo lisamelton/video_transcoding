@@ -660,6 +660,13 @@ For a few problematic videos, I have to apply options like `--force-rate 23.976 
 
 ## History
 
+### [0.17.2](https://github.com/donmelton/video_transcoding/releases/tag/0.17.2)
+
+Monday, April 3, 2017
+
+* Fix failure of version detection for recent HandBrake nightly builds. Thanks, [@kvanh](https://github.com/kvanh)! Via [ #139](https://github.com/donmelton/video_transcoding/issues/139).
+* Modify `detect-crop` to escape preview commands for Z shells. Thanks, [@jjathman](https://github.com/jjathman)! Via [ #138](https://github.com/donmelton/video_transcoding/issues/138).
+
 ### [0.17.1](https://github.com/donmelton/video_transcoding/releases/tag/0.17.1)
 
 Wednesday, February 22, 2017
@@ -670,7 +677,7 @@ Wednesday, February 22, 2017
 
 Thursday, February 16, 2017
 
-* Remove all dependencies on `mplayer`, via #[ #120](https://github.com/donmelton/video_transcoding/issues/120) and #[ #123](https://github.com/donmelton/video_transcoding/issues/123):
+* Remove all dependencies on `mplayer`, via [ #120](https://github.com/donmelton/video_transcoding/issues/120) and [ #123](https://github.com/donmelton/video_transcoding/issues/123):
     * Modify `detect-crop` and `transcode-video` to use `ffmpeg` for crop detection instead of `mplayer`.
     * Modify `detect-crop` to use [`mpv`](https://mpv.io/), a free cross-platform media player, for optional crop preview instead of `mplayer`.
     * Add a `--player` option to `detect-crop` so `mplayer` can still be used for crop preview commands. Warning: this feature will be deprecated soon.
