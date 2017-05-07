@@ -410,7 +410,7 @@ HERE
       Console.info 'Converting with ffmpeg...'
 
       begin
-        IO.popen(ffmpeg_command, :err=>[:child, :out]) do |io|
+        IO.popen(ffmpeg_command, 'rb', :err=>[:child, :out]) do |io|
           Signal.trap 'INT' do
             Process.kill 'INT', io.pid
           end
