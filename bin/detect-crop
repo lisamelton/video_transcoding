@@ -104,7 +104,7 @@ HERE
         puts
 
         if @player == :mpv
-          puts "mpv --no-audio --vf 'lavfi=[drawbox=#{Crop.drawbox_string(crop, width, height)}:invert:1]' #{shell_path}"
+          puts "mpv --no-audio --vf \"lavfi=[drawbox=#{Crop.drawbox_string(crop, width, height)}:invert:1]\" #{shell_path}"
           puts "mpv --no-audio --vf crop=#{Crop.player_string(crop, width, height)} #{shell_path}"
         else
           str = Crop.player_string(crop, width, height)
