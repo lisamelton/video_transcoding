@@ -1306,7 +1306,7 @@ HERE
             '--edit', 'track:s1',
             '--set', 'flag-forced=1',
             output,
-          ], :err=>[:child, :out]) do |io|
+          ], 'rb', :err=>[:child, :out]) do |io|
             io.each do |line|
               Console.debug line
             end
@@ -1333,7 +1333,7 @@ HERE
                 '--edit', "track:a#{track}",
                 '--set', "name=#{original_name}",
                 output,
-              ], :err=>[:child, :out]) do |io|
+              ], 'rb', :err=>[:child, :out]) do |io|
                 io.each do |line|
                   Console.debug line
                 end
@@ -1353,7 +1353,7 @@ HERE
                   '--track-index', track.to_s,
                   "--#{property}", original_name,
                   output,
-                ], :err=>[:child, :out]) do |io|
+                ], 'rb', :err=>[:child, :out]) do |io|
                   io.each do |line|
                     Console.debug line
                   end
