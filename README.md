@@ -329,6 +329,8 @@ Which prints out something like this:
 
 Just copy and paste the sample commands to preview or transcode.
 
+Please note that path names within the sample commands are not escaped properly when using `cmd.exe` or PowerShell on Windows.
+
 If HandBrake and FFmpeg disagree about the cropping values, then `detect-crop` prints out something like this:
 
     Results differ...
