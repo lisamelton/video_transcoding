@@ -932,7 +932,10 @@ HERE
       case encoder
       when 'x264'
         handbrake_options['encoder-profile'] = 'high'
-        handbrake_options['encoder-level'] = encoder_level
+
+        if @handbrake_options.fetch('rate', '30').to_f <= 30.0
+          handbrake_options['encoder-level'] = encoder_level
+        end
       when 'x264_10bit'
         handbrake_options['encoder-profile'] = 'high10'
       when 'x265'
