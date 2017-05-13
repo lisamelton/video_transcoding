@@ -451,6 +451,7 @@ HERE
         end
 
         force_handbrake_option 'rate', arg
+        force_handbrake_option 'cfr', nil
         @handbrake_options.delete 'vfr'
         @handbrake_options.delete 'pfr'
       end
