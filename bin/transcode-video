@@ -912,7 +912,7 @@ HERE
       end
 
       encoder = @handbrake_options.fetch('encoder', 'x264')
-      return unless encoder == 'x264' or encoder == 'x265'
+      return unless encoder =~ /^x264(?:_10bit)?$/ or encoder =~ /^x265(?:_1[026]bit)?$/
       handbrake_options['encoder-preset'] = 'medium'
 
       if width > 1920 or height > 1080
@@ -933,8 +933,12 @@ HERE
       when 'x264'
         handbrake_options['encoder-profile'] = 'high'
         handbrake_options['encoder-level'] = encoder_level
+      when 'x264_10bit'
+        handbrake_options['encoder-profile'] = 'high10'
       when 'x265'
         handbrake_options['encoder-profile'] = 'main'
+      when 'x265_10bit', 'x265_12bit', 'x265_16bit'
+        handbrake_options['encoder-profile'] = 'main10'
       end
 
       if @vbr_quality.nil?
@@ -972,7 +976,7 @@ HERE
 
       if  (@quick or @veryquick) and
           @handbrake_options.fetch('encoder-preset', 'medium') == 'medium' and
-          encoder == 'x264'
+          encoder =~ /^x264(?:_10bit)?$/
         encoder_options['partitions']   = 'none'
         encoder_options['ref']          = '1'
         encoder_options['bframes']      = '1'     if @veryquick
