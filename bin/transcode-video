@@ -909,7 +909,12 @@ HERE
         end
 
         handbrake_options['rate'] = rate
-        handbrake_options['pfr'] = nil if rate == '30'
+
+        if rate == '30'
+          handbrake_options['pfr'] = nil
+        else
+          handbrake_options['cfr'] = nil
+        end
       end
 
       encoder = @handbrake_options.fetch('encoder', 'x264')
