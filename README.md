@@ -329,7 +329,7 @@ Which prints out something like this:
 
 Just copy and paste the sample commands to preview or transcode.
 
-Please note that path names within the sample commands are not escaped properly when using `cmd.exe` or PowerShell on Windows. If you have [Git for Windows](https://git-for-windows.github.io) or another Unix-like environment installed, you can use the [Bash shell](https://en.wikipedia.org/wiki/Bash_(Unix_shell)) (usually named `bash.exe`) to work around this issue.
+Please note that path names within the sample commands are not escaped properly when using `cmd.exe` or PowerShell on Windows. If you have [Git for Windows](https://git-for-windows.github.io/) or another Unix-like environment installed, you can use the [Bash shell](https://en.wikipedia.org/wiki/Bash_(Unix_shell)) (usually named `bash.exe`) to work around this issue.
 
 If HandBrake and FFmpeg disagree about the cropping values, then `detect-crop` prints out something like this:
 
