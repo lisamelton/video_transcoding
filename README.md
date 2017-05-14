@@ -662,6 +662,19 @@ For a few problematic videos, I have to apply options like `--force-rate 23.976 
 
 ## History
 
+Sunday, May 14, 2017
+
+### [0.17.3](https://github.com/donmelton/video_transcoding/releases/tag/0.17.3)
+
+* `HandBrakeCLI` versions 1.0 and later changed the default frame rate mode from "constant" to "peak-limited" when a rate is specified. This new behavior in `HandBrakeCLI` requires two significant changes in `transcode-video`:
+    * Fix a bug where the `--force-rate` option failed to force a constant frame rate. This bug made it behave essentially the same at the `--limit-rate` option.
+    * Fix a bug where a constant frame rate was not forced for inputs containing [MPEG-2 video](https://en.wikipedia.org/wiki/MPEG-2). This bug affected the transcoding of all DVDs but very few Blu-ray Discs. The good news is that this bug probably didn't cause visual problems since the new default peak-limited implementation in `HandBrakeCLI` versions 1.0 and later worked like a constant frame rate most of the time.
+* Modify `convert-video` to use binary file mode when reading and writing console and log output from `ffmpeg`. This eliminates redundant information and "console spew" on Windows by suppressing the EOL <-> CRLF conversion. Thanks, [@samhutchins](https://github.com/samhutchins)! Via [ #147](https://github.com/donmelton/video_transcoding/pull/147).
+* Also modify `transcode-video` and `convert-video` to use binary file mode when processing console I/O from `mkvpropedit` and `mp4track` to eliminate that same "console spew" on Windows.
+* Modify `detect-crop` to escape preview commands for `cmd.exe` and PowerShell on Windows in a manner that's still compatible with Bourne and Z shells. Also mention in the "Using `detect-crop`" section of the "README" document that path names within the sample commands are not escaped properly when using `cmd.exe` or PowerShell on Windows and that `bash.exe` can be used as a workaround. Via [ #146](https://github.com/donmelton/video_transcoding/issues/146).
+* Modify `transcode-video` to accept `x264_10bit`, `x265_10bit`, `x265_12bit` and `x265_16bit` as supported encoders while also adjusting the encoder profile for these variants. Via [ #143](https://github.com/donmelton/video_transcoding/issues/143).
+* Modify `transcode-video` to no longer set the x264 encoder level if a frame rate has been requested higher than `30` FPS. Via [ #141](https://github.com/donmelton/video_transcoding/issues/141).
+
 ### [0.17.2](https://github.com/donmelton/video_transcoding/releases/tag/0.17.2)
 
 Monday, April 3, 2017
