@@ -329,7 +329,6 @@ module VideoTranscoding
           path
         ], :err=>[:child, :out]) do |io|
           io.each do |line|
-
             line.encode! 'UTF-8', 'binary', invalid: :replace, undef: :replace, replace: ''
             Console.debug line
             output += line
@@ -339,7 +338,6 @@ module VideoTranscoding
         raise "scanning failed: #{e}"
       end
 
-      Console.debug output
       fail 'scanning failed' unless $CHILD_STATUS.exitstatus == 0
       output
     end
