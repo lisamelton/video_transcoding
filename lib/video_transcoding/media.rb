@@ -327,7 +327,14 @@ module VideoTranscoding
           MP4track.command_name,
           '--list',
           path
-        ], :err=>[:child, :out]) { |io| output = io.read }
+        ], :err=>[:child, :out]) do |io|
+          io.each do |line|
+
+            line.encode! 'UTF-8', 'binary', invalid: :replace, undef: :replace, replace: ''
+            Console.debug line
+            output += line
+          end
+        end
       rescue SystemCallError => e
         raise "scanning failed: #{e}"
       end
