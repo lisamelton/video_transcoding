@@ -25,6 +25,8 @@ module VideoTranscoding
         elsif @title < 1
           fail UsageError, "invalid title index: #{@title}"
         end
+      elsif @stat.blockdev?
+        fail UsageError, "is a block device (should be mounted first): #{@path}"
       else
         fail UsageError, "invalid title index: #{title}" unless title.nil? or title == 1
         @title = 1
