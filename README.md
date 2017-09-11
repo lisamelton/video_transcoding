@@ -662,6 +662,12 @@ For a few problematic videos, I have to apply options like `--force-rate 23.976 
 
 ## History
 
+Sunday, September 10, 2017
+
+### [0.17.4](https://github.com/donmelton/video_transcoding/releases/tag/0.17.4)
+
+* Force text output from `mp4track` into UTF-8 binary format to ensure correct parsing of that data. Thanks, [@DavidNielsen](https://github.com/DavidNielsen)! Via [ #152](https://github.com/donmelton/video_transcoding/pull/152).
+
 Sunday, May 14, 2017
 
 ### [0.17.3](https://github.com/donmelton/video_transcoding/releases/tag/0.17.3)
