@@ -31,8 +31,6 @@ Usage: #{$PROGRAM_NAME} [OPTION]... [FILE|DIRECTORY]...
                       (default: main feature or first listed)
     --constrain     constrain crop to optimal shape
     --values-only   output only unambiguous crop values, not commands
-    --player mpv|mplayer
-                    select player for preview commands (default: mpv)
 
 -v, --verbose       increase diagnostic information
 -q, --quiet         decrease     "           "
@@ -60,6 +58,9 @@ HERE
       opts.on('--values-only')        { @values_only = true }
 
       opts.on '--player ARG' do |arg|
+        Console.warn '**********'
+        Console.warn 'Using deprecated option: --player'
+        Console.warn '**********'
         @player = case arg
         when 'mpv', 'mplayer'
           arg.to_sym
