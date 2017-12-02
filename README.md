@@ -553,7 +553,7 @@ The path is first deleted from the `queue.txt` file and then passed as an argume
 
 These examples are written in Bash and only supply crop values. But almost any scripting language can be used and any option can be changed on a per input basis. A working script with a good progress indiciation is the one written in node and can be found here:
 
-(Batch-transcode-video)[https://github.com/nwronski/batch-transcode-video]
+[Batch-transcode-video](https://github.com/nwronski/batch-transcode-video)
 
 ## Explanation
 
