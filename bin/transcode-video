@@ -970,16 +970,16 @@ HERE
       end
 
       if @use_abr
-        handbrake_options['vb'] = bitrate.to_s
-        encoder_options['vbv-maxrate'] = ((bitrate * 1.5).to_i).to_s
-        encoder_options['vbv-bufsize'] = ((bitrate * 2).to_i).to_s
-        encoder_options['nal-hrd'] = 'vbr'
+        handbrake_options['vb']         = bitrate.to_s
+        encoder_options['vbv-maxrate']  = ((bitrate * 1.5).to_i).to_s
+        encoder_options['vbv-bufsize']  = ((bitrate * 2).to_i).to_s
+        encoder_options['nal-hrd']      = 'vbr' if encoder =~ /^x264(?:_10bit)?$/
       else
-        handbrake_options['quality'] = '1'
-        encoder_options['vbv-maxrate'] = bitrate.to_s
-        encoder_options['vbv-bufsize'] = ((bitrate * 2).to_i).to_s
-        encoder_options['crf-max'] = '25'
-        encoder_options['qpmax'] = '34'
+        handbrake_options['quality']    = '1'
+        encoder_options['vbv-maxrate']  = bitrate.to_s
+        encoder_options['vbv-bufsize']  = ((bitrate * 2).to_i).to_s
+        encoder_options['crf-max']      = '25'
+        encoder_options['qpmax']        = '34'
       end
 
       if  (@quick or @veryquick) and
