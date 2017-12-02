@@ -570,9 +570,7 @@ These are actually the settings used by my special ratecontrol system to configu
 
 My system attempts to produce the highest possible video quality near a target bitrate. That target is automatically determined by `transcode-video` using the resolution of the input. For example, the default target for 1080p output is `6000` Kbps, which is about one-fifth the video bitrate found on a typical Blu-ray Disc.
 
-The average bitrate (ABR) mode in x264 is normally used to target a specific bitrate. But the ABR algorithm often sacrifices quality in order to maintain that bitrate. Getting acceptable quality with ABR requires multiple passes through the input, a process too slow for many people. And even multiple-pass ABR won't provide sufficient quality for some 1080p video input when bitrate targets are as low as `6000` Kbps.
-
-Instead, I leverage the constant quality ratecontrol system in x264. This algorithm uses a constant ratefactor (CRF) to target a specific quality instead of a bitrate. A CRF is represented by a number from `0` to `51` with lower values indicating higher quality. The special value of `0` is for lossless output.
+The average bitrate (ABR) mode in x264 is normally used to target a specific bitrate. Instead, I leverage the constant quality ratecontrol system in x264. This algorithm uses a constant ratefactor (CRF) to target a specific quality instead of a bitrate. A CRF is represented by a number from `0` to `51` with lower values indicating higher quality. The special value of `0` is for lossless output.
 
 Unfortunately, the output bitrate is extremely unpredictable when using this CRF-based system. Typically, people pick a middle-level CRF value as their quality target and just hope for the best. This is what most of the presets built into HandBrake do, choosing a CRF of `20` or `22`.
 
