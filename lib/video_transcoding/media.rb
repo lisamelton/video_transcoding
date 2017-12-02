@@ -127,6 +127,13 @@ module VideoTranscoding
           track_info[:format]     = $3
           track_info[:encoding]   = $4
           @info[:subtitle][track] = track_info
+        elsif line =~ /^    \+ ([0-9]+), .*\[(.*)\]/
+          track                   = $1.to_i
+          track_info              = {}
+          track_info[:language]   = 'und'
+          track_info[:format]     = ($2 == 'PGS' or $2 == 'VOBSUB') ? 'Bitmap' : 'Text'
+          track_info[:encoding]   = $2
+          @info[:subtitle][track] = track_info
         end
       end
 
@@ -137,10 +144,11 @@ module VideoTranscoding
       subtitle_track  = 0
 
       @scan.each_line do |line|
-        if line =~ /[ ]+Stream #0[.:]([0-9]+)[^ ]*: (Video|Audio|Subtitle): (.*)/
+        if line =~ /[ ]+Stream #0[.:]([0-9]+)(?:\(([a-z]{3})\))?: (Video|Audio|Subtitle): (.*)/
           stream      = $1.to_i
-          type        = $2
-          attributes  = $3
+          language    = $2
+          type        = $3
+          attributes  = $4
 
           case type
           when 'Video'
@@ -180,6 +188,51 @@ module VideoTranscoding
             if @info[:subtitle].has_key? subtitle_track
               track_info = @info[:subtitle][subtitle_track]
               track_info[:stream] = stream
+
+              if track_info[:language] == 'und'
+                case language
+                when 'alb'
+                  track_info[:language] = 'sqi'
+                when 'arm'
+                  track_info[:language] = 'hye'
+                when 'baq'
+                  track_info[:language] = 'eus'
+                when 'bur'
+                  track_info[:language] = 'mya'
+                when 'chi'
+                  track_info[:language] = 'zho'
+                when 'cze'
+                  track_info[:language] = 'ces'
+                when 'dut'
+                  track_info[:language] = 'nld'
+                when 'fre'
+                  track_info[:language] = 'fra'
+                when 'geo'
+                  track_info[:language] = 'kat'
+                when 'ger'
+                  track_info[:language] = 'deu'
+                when 'gre'
+                  track_info[:language] = 'ell'
+                when 'ice'
+                  track_info[:language] = 'isl'
+                when 'mac'
+                  track_info[:language] = 'mkd'
+                when 'mao'
+                  track_info[:language] = 'mri'
+                when 'per'
+                  track_info[:language] = 'fas'
+                when 'rum'
+                  track_info[:language] = 'ron'
+                when 'slo'
+                  track_info[:language] = 'slk'
+                when 'tib'
+                  track_info[:language] = 'bod'
+                when 'wel'
+                  track_info[:language] = 'cym'
+                else
+                  track_info[:language] = language
+                end
+              end
 
               if attributes =~ /\(default\)/
                 track_info[:default] = true
