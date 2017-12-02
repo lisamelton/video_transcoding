@@ -551,9 +551,9 @@ The transcoding process is started by executing the script:
 
 The path is first deleted from the `queue.txt` file and then passed as an argument to the `transcode-video.` tool. To pause after `transcode-video` returns, simply insert a blank line at the top of the `queue.txt` file.
 
-These examples are written in Bash and only supply crop values. But almost any scripting language can be used and any option can be changed on a per input basis. A working script with a good progress indiciation is the one written in node and can be found here:
+These examples are written in Bash and only supply crop values. But almost any scripting language can be used and any option can be changed on a per input basis. [Nick Wronski](https://github.com/nwronski) has written a batch-processing wrapper for `transcode-video` in [Node.js](https://nodejs.org/en/), available here:
 
-[Batch-transcode-video](https://github.com/nwronski/batch-transcode-video)
+https://github.com/nwronski/batch-transcode-video
 
 ## Explanation
 
