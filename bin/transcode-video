@@ -56,6 +56,8 @@ Output options:
     --dry-run       don't transcode, just show `HandBrakeCLI` command and exit
 
 Quality options:
+    --abr           use constrained average bitrate (ABR) ratecontrol
+                      (predictable size with different quality than default)
     --target big|small
                     apply video bitrate target macro for all input resolutions
                       (`big` trades some size for increased quality)
@@ -186,13 +188,6 @@ External subtitle options:
                       (can be used multiple times)
 
 Advanced options:
-    --cvbr          use simple constrained variable bitrate (CVBR) ratecontrol
-                      (more predictable size while avoiding VBV underflows)
-                      (use with `--target big` for best results)
-    --abr           use modified average bitrate (ABR) ratecontrol
-                      (predictable size but lower quality than default)
-    --vbr QUALITY   use true VBR ratecontrol at constant video quality (0-51)
-                      (unpredictable size but useful for comparison to default)
 -E, --encoder-option NAME=VALUE|_NAME
                     pass x264 video encoder option by name with value
                       or disable use of option by prefixing name with "_"
@@ -229,10 +224,11 @@ HERE
       @format                     = :mkv
       @log                        = true
       @dry_run                    = false
-      @max_bitrate_2160p          = 12000
-      @max_bitrate_1080p          = 6000
-      @max_bitrate_720p           = 3000
-      @max_bitrate_480p           = 1500
+      @use_abr                    = false
+      @target_bitrate_2160p       = 12000
+      @target_bitrate_1080p       = 6000
+      @target_bitrate_720p        = 3000
+      @target_bitrate_480p        = 1500
       @quick                      = false
       @veryquick                  = false
       @crop                       = {:top => 0, :bottom => 0, :left => 0, :right => 0}
@@ -262,9 +258,6 @@ HERE
       @srt_language               = {}
       @srt_encoding               = {}
       @srt_offset                 = {}
-      @use_cvbr                   = false
-      @use_abr                    = false
-      @vbr_quality                = nil
       @encoder_options            = {}
       @disable_encoder_options    = []
       @handbrake_options          = {}
@@ -319,30 +312,34 @@ HERE
       opts.on('--no-log')             { @log = false }
       opts.on('--dry-run')            { @dry_run = true }
 
+      opts.on '--abr' do
+        @use_abr = true
+      end
+
       opts.on '--target ARG' do |arg|
         case arg
         when 'big'
-          @max_bitrate_2160p  = 16000
-          @max_bitrate_1080p  = 8000
-          @max_bitrate_720p   = 4000
-          @max_bitrate_480p   = 2000
+          @target_bitrate_2160p = 16000
+          @target_bitrate_1080p = 8000
+          @target_bitrate_720p  = 4000
+          @target_bitrate_480p  = 2000
         when 'small'
-          @max_bitrate_2160p  = 8000
-          @max_bitrate_1080p  = 4000
-          @max_bitrate_720p   = 2000
-          @max_bitrate_480p   = 1000
+          @target_bitrate_2160p = 8000
+          @target_bitrate_1080p = 4000
+          @target_bitrate_720p  = 2000
+          @target_bitrate_480p  = 1000
         when /^([0-9]+p)=([1-9][0-9]*)$/
           bitrate = $2.to_i
 
           case $1
           when '2160p'
-            @max_bitrate_2160p = bitrate
+            @target_bitrate_2160p = bitrate
           when '1080p'
-            @max_bitrate_1080p = bitrate
+            @target_bitrate_1080p = bitrate
           when '720p'
-            @max_bitrate_720p = bitrate
+            @target_bitrate_720p = bitrate
           when '480p'
-            @max_bitrate_480p = bitrate
+            @target_bitrate_480p = bitrate
           else
             fail UsageError, "invalid target video bitrate resolution: #{$1}"
           end
@@ -355,8 +352,6 @@ HERE
 
           @target_bitrate = arg.to_i
         end
-
-        @vbr_quality = nil
       end
 
       opts.on '--quick' do
@@ -702,24 +697,6 @@ HERE
         @srt_offset[@srt_file.size - 1] = arg
       end
 
-      opts.on '--cvbr' do
-        @use_cvbr = true
-        @use_abr = false
-        @vbr_quality = nil
-      end
-
-      opts.on '--abr' do
-        @use_abr = true
-        @use_cvbr = false
-        @vbr_quality = nil
-      end
-
-      opts.on '--vbr ARG', Float do |arg|
-        @vbr_quality = arg
-        @use_cvbr = false
-        @use_abr = false
-      end
-
       opts.on '-E', '--encoder-option ARG' do |arg|
         if arg =~ /^([a-z0-9][a-z0-9_-]+)=([^ :]+)$/
           @encoder_options[$1] = $2
@@ -742,6 +719,30 @@ HERE
         else
           fail UsageError, "invalid HandBrakeCLI option: #{arg}"
         end
+      end
+
+      opts.on '--cvbr' do
+        Console.warn '**********'
+        Console.warn 'Using deprecated option: --cvbr'
+        Console.warn 'Replace with: -E crf-max=30 -E _qpmax'
+        Console.warn '**********'
+        @encoder_options['crf-max'] = '30'
+        @disable_encoder_options << 'qpmax'
+        @use_abr = false
+      end
+
+      opts.on '--vbr ARG', Float do |arg|
+        crf = arg.to_s.gsub(/\.0+$/, '')
+        Console.warn '**********'
+        Console.warn 'Using deprecated option: --vbr'
+        Console.warn "Replace with: -H quality=#{crf} -E _vbv-maxrate -E _vbv-bufsize -E _crf-max -E _qpmax"
+        Console.warn '**********'
+        @handbrake_options['quality'] = crf
+        @disable_encoder_options << 'vbv-maxrate'
+        @disable_encoder_options << 'vbv-bufsize'
+        @disable_encoder_options << 'crf-max'
+        @disable_encoder_options << 'qpmax'
+        @use_abr = false
       end
     end
 
@@ -923,16 +924,16 @@ HERE
 
       if width > 1920 or height > 1080
         encoder_level = '5.1'
-        max_bitrate = @max_bitrate_2160p
+        bitrate = @target_bitrate_2160p
       elsif width > 1280 or height > 720
         encoder_level = '4.0'
-        max_bitrate = @max_bitrate_1080p
+        bitrate = @target_bitrate_1080p
       elsif width * height > 720 * 576
         encoder_level = '3.1'
-        max_bitrate = @max_bitrate_720p
+        bitrate = @target_bitrate_720p
       else
         encoder_level = '3.0'
-        max_bitrate = @max_bitrate_480p
+        bitrate = @target_bitrate_480p
       end
 
       case encoder
@@ -950,37 +951,35 @@ HERE
         handbrake_options['encoder-profile'] = 'main10'
       end
 
-      if @vbr_quality.nil?
-        if @target_bitrate.nil?
-          unless media.info[:directory]
-            bitrate = ((((media.info[:size] * 8) / media.info[:duration]) / 1000) / 1000) * 1000
+      if @target_bitrate.nil?
+        unless media.info[:directory]
+          media_bitrate = ((((media.info[:size] * 8) / media.info[:duration]) / 1000) / 1000) * 1000
 
-            if bitrate < max_bitrate
-              min_bitrate = max_bitrate / 2
+          if media_bitrate < bitrate
+            min_bitrate = bitrate / 2
 
-              if bitrate < min_bitrate
-                max_bitrate = min_bitrate
-              else
-                max_bitrate = bitrate
-              end
+            if media_bitrate < min_bitrate
+              bitrate = min_bitrate
+            else
+              bitrate = media_bitrate
             end
           end
-        else
-          max_bitrate = @target_bitrate
         end
-
-        if @use_abr
-          handbrake_options['vb'] = max_bitrate.to_s
-        else
-          handbrake_options['quality'] = '1'
-          encoder_options['vbv-maxrate'] = max_bitrate.to_s
-          encoder_options['vbv-bufsize'] = (@encoder_options.fetch('vbv-maxrate', max_bitrate).to_i * 2).to_s
-          encoder_options['crf-max'] = @use_cvbr ? '30' : '25'
-        end
-
-        encoder_options['qpmax'] = '34' unless @use_cvbr
       else
-        handbrake_options['quality'] = @vbr_quality.to_s.gsub(/\.0+$/, '')
+        bitrate = @target_bitrate
+      end
+
+      if @use_abr
+        handbrake_options['vb'] = bitrate.to_s
+        encoder_options['vbv-maxrate'] = ((bitrate * 1.5).to_i).to_s
+        encoder_options['vbv-bufsize'] = ((bitrate * 2).to_i).to_s
+        encoder_options['nal-hrd'] = 'vbr'
+      else
+        handbrake_options['quality'] = '1'
+        encoder_options['vbv-maxrate'] = bitrate.to_s
+        encoder_options['vbv-bufsize'] = ((bitrate * 2).to_i).to_s
+        encoder_options['crf-max'] = '25'
+        encoder_options['qpmax'] = '34'
       end
 
       if  (@quick or @veryquick) and
