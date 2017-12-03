@@ -662,6 +662,23 @@ For a few problematic videos, I have to apply options like `--force-rate 23.976 
 
 ## History
 
+Saturday, December 2, 2017
+
+### [0.18.0](https://github.com/donmelton/video_transcoding/releases/tag/0.18.0)
+
+* Improve the average bitrate (ABR) ratecontrol system provided by the `--abr` option in `transcode-video`. Via [ #179](https://github.com/donmelton/video_transcoding/issues/179).
+    * Implement it with a maximum bitrate constraint to raise its overal quality level and guarantee that it will not generate any `VBV underflow` warnings like the default ratecontrol system.
+    * Signal Hypothetical Reference Decoder (HRD) information, meaning that the VBV maximum bitrate value is added as metadata to the output video, something you should _not_ do when using the default ratecontrol system.
+    * Move it from the "Advanced" to the "Quality" section in the `--help` output and describe its quality output as "different" rather than "lower" compared to the default ratecontrol system.
+    * Also remove the no-longer valid characterization of ABR in the "Explanation" section of the "README" document.
+* Deprecate the poorly named `--cvbr` and `--vbr` options in `transcode-video` and remove them from the `--help` output.
+    * The ratecontrol system implemented by the `--cvbr` option was always experimental. After much testing, it was found to be noticeably lower in quality compared to the default and to the new ABR implementation.
+    * The ratecontrol system implemented by the `--vbr` option was only ever intended for comparison testing. And probably used only by myself.
+* Modify `transcode-video` to no longer re-calculate `vbv-bufsize` based on any user input value for `vbv-maxrate`. Instead, always calculate both `vbv-maxrate` and `vbv-bufsize` based on the target video bitrate.
+* Deprecate the `--player` option in `detect-crop` and remove it from the `--help` output.
+* Fix failure of subtitle detection for HandBrake nightly builds. Language detection for subtitles in disc image directory input and individual closed caption tracks may still be wrong but will not be fixed at this time. Via [ #172](https://github.com/donmelton/video_transcoding/issues/172).
+* Mention [Nick Wronski](https://github.com/nwronski)'s nifty batch-processing wrapper for `transcode-video` in the the "README" document. Thanks, [@JMoVS](https://github.com/JMoVS)! Via [ #180](https://github.com/donmelton/video_transcoding/pull/180).
+
 Sunday, September 10, 2017
 
 ### [0.17.4](https://github.com/donmelton/video_transcoding/releases/tag/0.17.4)
