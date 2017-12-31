@@ -149,7 +149,9 @@ Audio options:
                     use named AAC audio encoder (default: platform dependent)
     --reverse-double-order
                     reverses the order of `double` width audio tracks, placing
-                      the AAC stereo track before the AC-3 surround track
+                      the AAC stereo track before the AC-3 surround track when
+                      outputting a Matroska file, and the AC-3 surround track
+                      before the AAC stereo track when outputting an MP4 file
     --no-audio      disable all audio output
 
 Subtitle options:
@@ -1087,6 +1089,16 @@ HERE
         bitrates << ''
       end
 
+      add_double_aac_first = ->(info, copy) do
+        add_stereo.call info, false
+        add_surround.call info, copy
+      end
+
+      add_double_ac3_first = ->(info, copy) do
+        add_surround.call info, copy
+        add_stereo.call info, false
+      end
+
       track_order.each do |track|
         tracks << track
         info = media.info[:audio][track]
@@ -1115,11 +1127,15 @@ HERE
             names << name
 
             if @format == :mkv
-              add_surround.call info, copy
-              add_stereo.call info, false
+              if @reverse_double_order
+                add_double_aac_first.call info, copy
+              else
+                add_double_ac3_first.call info, copy
+              end
+            elsif @reverse_double_order
+              add_double_ac3_first.call info, copy
             else
-              add_stereo.call info, false
-              add_surround.call info, copy
+              add_double_aac_first.call info, copy
             end
           else
             add_stereo.call info, copy
@@ -1133,13 +1149,6 @@ HERE
         when :stereo
           add_stereo.call info, copy and info[:channels] <= 2.0
         end
-      end
-
-      if @reverse_double_order
-        tracks.reverse!
-        encoders.reverse!
-        bitrates.reverse!
-        names.reverse!
       end
 
       handbrake_options['audio'] = tracks.join(',')
