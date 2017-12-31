@@ -147,6 +147,9 @@ Audio options:
                       (can be used multiple times)
     --aac-encoder NAME
                     use named AAC audio encoder (default: platform dependent)
+    --reverse-double-order
+                    reverses the order of `double` width audio tracks, placing
+                      the AAC stereo track before the AC-3 surround track
     --no-audio      disable all audio output
 
 Subtitle options:
@@ -247,6 +250,7 @@ HERE
       @copy_audio                 = []
       @copy_audio_name            = []
       @aac_encoder                = nil
+      @reverse_double_order       = false
       @burn_subtitle              = nil
       @force_subtitle             = nil
       @extra_subtitle             = []
@@ -583,6 +587,8 @@ HERE
           fail UsageError, "invalid aac encoder argument: #{arg}"
         end
       end
+
+      opts.on('--reverse-double-order') { @reverse_double_order = true }
 
       opts.on('--no-audio')           { force_handbrake_option 'audio', 'none' }
 
@@ -1127,6 +1133,13 @@ HERE
         when :stereo
           add_stereo.call info, copy and info[:channels] <= 2.0
         end
+      end
+
+      if @reverse_double_order
+        tracks.reverse!
+        encoders.reverse!
+        bitrates.reverse!
+        names.reverse!
       end
 
       handbrake_options['audio'] = tracks.join(',')
