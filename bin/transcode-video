@@ -126,6 +126,8 @@ Audio options:
                       with `surround` to allow single surround or stereo track
                       with `stereo` to allow only single stereo track
                       (can be used multiple times)
+    --reverse-double-order
+                    reverse order of `double` "width" audio output tracks
     --prefer-ac3    prefer AC-3 over AAC format when encoding or copying audio
                       even when original track channel layout is stereo or mono
                       (sets audio output "width" for all tracks to `surround`)
@@ -147,11 +149,6 @@ Audio options:
                       (can be used multiple times)
     --aac-encoder NAME
                     use named AAC audio encoder (default: platform dependent)
-    --reverse-double-order
-                    reverses the order of `double` width audio tracks, placing
-                      the AAC stereo track before the AC-3 surround track when
-                      outputting a Matroska file, and the AC-3 surround track
-                      before the AAC stereo track when outputting an MP4 file
     --no-audio      disable all audio output
 
 Subtitle options:
@@ -246,13 +243,13 @@ HERE
       @audio_name                 = {}
       @audio_language             = []
       @audio_width                = {:main => :double, :other => :stereo}
+      @reverse_double_order       = false
       @prefer_ac3                 = false
       @ac3_bitrate                = 640
       @pass_ac3_bitrate           = 640
       @copy_audio                 = []
       @copy_audio_name            = []
       @aac_encoder                = nil
-      @reverse_double_order       = false
       @burn_subtitle              = nil
       @force_subtitle             = nil
       @extra_subtitle             = []
@@ -538,6 +535,8 @@ HERE
         end
       end
 
+      opts.on('--reverse-double-order') { @reverse_double_order = true }
+
       opts.on '--prefer-ac3' do
         @prefer_ac3 = true
         @audio_width[:main] = :surround
@@ -589,8 +588,6 @@ HERE
           fail UsageError, "invalid aac encoder argument: #{arg}"
         end
       end
-
-      opts.on('--reverse-double-order') { @reverse_double_order = true }
 
       opts.on('--no-audio')           { force_handbrake_option 'audio', 'none' }
 
@@ -1089,16 +1086,6 @@ HERE
         bitrates << ''
       end
 
-      add_double_aac_first = ->(info, copy) do
-        add_stereo.call info, false
-        add_surround.call info, copy
-      end
-
-      add_double_ac3_first = ->(info, copy) do
-        add_surround.call info, copy
-        add_stereo.call info, false
-      end
-
       track_order.each do |track|
         tracks << track
         info = media.info[:audio][track]
@@ -1126,16 +1113,12 @@ HERE
             tracks << track
             names << name
 
-            if @format == :mkv
-              if @reverse_double_order
-                add_double_aac_first.call info, copy
-              else
-                add_double_ac3_first.call info, copy
-              end
-            elsif @reverse_double_order
-              add_double_ac3_first.call info, copy
+            if @format == :mkv ? !@reverse_double_order : @reverse_double_order
+              add_surround.call info, copy
+              add_stereo.call info, false
             else
-              add_double_aac_first.call info, copy
+              add_stereo.call info, false
+              add_surround.call info, copy
             end
           else
             add_stereo.call info, copy
