@@ -2,7 +2,7 @@
 #
 # transcode-video
 #
-# Copyright (c) 2013-2017 Don Melton
+# Copyright (c) 2013-2018 Don Melton
 #
 
 $LOAD_PATH.unshift File.expand_path(File.dirname(__FILE__) + '/../lib')

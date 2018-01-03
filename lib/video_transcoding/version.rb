@@ -1,7 +1,7 @@
 #
 # version.rb
 #
-# Copyright (c) 2013-2017 Don Melton
+# Copyright (c) 2013-2018 Don Melton
 #
 
 module VideoTranscoding
