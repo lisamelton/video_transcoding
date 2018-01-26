@@ -80,13 +80,13 @@ HERE
 
       if @scan
         media = Media.new(path: arg, title: @title)
-        Console.debug media.info
+        Console.debug media.info.inspect
         puts media.summary
         return
       end
 
       media = Media.new(path: arg, title: @title, autocrop: true, extended: false)
-      Console.debug media.info
+      Console.debug media.info.inspect
       width, height = media.info[:width], media.info[:height]
       directory = media.info[:directory]
       hb_crop = media.info[:autocrop]

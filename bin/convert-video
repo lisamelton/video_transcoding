@@ -72,7 +72,7 @@ HERE
     def process_input(arg)
       Console.info "Processing: #{arg}..."
       media = Media.new(path: arg, allow_directory: false)
-      Console.debug media.info
+      Console.debug media.info.inspect
       output = resolve_output(media)
       fail "no compatible video track: #{arg}" unless media.info[:h264] or media.info[:hevc]
       fail "no video stream: #{arg}" unless media.info.has_key? :stream
@@ -206,7 +206,7 @@ HERE
 
       convert media, output, ['-movflags', 'disable_chpl', *map_options, *copy_options]
       mp4_media = Media.new(path: output, allow_directory: false)
-      Console.debug mp4_media.info
+      Console.debug mp4_media.info.inspect
 
       last_track = 0
 
@@ -333,7 +333,7 @@ HERE
 
       convert media, output, [*map_options, *copy_options]
       mkv_media = Media.new(path: output, allow_directory: false)
-      Console.debug mkv_media.info
+      Console.debug mkv_media.info.inspect
       mkvpropedit_options = [
         '--tags', 'all:'
       ]
@@ -406,7 +406,7 @@ HERE
         *ffmpeg_options,
         output
       ]
-      Console.debug ffmpeg_command
+      Console.debug ffmpeg_command.inspect
       Console.info 'Converting with ffmpeg...'
 
       begin

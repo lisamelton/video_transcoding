@@ -803,14 +803,14 @@ HERE
 
       if @scan
         media = Media.new(path: arg, title: @title)
-        Console.debug media.info
+        Console.debug media.info.inspect
         puts media.summary
         return
       end
 
       seconds = Time.now.tv_sec
       media = Media.new(path: arg, title: @title, autocrop: @crop == :detect)
-      Console.debug media.info
+      Console.debug media.info.inspect
       handbrake_options = {
         'input' => arg,
         'output' => resolve_output(media),
@@ -1284,7 +1284,7 @@ HERE
         return
       end
 
-      Console.debug handbrake_command
+      Console.debug handbrake_command.inspect
       log_file = @log ? File.new(handbrake_options['output'] + '.log', 'wb') : nil
       Console.info 'Transcoding with HandBrakeCLI...'
 
@@ -1310,7 +1310,7 @@ HERE
     def adjust_metadata(output, renamed_audio)
       return if @dry_run
       media = Media.new(path: output, allow_directory: false)
-      Console.debug media.info
+      Console.debug media.info.inspect
 
       if  media.info[:mkv] and
           media.info[:subtitle].include? 1 and
