@@ -737,30 +737,6 @@ HERE
           fail UsageError, "invalid HandBrakeCLI option: #{arg}"
         end
       end
-
-      opts.on '--cvbr' do
-        Console.warn '**********'
-        Console.warn 'Using deprecated option: --cvbr'
-        Console.warn 'Replace with: -E crf-max=30 -E _qpmax'
-        Console.warn '**********'
-        @encoder_options['crf-max'] = '30'
-        @disable_encoder_options << 'qpmax'
-        @use_abr = false
-      end
-
-      opts.on '--vbr ARG', Float do |arg|
-        crf = arg.to_s.gsub(/\.0+$/, '')
-        Console.warn '**********'
-        Console.warn 'Using deprecated option: --vbr'
-        Console.warn "Replace with: -H quality=#{crf} -E _vbv-maxrate -E _vbv-bufsize -E _crf-max -E _qpmax"
-        Console.warn '**********'
-        @handbrake_options['quality'] = crf
-        @disable_encoder_options << 'vbv-maxrate'
-        @disable_encoder_options << 'vbv-bufsize'
-        @disable_encoder_options << 'crf-max'
-        @disable_encoder_options << 'qpmax'
-        @use_abr = false
-      end
     end
 
     def force_handbrake_option(name, value)
