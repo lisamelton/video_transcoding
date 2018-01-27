@@ -632,14 +632,6 @@ Using hardware with [Intel Quick Sync Video](https://en.wikipedia.org/wiki/Intel
 
 Also, keep in mind that hardware encoders are typically designed for realtime video chat or other similar duties. To maintain that performance, they often take shortcuts with video quality like reducing reference frames, lowering subpixel motion estimation, etc. Such an approach is the equivalent of using the `veryfast` preset with a software encoder. That's fine for video chat but I wouldn't recommend it for transcoding your disc collection.
 
-### Can you add support for Enhanced AC-3 audio?
-
-[Dolby Digital Plus](https://en.wikipedia.org/wiki/Dolby_Digital_Plus) or Enhanced AC-3 is a successor to the Dolby Digital AC-3 audio format. AC-3 is the format currently output by `transcode-video` when surround audio is used as input. HandBrake has supported Enhanced AC-3 since version 1.0.0.
-
-The original AC-3 format is limited to 5.1 audio channels. This means that any 7.1 channel audio track, typically available on Blu-ray Discs, needs to be downmixed during transcoding. The advantage to Enhanced AC-3 is that it can support up to 13.1 audio channels, so no downmixing is necessary.
-
-Unfortunately, Enhanced AC-3 output is currently limited to 5.1 audio channels in HandBrake. I'll consider adding support once an Enhanced AC-3 feature without that limitation is available.
-
 ### How do you assess video transcoding quality?
 
 I compare by visual inspection. Always with the video in motion, never frame by frame. It's tedious but after years of practice I know which portions of which videos are problematic and difficult to transcode. And I look at those first.
