@@ -34,6 +34,8 @@ Usage: #{$PROGRAM_NAME} [OPTION]... [FILE]...
     --use-m4v       use `.m4v` extension instead of `.mp4` for MP4 output
     --no-double     don't swap order of first two audio tracks
                       or add stereo copy of main surround track
+    --ac3-encoder ac3|eac3
+                    set AC-3 audio encoder (default: ac3)
 
 -v, --verbose       increase diagnostic information
 -q, --quiet         decrease     "           "
@@ -47,15 +49,25 @@ HERE
 
     def initialize
       super
-      @output   = nil
-      @use_m4v  = false
-      @double   = true
+      @output       = nil
+      @use_m4v      = false
+      @double       = true
+      @ac3_encoder  = 'ac3'
     end
 
     def define_options(opts)
       opts.on('-o', '--output ARG') { |arg| @output = arg }
       opts.on('--use-m4v')          { @use_m4v = true }
       opts.on('--no-double')        { @double = false }
+
+      opts.on '--ac3-encoder ARG' do |arg|
+        @ac3_encoder = case arg
+        when 'ac3', 'eac3'
+          arg
+        else
+          fail UsageError, "invalid AC-3 audio encoder: #{arg}"
+        end
+      end
     end
 
     def configure
@@ -142,15 +154,15 @@ HERE
           ])
 
           if  media.info[:audio][track][:channels] > 2.0 and
-              media.info[:audio][track][:format] != 'AC3'
+              not ac3_format?(media.info[:audio][track][:format])
             copy_options.concat([
               '-ac', '6',
-              "-c:a:#{stream}", 'ac3',
+              "-c:a:#{stream}", @ac3_encoder,
               "-b:a:#{stream}", '640k'
             ])
           elsif media.info[:audio][track][:channels] <= 2.0 and
                 media.info[:audio][track][:format] != 'AAC' and
-                media.info[:audio][track][:format] != 'AC3'
+                not ac3_format?(media.info[:audio][track][:format])
             copy_options.concat([
               '-ac', '2',
               "-c:a:#{stream}", FFmpeg.aac_encoder,
@@ -233,6 +245,15 @@ HERE
         end
 
         mp4_track_enable output, last_track + track, enabled
+      end
+    end
+
+    def ac3_format?(track_format)
+      if  (@ac3_encoder == 'ac3'  and track_format == 'AC3') or
+          (@ac3_encoder == 'eac3' and track_format =~ /^(?:E-)?AC3$/)
+        true
+      else
+        false
       end
     end
 
