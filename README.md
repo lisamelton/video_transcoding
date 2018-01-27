@@ -650,8 +650,6 @@ What I don't use are [peak signal-to-noise ratios](https://en.wikipedia.org/wiki
 
 ### What options do you use with `transcode-video`?
 
-I use the default settings. That's why they're the defaults.
-
 I never use the `--crop detect` function of `transcode-video` because I don't trust either `HandBrakeCLI` or `ffmpeg` to always get it right without supervision. Instead, I use the separate `detect-crop` tool before transcoding to manually review and apply the best crop values.
 
 I let `transcode-video` automatically burn any forced subtitles into the output video track when the "forced" flag is enabled in the original.
