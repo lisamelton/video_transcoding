@@ -662,9 +662,9 @@ For a few problematic videos, I have to apply options like `--force-rate 23.976 
 
 ## History
 
-Saturday, December 2, 2017
-
 ### [0.18.0](https://github.com/donmelton/video_transcoding/releases/tag/0.18.0)
+
+Saturday, December 2, 2017
 
 * Improve the average bitrate (ABR) ratecontrol system provided by the `--abr` option in `transcode-video`. Via [ #179](https://github.com/donmelton/video_transcoding/issues/179).
     * Implement it with a maximum bitrate constraint to raise its overal quality level and guarantee that it will not generate any `VBV underflow` warnings like the default ratecontrol system.
@@ -679,15 +679,15 @@ Saturday, December 2, 2017
 * Fix failure of subtitle detection for HandBrake nightly builds. Language detection for subtitles in disc image directory input and individual closed caption tracks may still be wrong but will not be fixed at this time. Via [ #172](https://github.com/donmelton/video_transcoding/issues/172).
 * Mention [Nick Wronski](https://github.com/nwronski)'s nifty batch-processing wrapper for `transcode-video` in the the "README" document. Thanks, [@JMoVS](https://github.com/JMoVS)! Via [ #180](https://github.com/donmelton/video_transcoding/pull/180).
 
-Sunday, September 10, 2017
-
 ### [0.17.4](https://github.com/donmelton/video_transcoding/releases/tag/0.17.4)
+
+Sunday, September 10, 2017
 
 * Force text output from `mp4track` into UTF-8 binary format to ensure correct parsing of that data. Thanks, [@DavidNielsen](https://github.com/DavidNielsen)! Via [ #152](https://github.com/donmelton/video_transcoding/pull/152).
 
-Sunday, May 14, 2017
-
 ### [0.17.3](https://github.com/donmelton/video_transcoding/releases/tag/0.17.3)
+
+Sunday, May 14, 2017
 
 * `HandBrakeCLI` versions 1.0 and later changed the default frame rate mode from "constant" to "peak-limited" when a rate is specified. This new behavior in `HandBrakeCLI` requires two significant changes in `transcode-video`:
     * Fix a bug where the `--force-rate` option failed to force a constant frame rate. This bug made it behave essentially the same at the `--limit-rate` option.
