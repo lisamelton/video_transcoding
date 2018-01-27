@@ -131,9 +131,11 @@ Audio options:
     --prefer-ac3    prefer AC-3 over AAC format when encoding or copying audio
                       even when original track channel layout is stereo or mono
                       (sets audio output "width" for all tracks to `surround`)
-    --ac3-bitrate 384|448|640
+    --ac3-encoder ac3|eac3
+                    set AC-3 audio encoder (default: ac3)
+    --ac3-bitrate 384|448|640|768|1536
                     set AC-3 audio bitrate (default: 640)
-    --pass-ac3-bitrate 384|448|640
+    --pass-ac3-bitrate 384|448|640|768|1536
                     set AC-3 audio pass-through bitrate (default: 640)
     --copy-audio TRACK|all
                     try to copy track selected by number in its original format
@@ -245,6 +247,7 @@ HERE
       @audio_width                = {:main => :double, :other => :stereo}
       @reverse_double_order       = false
       @prefer_ac3                 = false
+      @ac3_encoder                = 'ac3'
       @ac3_bitrate                = 640
       @pass_ac3_bitrate           = 640
       @copy_audio                 = []
@@ -543,9 +546,18 @@ HERE
         @audio_width[:other] = :surround
       end
 
+      opts.on '--ac3-encoder ARG' do |arg|
+        @ac3_encoder = case arg
+        when 'ac3', 'eac3'
+          arg
+        else
+          fail UsageError, "invalid AC-3 audio encoder: #{arg}"
+        end
+      end
+
       opts.on '--ac3-bitrate ARG', Integer do |arg|
         @ac3_bitrate = case arg
-        when 384, 448, 640
+        when 384, 448, 640, 768, 1536
           arg
         else
           fail UsageError, "unsupported AC-3 audio bitrate: #{arg}"
@@ -554,7 +566,7 @@ HERE
 
       opts.on '--pass-ac3-bitrate ARG', Integer do |arg|
         @pass_ac3_bitrate = case arg
-        when 384, 448, 640
+        when 384, 448, 640, 768, 1536
           arg
         else
           fail UsageError, "unsupported AC-3 audio pass-through bitrate: #{arg}"
@@ -1061,13 +1073,17 @@ HERE
       add_surround = ->(info, copy) do
         bitrate = info[:bps].nil? ? 640 : info[:bps] / 1000
 
-        if copy or (info[:format] == 'AC3' and bitrate <= @pass_ac3_bitrate)
+        if  copy or
+            (((@ac3_encoder == 'ac3'  and info[:format] == 'AC3') or
+              (@ac3_encoder == 'eac3' and info[:format] =~ /^(?:E-)?AC3$/)) and
+            bitrate <= @pass_ac3_bitrate)
           encoders << 'copy'
           bitrates << ''
         else
-          encoders << 'ac3'
+          encoders << @ac3_encoder
 
-          if @ac3_bitrate == 640
+          if  (@ac3_encoder == 'ac3'  and @ac3_bitrate >= 640) or
+              (@ac3_encoder == 'eac3' and @ac3_bitrate == 1536)
             bitrates << ''
           else
             bitrates << @ac3_bitrate.to_s
@@ -1136,7 +1152,7 @@ HERE
 
       handbrake_options['audio'] = tracks.join(',')
       handbrake_options['aencoder'] = encoders.join(',')
-      handbrake_options['audio-fallback'] = 'ac3' unless @copy_audio.empty?
+      handbrake_options['audio-fallback'] = @ac3_encoder unless @copy_audio.empty?
       bitrates = bitrates.join(',')
       handbrake_options['ab'] = bitrates if bitrates.gsub(/,/, '') != ''
       names = names.join(',')
