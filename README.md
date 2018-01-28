@@ -652,6 +652,23 @@ For a few problematic videos, I have to apply options like `--force-rate 23.976 
 
 ## History
 
+### [0.19.0](https://github.com/donmelton/video_transcoding/releases/tag/0.19.0)
+
+Saturday, January 27, 2018
+
+* Add support for [Dolby Digital Plus](https://en.wikipedia.org/wiki/Dolby_Digital_Plus) audio format, aka Enhanced AC-3, to `transcode-video` and `convert-video` with a new `--ac3-encoder` option for each tool. Also, extend the `--ac3-bitrate` and `--pass-ac3-bitrate` options in `transcode-video` to support higher bitrates, 768 and 1536 Kbps, available to Enhanced AC-3. Via [ #26](https://github.com/donmelton/video_transcoding/issues/26).
+    * WARNING: Dolby Digital Plus output is currently NOT COMPATIBLE with the MP4 file format when using `transcode-video` due to a limitation in `HandBrakeCLI`. This means that adding both `--mp4` and `--ac3-encoder eac3` to your command line will fail with the error "`incompatible encoder 'eac3' for muxer 'av_mp4'`."
+    * Oddly enough, `ffmpeg` doesn't have this limitation so you'll be able to use `convert-video --ac3-encoder eac3` to convert your MKV files into MP4 format without any problems. Go figure.
+* Remove "Can you add support for Enhanced AC-3 audio?" from the "FAQ" section of the "README" document, for obvious reasons. :)
+* Add `--reverse-double-order` option to `transcode-video` to reverse order of double-width audio output tracks. Thanks, [@samhutchins](https://github.com/samhutchins)! Via [ #184](https://github.com/donmelton/video_transcoding/pull/184).
+* Fix a bug in `convert-video` where the number of audio channels was wrong when tracks had to be transcoded. This was most noticeable for AAC output and appears due to a change in the behavior of `ffmpeg`.
+* Append `.inspect` to all Hash objects used as `Console.debug` arguments. Apparently a change in the way Ruby works was preventing these objects from being printed, although I'm unsure about the specific version of Ruby in which this occurred.
+* Remove superfluous quotes in the `--help` output of `transcode-video`.
+* Remove the deprecated `--cvbr` and `--vbr` options in `transcode-video` and `--player` option in `detect-crop`.
+* Revise my usage in the "FAQ" section of the "README" document since I no longer choose the default settings with `transcode-video`.
+* Re-order a few misplaced lines in the "History" section of the "README" document.
+* Update all copyright notices to the year 2018.
+
 ### [0.18.0](https://github.com/donmelton/video_transcoding/releases/tag/0.18.0)
 
 Saturday, December 2, 2017
