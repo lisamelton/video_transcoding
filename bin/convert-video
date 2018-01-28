@@ -140,7 +140,7 @@ HERE
               '-map', "0:#{media.info[:audio][1][:stream]}"
             ])
             copy_options.concat([
-              '-ac', '2',
+              '-ac:a:0', '2',
               '-c:a:0', FFmpeg.aac_encoder,
               '-b:a:0', '160k'
             ])
@@ -156,7 +156,7 @@ HERE
           if  media.info[:audio][track][:channels] > 2.0 and
               not ac3_format?(media.info[:audio][track][:format])
             copy_options.concat([
-              '-ac', '6',
+              "-ac:a:#{stream}", '6',
               "-c:a:#{stream}", @ac3_encoder,
               "-b:a:#{stream}", '640k'
             ])
@@ -164,7 +164,7 @@ HERE
                 media.info[:audio][track][:format] != 'AAC' and
                 not ac3_format?(media.info[:audio][track][:format])
             copy_options.concat([
-              '-ac', '2',
+              "-ac:a:#{stream}", '2',
               "-c:a:#{stream}", FFmpeg.aac_encoder,
               "-b:a:#{stream}", '160k'
             ])
