@@ -39,7 +39,7 @@ r,  ratefactor      average P-frame quantizer for transcoding
 
 Options:
     --reverse       reverse direction of sort
-    --tabular       use tab character as field delimiter and surpress labels
+    --tabular       use tab character as field delimiter and suppress labels
 
 -v, --verbose       increase diagnostic information
 -q, --quiet         decrease     "           "
