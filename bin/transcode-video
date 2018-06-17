@@ -979,7 +979,7 @@ HERE
       if  (@quick or @veryquick) and
           @handbrake_options.fetch('encoder-preset', 'medium') == 'medium' and
           encoder =~ /^x264(?:_10bit)?$/
-        encoder_options['partitions']   = 'none'
+        encoder_options['analyse']      = 'none'
         encoder_options['ref']          = '1'
         encoder_options['bframes']      = '1'     if @veryquick
         encoder_options['rc-lookahead'] = '30'
