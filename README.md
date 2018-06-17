@@ -274,6 +274,8 @@ Or use this command to make main audio output as a single track but still allow 
 
     transcode-video --audio-width main=surround "/path/to/Movie.mkv"
 
+Please note that tracks transcoded to stereo AAC format, including the main track, are output in matrix-encoded [Dolby Pro Logic II](https://en.wikipedia.org/wiki/Dolby_Pro_Logic) surround format when the original input is multi-channel surround sound. This means that even though the AAC stereo track contains only two discrete channels, it can be decoded as multiple channels. So Dolby Digital AC-3 format is not actually required for surround sound output.
+
 If possible, audio is first passed through in its original format, providing that format is either AC-3 or AAC. This hardly ever works for Blu-ray Discs but it often will for DVDs and other random videos.
 
 However, you can still copy audio tracks and maintain their original format, provided HandBrake and your selected file format support it:
