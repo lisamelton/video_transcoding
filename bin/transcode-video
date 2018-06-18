@@ -95,7 +95,6 @@ Video options:
                       (`23.976` applied automatically for some inputs)
     --limit-rate FPS
                     set peak-limited video frame rate
-                      (`30` applied automatically for most inputs)
     --filter NAME[=SETTINGS]
                     apply `HandBrakeCLI` video filter with optional settings
                       (`deinterlace` applied automatically for some inputs)
@@ -882,7 +881,7 @@ HERE
       handbrake_options[anamorphic] = nil unless @handbrake_options.has_key? 'custom-anamorphic'
 
       unless @handbrake_options.has_key? 'rate'
-        rate = '30'
+        rate = nil
         fps = media.info[:fps]
 
         if fps == 29.97
@@ -902,11 +901,8 @@ HERE
           end
         end
 
-        handbrake_options['rate'] = rate
-
-        if rate == '30'
-          handbrake_options['pfr'] = nil
-        else
+        unless rate.nil?
+          handbrake_options['rate'] = rate
           handbrake_options['cfr'] = nil
         end
       end
