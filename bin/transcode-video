@@ -909,7 +909,6 @@ HERE
 
       encoder = @handbrake_options.fetch('encoder', 'x264')
       return unless encoder =~ /^x264(?:_10bit)?$/ or encoder =~ /^x265(?:_1[026]bit)?$/
-      handbrake_options['encoder-preset'] = 'medium'
 
       if width > 1920 or height > 1080
         encoder_level = '5.1'
