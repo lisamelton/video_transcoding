@@ -54,20 +54,6 @@ module VideoTranscoding
       properties[:auto_anamorphic]
     end
 
-    def aac_encoder
-      properties = Tool.properties(COMMAND_NAME)
-
-      unless properties.has_key? :aac_encoder
-        if help_text =~ /ca_aac/
-          properties[:aac_encoder] = 'ca_aac'
-        else
-          properties[:aac_encoder] = 'av_aac'
-        end
-      end
-
-      properties[:aac_encoder]
-    end
-
     private
 
     def help_text
