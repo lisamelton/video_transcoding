@@ -689,6 +689,20 @@ For a few problematic videos, I have to apply options like `--force-rate 23.976 
 
 ## History
 
+### [0.20.0](https://github.com/donmelton/video_transcoding/releases/tag/0.20.0)
+
+Monday, June 18, 2018
+
+* Now require `HandBrakeCLI` version 1.0.0 or later. Not only does this change make for easier testing, but it allows removal of many capability-detection hacks needed to support older versions. My thanks again to all the users who provided positive feedback about this online!
+* Relax frame rate control in `transcode-video` so that the options `--rate=30` and `--pfr` are no longer passed to `HandBrakeCLI` for most non-DVD videos. This means that the peak frame rate will no longer be limited to `30` FPS, allowing camera-generated videos to retain their original frame rates. However, the old behavior can be restored for those videos by adding `--limit-rate 30` to your `transcode-video` command line.
+* Modify `transcode-video` to no longer pass `--encoder-preset=medium` to `HandBrakeCLI` since that's the default behavior anyway. However, adding `--preset medium` to your `transcode-video` command line still does so.
+* Modify `transcode-video` to no longer pass a named audio encoder to `HandBrakeCLI` in order to select AAC, i.e. `ca_aac` or `av_aac`, since AAC is the default audio format anyway. However, adding the `--aac-encoder` option to your `transcode-video` command line still allows an explicit choice.
+* Modify `transcode-video` to substitute "analyse" for the x264 option called "partitions" when invoked with the `--quick` or `--veryquick` options. This is done to better match the archaic internal name used by HandBrake. It has no effect on actual transcoding behavior.
+* Add `-n` as a shortcut alias for the `--dry-run` option in `transcode-video`. This is the same shortcut alias used in `rsync` and `make`.
+* Expand the "Explanation" section of the "README" document to describe both the special, or default, ratecontrol system and the average bitrate (ABR) ratecontrol system, enabled via the `--abr` option.
+* Add clarification to the "README" document that stereo AAC tracks can also include surround audio information in matrix-encoded Dolby Pro Logic II format.
+* Fix spelling of "suppress" in the `--help` output of `query-handbrake-log`. Thanks, [@chrisridd](https://github.com/chrisridd)! Via [ #205](https://github.com/donmelton/video_transcoding/pull/205).
+
 ### [0.19.0](https://github.com/donmelton/video_transcoding/releases/tag/0.19.0)
 
 Saturday, January 27, 2018
