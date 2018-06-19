@@ -875,7 +875,7 @@ HERE
           height = adjusted_height
         end
       else
-        anamorphic = HandBrake.auto_anamorphic
+        anamorphic = 'auto-anamorphic'
       end
 
       handbrake_options[anamorphic] = nil unless @handbrake_options.has_key? 'custom-anamorphic'
