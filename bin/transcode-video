@@ -53,7 +53,7 @@ Output options:
                     import chapter names from `.csv` text file
                       (in NUMBER,NAME format, e.g. "1,Intro")
     --no-log        don't write log file
-    --dry-run       don't transcode, just show `HandBrakeCLI` command and exit
+-n, --dry-run       don't transcode, just show `HandBrakeCLI` command and exit
 
 Quality options:
     --abr           use constrained average bitrate (ABR) ratecontrol
@@ -315,7 +315,7 @@ HERE
       end
 
       opts.on('--no-log')             { @log = false }
-      opts.on('--dry-run')            { @dry_run = true }
+      opts.on('-n', '--dry-run')      { @dry_run = true }
 
       opts.on '--abr' do
         @use_abr = true
