@@ -1122,7 +1122,8 @@ HERE
       end
 
       handbrake_options['audio'] = tracks.join(',')
-      handbrake_options['aencoder'] = encoders.join(',')
+      encoders = encoders.join(',')
+      handbrake_options['aencoder'] = encoders if encoders.gsub(/,/, '') != ''
       handbrake_options['audio-fallback'] = @ac3_encoder unless @copy_audio.empty?
       bitrates = bitrates.join(',')
       handbrake_options['ab'] = bitrates if bitrates.gsub(/,/, '') != ''
