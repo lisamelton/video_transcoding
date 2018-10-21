@@ -469,14 +469,7 @@ HERE
 
       opts.on '--filter ARG' do |arg|
         if arg =~ /^([a-z0-9-]+)(?:=(.+))?$/
-          case $1
-          when 'comb-detect', 'deinterlace', 'decomb', 'detelecine',
-          'hqdn3d', 'denoise', 'nlmeans', 'nlmeans-tune', 'deblock',
-          'rotate', 'pad', 'grayscale'
-            force_handbrake_option $1, $2
-          else
-            fail UsageError, "unsupported filter name: #{$1}"
-          end
+          force_handbrake_option filter_handbrake_option($1), $2
         else
           fail UsageError, "invalid filter argument: #{arg}"
         end
