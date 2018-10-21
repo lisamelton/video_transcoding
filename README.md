@@ -689,6 +689,12 @@ For a few problematic videos, I have to apply options like `--force-rate 23.976 
 
 ## History
 
+### [0.20.1](https://github.com/donmelton/video_transcoding/releases/tag/0.20.1)
+
+Sunday, October 21, 2018
+
+* Modify `transcode-video` to no longer validate `--filter` option arguments against a fixed list of names. This will prevent annoying failures whenever the HandBrake team adds a new filter.
+
 ### [0.20.0](https://github.com/donmelton/video_transcoding/releases/tag/0.20.0)
 
 Monday, June 18, 2018
