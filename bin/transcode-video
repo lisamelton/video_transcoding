@@ -801,13 +801,12 @@ HERE
       handbrake_options['title'] = title.to_s unless title == 1
       encoder_options = {}
       prepare_video(media, handbrake_options, encoder_options)
-      renamed_audio = {}
-      prepare_audio(media, handbrake_options, renamed_audio)
+      prepare_audio(media, handbrake_options)
       prepare_subtitle(media, handbrake_options)
       prepare_srt(media, handbrake_options)
       prepare_options(handbrake_options, encoder_options)
       transcode(handbrake_options)
-      adjust_metadata(handbrake_options['output'], renamed_audio)
+      adjust_metadata(handbrake_options['output'])
 
       unless @dry_run
         seconds = Time.now.tv_sec - seconds
@@ -1010,7 +1009,7 @@ HERE
       end
     end
 
-    def prepare_audio(media, handbrake_options, renamed_audio)
+    def prepare_audio(media, handbrake_options)
       return if @handbrake_options.fetch('audio', '') == 'none' or media.info[:audio].empty?
       main_track = resolve_main_audio(media)
       @audio_width[main_track] ||= @audio_width[:main]
@@ -1076,14 +1075,7 @@ HERE
           name = ''
         end
 
-        name = @audio_name.fetch(track, name)
-
-        if name =~ /,/
-          sanitized_name = name.gsub(/,/, '_')
-          renamed_audio[sanitized_name] = name
-          name = sanitized_name
-        end
-
+        name = @audio_name.fetch(track, name).gsub(/,/, '","')
         names << name
 
         case @audio_width.fetch(track, @audio_width[:other])
@@ -1287,7 +1279,7 @@ HERE
       fail "transcoding failed: #{handbrake_options['input']}" unless $CHILD_STATUS.exitstatus == 0
     end
 
-    def adjust_metadata(output, renamed_audio)
+    def adjust_metadata(output)
       return if @dry_run
       media = Media.new(path: output, allow_directory: false)
       Console.debug media.info.inspect
@@ -1314,56 +1306,6 @@ HERE
         end
 
         fail "forcing subtitle: #{output}" if $CHILD_STATUS.exitstatus == 2
-      end
-
-      return if renamed_audio.empty?
-
-      media.info[:audio].each do |track, info|
-        original_name = renamed_audio[info[:name]]
-
-        unless original_name.nil?
-          if media.info[:mkv]
-            Console.info 'Renaming audio with mkvpropedit...'
-
-            begin
-              IO.popen([
-                MKVpropedit.command_name,
-                '--edit', "track:a#{track}",
-                '--set', "name=#{original_name}",
-                output,
-              ], 'rb', :err=>[:child, :out]) do |io|
-                io.each do |line|
-                  Console.debug line
-                end
-              end
-            rescue SystemCallError => e
-              raise "renaming audio failed: #{e}"
-            end
-
-            fail "renaming audio: #{output}" if $CHILD_STATUS.exitstatus == 2
-          elsif media.info[:mp4]
-            Console.info 'Renaming audio with mp4track...'
-
-            ['hdlrname', 'udtaname'].each do |property|
-              begin
-                IO.popen([
-                  MP4track.command_name,
-                  '--track-index', track.to_s,
-                  "--#{property}", original_name,
-                  output,
-                ], 'rb', :err=>[:child, :out]) do |io|
-                  io.each do |line|
-                    Console.debug line
-                  end
-                end
-              rescue SystemCallError => e
-                raise "renaming audio failed: #{e}"
-              end
-
-              fail "renaming audio: #{output}" unless $CHILD_STATUS.exitstatus == 0
-            end
-          end
-        end
       end
     end
 
