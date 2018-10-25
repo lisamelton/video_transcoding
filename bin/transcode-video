@@ -901,35 +901,34 @@ HERE
       end
 
       encoder = @handbrake_options.fetch('encoder', 'x264')
-      return unless encoder =~ /^x264(?:_10bit)?$/ or encoder =~ /^x265(?:_1[026]bit)?$/
+      return unless encoder =~ /^x264(?:_10bit)?$/ or encoder =~ /^x265(?:_1[02]bit)?$/
+
+      case encoder
+      when 'x264'
+        handbrake_options['encoder-profile'] = 'high'
+      when 'x264_10bit'
+        handbrake_options['encoder-profile'] = 'high10'
+      when 'x265'
+        handbrake_options['encoder-profile'] = 'main'
+      when 'x265_10bit', 'x265_12bit'
+        handbrake_options['encoder-profile'] = 'main10'
+      end
+
+      encoder_level = '4.1'
 
       if width > 1920 or height > 1080
         encoder_level = '5.1'
         bitrate = @target_bitrate_2160p
       elsif width > 1280 or height > 720
-        encoder_level = '4.0'
         bitrate = @target_bitrate_1080p
       elsif width * height > 720 * 576
-        encoder_level = '3.1'
         bitrate = @target_bitrate_720p
       else
-        encoder_level = '3.0'
         bitrate = @target_bitrate_480p
       end
 
-      case encoder
-      when 'x264'
-        handbrake_options['encoder-profile'] = 'high'
-
-        if @handbrake_options.fetch('rate', '30').to_f <= 30.0
+      if encoder =~ /^x264(?:_10bit)?$/ and @handbrake_options.fetch('rate', '30').to_f <= 30.0
           handbrake_options['encoder-level'] = encoder_level
-        end
-      when 'x264_10bit'
-        handbrake_options['encoder-profile'] = 'high10'
-      when 'x265'
-        handbrake_options['encoder-profile'] = 'main'
-      when 'x265_10bit', 'x265_12bit', 'x265_16bit'
-        handbrake_options['encoder-profile'] = 'main10'
       end
 
       if @target_bitrate.nil?
@@ -955,7 +954,7 @@ HERE
         encoder_options['vbv-maxrate']  = ((bitrate * 1.5).to_i).to_s
         encoder_options['vbv-bufsize']  = ((bitrate * 2).to_i).to_s
         encoder_options['nal-hrd']      = 'vbr' if encoder =~ /^x264(?:_10bit)?$/
-        encoder_options['hrd']          = '1'   if encoder =~ /^x265(?:_1[026]bit)?$/
+        encoder_options['hrd']          = '1'   if encoder =~ /^x265(?:_1[02]bit)?$/
       else
         handbrake_options['quality']    = '1'
         encoder_options['vbv-maxrate']  = bitrate.to_s
