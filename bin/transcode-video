@@ -1257,7 +1257,8 @@ HERE
       end
 
       Console.debug handbrake_command.inspect
-      log_file = @log ? File.new(handbrake_options['output'] + '.log', 'wb') : nil
+      log_file_path = handbrake_options['output'] + '.log'
+      log_file = @log ? File.new(log_file_path, 'wb') : nil
       Console.info 'Transcoding with HandBrakeCLI...'
 
       begin
@@ -1277,6 +1278,24 @@ HERE
 
       log_file.close unless log_file.nil?
       fail "transcoding failed: #{handbrake_options['input']}" unless $CHILD_STATUS.exitstatus == 0
+
+      unless log_file.nil?
+        timestamp = File.mtime(log_file_path)
+        content = ''
+
+        begin
+          File.foreach(log_file_path) do |line|
+            content += line
+          end
+        rescue SystemCallError => e
+          raise "reading failed: #{e}"
+        end
+
+        log_file = File.new(log_file_path, 'wb')
+        log_file.print content.gsub(/^.*\r(.)/, '\1')
+        log_file.close
+        FileUtils.touch log_file_path, :mtime => timestamp
+      end
     end
 
     def adjust_metadata(output)
