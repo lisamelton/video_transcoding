@@ -913,16 +913,17 @@ HERE
         handbrake_options['encoder-profile'] = 'main10'
       end
 
-      encoder_level = '4.1'
-
       if width > 1920 or height > 1080
         encoder_level = '5.1'
         bitrate = @target_bitrate_2160p
       elsif width > 1280 or height > 720
+        encoder_level = '4.0'
         bitrate = @target_bitrate_1080p
       elsif width * height > 720 * 576
+        encoder_level = '3.1'
         bitrate = @target_bitrate_720p
       else
+        encoder_level = '3.0'
         bitrate = @target_bitrate_480p
       end
 
