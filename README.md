@@ -689,6 +689,15 @@ For a few problematic videos, I have to apply options like `--force-rate 23.976 
 
 ## History
 
+### [0.21.0](https://github.com/donmelton/video_transcoding/releases/tag/0.21.0)
+
+Friday, November 9, 2018
+
+* Modify `transcode-video` to create "sparse" `.log` files by removing overwritten progress information, often making those files an order of magnitude (i.e. `10x`) smaller. Via [ #213](https://github.com/donmelton/video_transcoding/issues/213).
+* Replace code in `transcode-video` which used `mkvpropedit` or `mp4track` in a post-transcoding step to sanitize audio titles containing commas, with much simpler code leveraging a comma escaping mechanism only available in `HandBrakeCLI` version 1.0.0 or later.
+* Fix bug in `transcode-video` where the level was not set when using the `x264_10bit` encoder.
+* Remove support the non-existent `x265_16bit` encoder in `transcode-video`. This might have been available last year in some development builds of `HandBrakeCLI`, but it's definitely not in any release.
+
 ### [0.20.1](https://github.com/donmelton/video_transcoding/releases/tag/0.20.1)
 
 Sunday, October 21, 2018
