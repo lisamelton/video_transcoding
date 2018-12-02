@@ -689,6 +689,14 @@ For a few problematic videos, I have to apply options like `--force-rate 23.976 
 
 ## History
 
+### [0.21.1](https://github.com/donmelton/video_transcoding/releases/tag/0.21.1)
+
+Sunday, December 2, 2018
+
+* Fix a bug in `transcode-video` creating MP3 instead of AAC audio in MKV output on Windows. This was caused by a previous optimization not passing a named AAC audio encoder to `HandBrakeCLI`, i.e. `ca_aac` or `av_aac`. Apparently the default is different on Windows. Go figure. Thanks, [@samhutchins](https://github.com/samhutchins)! Via [ #235](https://github.com/donmelton/video_transcoding/issues/235).
+* Add a workaround in `transcode-video` for HandBrake nightly builds not setting the mixdown of multichannel audio track inputs to Dolby Pro Logic II format at 160 Kbps when the output is AAC stereo. Apparently the new default for that type of input is 5.1 channels at 384 Kbps, which wouldn't play on most Roku or Apple TV devices without re-transcoding or non-standard software. Again, go figure.
+* Add a workaround in `transcode-video` and `convert-video` for HandBrake nightly builds not copying mono or stereo audio track inputs which are already in AAC format.
+
 ### [0.21.0](https://github.com/donmelton/video_transcoding/releases/tag/0.21.0)
 
 Friday, November 9, 2018
