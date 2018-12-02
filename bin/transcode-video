@@ -1057,7 +1057,7 @@ HERE
       end
 
       add_stereo = ->(info, copy) do
-        if copy or (info[:format] == 'AAC' and info[:channels] <= 2.0)
+        if copy or (info[:format] =~ /^AAC/ and info[:channels] <= 2.0)
           encoders << 'copy'
           mixdowns << ''
         else
