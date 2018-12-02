@@ -26,5 +26,41 @@ module VideoTranscoding
     def command_name
       Tool.use(COMMAND_NAME)
     end
+
+    def aac_encoder
+      properties = Tool.properties(COMMAND_NAME)
+
+      unless properties.has_key? :aac_encoder
+        if help_text =~ /ca_aac/
+          properties[:aac_encoder] = 'ca_aac'
+        else
+          properties[:aac_encoder] = 'av_aac'
+        end
+      end
+
+      properties[:aac_encoder]
+    end
+
+    private
+
+    def help_text
+      properties = Tool.properties(COMMAND_NAME)
+
+      unless properties.has_key? :help_text
+        properties[:help_text] = ''
+
+        begin
+          IO.popen([Tool.use(COMMAND_NAME), '--help'], :err=>[:child, :out]) do |io|
+            properties[:help_text] = io.read
+          end
+        rescue SystemCallError => e
+          raise "#{COMMAND_NAME} help text unavailable: #{e}"
+        end
+
+        fail "#{COMMAND_NAME} failed during execution" unless $CHILD_STATUS.exitstatus == 0
+      end
+
+      properties[:help_text]
+    end
   end
 end

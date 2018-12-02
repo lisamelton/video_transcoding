@@ -1058,7 +1058,7 @@ HERE
         if copy or (info[:format] == 'AAC' and info[:channels] <= 2.0)
           encoders << 'copy'
         else
-          @aac_encoder ||= ''
+          @aac_encoder ||= HandBrake.aac_encoder
           encoders << @aac_encoder
         end
 
