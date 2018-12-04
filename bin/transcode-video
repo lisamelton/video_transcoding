@@ -899,20 +899,6 @@ HERE
         end
       end
 
-      encoder = @handbrake_options.fetch('encoder', 'x264')
-      return unless encoder =~ /^x264(?:_10bit)?$/ or encoder =~ /^x265(?:_1[02]bit)?$/
-
-      case encoder
-      when 'x264'
-        handbrake_options['encoder-profile'] = 'high'
-      when 'x264_10bit'
-        handbrake_options['encoder-profile'] = 'high10'
-      when 'x265'
-        handbrake_options['encoder-profile'] = 'main'
-      when 'x265_10bit', 'x265_12bit'
-        handbrake_options['encoder-profile'] = 'main10'
-      end
-
       if width > 1920 or height > 1080
         encoder_level = '5.1'
         bitrate = @target_bitrate_2160p
@@ -925,10 +911,6 @@ HERE
       else
         encoder_level = '3.0'
         bitrate = @target_bitrate_480p
-      end
-
-      if encoder =~ /^x264(?:_10bit)?$/ and @handbrake_options.fetch('rate', '30').to_f <= 30.0
-          handbrake_options['encoder-level'] = encoder_level
       end
 
       if @target_bitrate.nil?
@@ -947,6 +929,29 @@ HERE
         end
       else
         bitrate = @target_bitrate
+      end
+
+      encoder = @handbrake_options.fetch('encoder', 'x264')
+
+      if encoder =~ /_h26[45]$/
+        handbrake_options['vb'] = bitrate.to_s
+      end
+
+      return unless encoder =~ /^x264(?:_10bit)?$/ or encoder =~ /^x265(?:_1[02]bit)?$/
+
+      case encoder
+      when 'x264'
+        handbrake_options['encoder-profile'] = 'high'
+      when 'x264_10bit'
+        handbrake_options['encoder-profile'] = 'high10'
+      when 'x265'
+        handbrake_options['encoder-profile'] = 'main'
+      when 'x265_10bit', 'x265_12bit'
+        handbrake_options['encoder-profile'] = 'main10'
+      end
+
+      if encoder =~ /^x264(?:_10bit)?$/ and @handbrake_options.fetch('rate', '30').to_f <= 30.0
+          handbrake_options['encoder-level'] = encoder_level
       end
 
       if @use_abr
