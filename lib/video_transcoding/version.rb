@@ -5,5 +5,5 @@
 #
 
 module VideoTranscoding
-  VERSION = '0.21.1'
+  VERSION = '0.21.2'
 end
