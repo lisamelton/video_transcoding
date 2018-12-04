@@ -689,6 +689,19 @@ For a few problematic videos, I have to apply options like `--force-rate 23.976 
 
 ## History
 
+### [0.21.2](https://github.com/donmelton/video_transcoding/releases/tag/0.21.2)
+
+Sunday, December 4, 2018
+
+* Modify `transcode-video` to pass the target video bitrate to hardware-based encoders available in HandBrake for Windows and Linux as well as HandBrake nightly builds for macOS:
+    * Check the output of `HandBrakeCLI --help` from one of those builds to find out if your platform has any of these video encoders available.
+    * The names of these encoders all end with "`_h264`" (for H.264) or "`_h265`" (for HEVC).
+    * On macOS, adding `--handbrake-option encoder=vt_h264` is all that's needed to enable hardware-based H.264 transcoding. Use `vt_h264` for HEVC.
+    * On Windows and Linux, use `qsv_h264` or `qsv_h265`. Other encoders might be available as well in nightly builds.
+    * WARNING: If you request an encoder that is _not_ available, `HandBrakeCLI` may fail or it may just fallback to a software-based encoder. Check your console output while transcoding to be certain.
+    * With the encoders I've tested so far, `--preset` and `--encoder-option` have no effect no matter what you pass.
+    * These hardware-based encoders are far faster than the software-based `x264` and `x265` encoders while still delivering _reasonable_ quality. Of course, your mileage (and perception) may vary.
+
 ### [0.21.1](https://github.com/donmelton/video_transcoding/releases/tag/0.21.1)
 
 Sunday, December 2, 2018
