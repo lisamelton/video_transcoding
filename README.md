@@ -665,9 +665,15 @@ But use this _only_ with `HandBrakeCLI` version 1.0.0 or later.
 
 ### What about hardware-based video transcoding?
 
-Using hardware with [Intel Quick Sync Video](https://en.wikipedia.org/wiki/Intel_Quick_Sync_Video) instead of software like x264 is certainly faster. HandBrake even supports that hardware on some platforms. However, my default ratecontrol system can't be applied to existing hardware encoders because they lack API to change the necessary settings.
+Hardware-based encoders, like those in [Intel Quick Sync Video](https://en.wikipedia.org/wiki/Intel_Quick_Sync_Video), are available in HandBrake for Windows and Linux as well as HandBrake nightly builds for macOS.
 
-Also, keep in mind that hardware encoders are typically designed for realtime video chat or other similar duties. To maintain that performance, they often take shortcuts with video quality like reducing reference frames, lowering subpixel motion estimation, etc. Such an approach is the equivalent of using the `veryfast` preset with a software encoder. That's fine for video chat but I wouldn't recommend it for transcoding your disc collection.
+Check the output of `HandBrakeCLI --help` to find out if your platform has any of these video encoders available. The names of these encoders all end with "`_h264`" (for H.264) or "`_h265`" (for HEVC).
+
+You can try hardware-based transcoding now with an advanced option. On macOS, select the H.264 encoder this way:
+
+    transcode-video --handbrake-option encoder=vt_h264 "/path/to/Movie.mkv"
+
+While they have their own ratecontrol systems, you can still use the `--target` option with these encoders.
 
 ### How do you assess video transcoding quality?
 
