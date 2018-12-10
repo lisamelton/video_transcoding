@@ -561,7 +561,7 @@ These examples are written in Bash and only supply crop values. But almost any s
 
 ### A tale of two ratecontrol systems
 
-What is a ratecontrol sytem? It's how a video encoder decides on the amount of bits to allocate for a specific frame.
+What is a ratecontrol system? It's how a video encoder decides on the amount of bits to allocate for a specific frame.
 
 My `transcode-video` tool has two different ratecontrol systems available to control the size and quality of output video. The special, or default, ratecontrol system is designed to deliver consistent quality, while the average bitrate (ABR) ratecontrol system, enabled via the `--abr` option, is designed to produce a predictable output size.
 
