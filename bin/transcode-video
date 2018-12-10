@@ -56,6 +56,8 @@ Output options:
 -n, --dry-run       don't transcode, just show `HandBrakeCLI` command and exit
 
 Quality options:
+    --encoder NAME  use named video encoder (default: x264)
+                      (refer to `HandBrakeCLI --help` for available encoders)
     --abr           use constrained average bitrate (ABR) ratecontrol
                       (predictable size with different quality than default)
     --target big|small
@@ -316,6 +318,10 @@ HERE
 
       opts.on('--no-log')             { @log = false }
       opts.on('-n', '--dry-run')      { @dry_run = true }
+
+      opts.on '--encoder ARG' do |arg|
+        force_handbrake_option 'encoder', arg
+      end
 
       opts.on '--abr' do
         @use_abr = true
