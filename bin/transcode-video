@@ -71,12 +71,12 @@ Quality options:
                       (can be used multiple times)
     --quick         increase encoding speed by 70-80%
                       with no easily perceptible loss in video quality
-                      (avoids quality problems associated with x264 presets)
+                      (avoids quality problems with some encoder presets)
     --veryquick     increase encoding speed by 90-125%
                       with little easily perceptible loss in video quality
                       (unlike `--quick`, output size is larger than default)
     --preset veryfast|faster|fast|slow|slower|veryslow
-                    apply x264 encoder preset
+                    apply video encoder preset
 
 Video options:
     --crop T:B:L:R  set video crop values (default: 0:0:0:0)
@@ -194,11 +194,10 @@ External subtitle options:
 
 Advanced options:
 -E, --encoder-option NAME=VALUE|_NAME
-                    pass x264 video encoder option by name with value
+                    pass video encoder option by name with value
                       or disable use of option by prefixing name with "_"
                       (e.g.: `-E vbv-bufsize=8000`)
                       (e.g.: `-E _crf-max`)
-                      (refer to `x264 --fullhelp` for more information)
                       (can be used multiple times)
 -H, --handbrake-option NAME[=VALUE]|_NAME
                     pass `HandBrakeCLI` option by name or by name with value
