@@ -947,7 +947,7 @@ HERE
 
       encoder = @handbrake_options.fetch('encoder', 'x264')
 
-      if encoder =~ /_h26[45]$/
+      if encoder =~ /_h26[45]$/ and not @handbrake_options.has_key? 'quality'
         handbrake_options['vb'] = bitrate.to_s
       end
 
