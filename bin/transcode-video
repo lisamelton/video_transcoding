@@ -60,6 +60,8 @@ Quality options:
                       (refer to `HandBrakeCLI --help` for available encoders)
     --abr           use constrained average bitrate (ABR) ratecontrol
                       (predictable size with different quality than default)
+    --simple        use simple constrained ratecontrol
+                      (limited size with different quality than default)
     --target big|small
                     apply video bitrate target macro for all input resolutions
                       (`big` trades some size for increased quality)
@@ -229,6 +231,7 @@ HERE
       @log                        = true
       @dry_run                    = false
       @use_abr                    = false
+      @use_simple                 = false
       @target_bitrate_2160p       = 12000
       @target_bitrate_1080p       = 6000
       @target_bitrate_720p        = 3000
@@ -323,7 +326,13 @@ HERE
       end
 
       opts.on '--abr' do
-        @use_abr = true
+        @use_abr    = true
+        @use_simple = false
+      end
+
+      opts.on '--simple' do
+        @use_simple = true
+        @use_abr    = false
       end
 
       opts.on '--target ARG' do |arg|
@@ -963,6 +972,12 @@ HERE
         handbrake_options['vb']         = bitrate.to_s
         encoder_options['vbv-maxrate']  = ((bitrate * 1.5).to_i).to_s
         encoder_options['vbv-bufsize']  = ((bitrate * 2).to_i).to_s
+        encoder_options['nal-hrd']      = 'vbr' if encoder =~ /^x264(?:_10bit)?$/
+        encoder_options['hrd']          = '1'   if encoder =~ /^x265(?:_1[02]bit)?$/
+      elsif @use_simple
+        handbrake_options['quality']    = '1'
+        encoder_options['vbv-maxrate']  = bitrate.to_s
+        encoder_options['vbv-bufsize']  = bitrate.to_s
         encoder_options['nal-hrd']      = 'vbr' if encoder =~ /^x264(?:_10bit)?$/
         encoder_options['hrd']          = '1'   if encoder =~ /^x265(?:_1[02]bit)?$/
       else
