@@ -657,6 +657,19 @@ For a few problematic videos, I have to apply options like `--force-rate 23.976 
 
 ## History
 
+### [0.22.0](https://github.com/donmelton/video_transcoding/releases/tag/0.22.0)
+
+Saturday, December 15, 2018
+
+* Add an `--encoder` option to `transcode-video` so `--encoder x265` will work the same as the much longer and harder to type `--handbrake-option encoder=x265`.
+* Add a `--simple` ratecontrol option to `transcode-video` (via [ #211](https://github.com/donmelton/video_transcoding/issues/211)) which:
+    * Works like my special, or default, ratecontrol system but won't emit those annoying `VBV underflow` warnings because it's only constrained by the target bitrate and not also a minimum quality.
+    * Signals Hypothetical Reference Decoder (HRD) information in metadata like my average bitrate (ABR) ratecontrol system.
+    * Produces output similar in appearance to that from hardware-based encoders but is less prone to color banding.
+* Modify `transcode-video` to not pass the target video bitrate to hardware-based encoders when a CRF value is also specified, e.g. via something like `--handbrake-option quality=20`. Currently, this is only applicable to encoders such as `nvenc_h264`, `nvenc_h265`, `vce_h264` and `vce_h265`.
+* Revise both the H.265 video and hardware-based video transcoding answers in the "FAQ" section of the "README" document.
+* Update and simplify the "Explanation" section of the "README" document.
+
 ### [0.21.2](https://github.com/donmelton/video_transcoding/releases/tag/0.21.2)
 
 Tuesday, December 4, 2018
