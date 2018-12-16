@@ -651,29 +651,25 @@ Plus, I wouldn't use a GUI for these tasks. And it's a bad idea to develop softw
 
 ### When will you add support for H.265 video?
 
-[High Efficiency Video Coding](https://en.wikipedia.org/wiki/High_Efficiency_Video_Coding) or H.265  is the likely successor to [H.264](https://en.wikipedia.org/wiki/H.264/MPEG-4_AVC), which is the format currently output by `transcode-video`. HandBrake has supported H.265 ever since it included the [x265 video encoder](http://x265.org/).
+HandBrake has supported [High Efficiency Video Coding](https://en.wikipedia.org/wiki/High_Efficiency_Video_Coding) or H.265 ever since it included the [x265 video encoder](http://x265.org/).
 
-My ratecontrol system couldn't be applied with the x265 encoder in older versions of HandBrake because it didn't allow access to `qpmax`, critical for maintaining quality in certain situations. The latest version of HandBrake includes a new encoder which fixes that.
+You can try HEVC transcoding now using the `--encoder` option:
 
-But support also requires equivalent quality at a smaller size when using my rate control system. And performance is an issue. While speed continues to improve, the x265 encoder is still considerably slower than the current H.264 system.
+    transcode-video --encoder x265 "/path/to/Movie.mkv"
 
-You can try _experimental_ HEVC transcoding now with an advanced option:
-
-    transcode-video --handbrake-option encoder=x265 "/path/to/Movie.mkv"
-
-But use this _only_ with `HandBrakeCLI` version 1.0.0 or later.
+While speed continues to improve, x265 is still considerably slower than the default x264 encoder.
 
 ### What about hardware-based video transcoding?
 
-Hardware-based encoders, like those in [Intel Quick Sync Video](https://en.wikipedia.org/wiki/Intel_Quick_Sync_Video), are available in HandBrake for Windows and Linux as well as HandBrake nightly builds for macOS.
+Hardware-based encoders, like those in [Intel Quick Sync Video](https://en.wikipedia.org/wiki/Intel_Quick_Sync_Video), are often considerably faster than x264 or x265. Some are available in recent versions of HandBrake.
 
 Check the output of `HandBrakeCLI --help` to find out if your platform has any of these video encoders available. The names of these encoders all end with "`_h264`" (for H.264) or "`_h265`" (for HEVC).
 
-You can try hardware-based transcoding now with an advanced option. On macOS, select the H.264 encoder this way:
+You can try hardware-based transcoding now using the `--encoder` option. On macOS, select the H.264 encoder this way:
 
-    transcode-video --handbrake-option encoder=vt_h264 "/path/to/Movie.mkv"
+    transcode-video --encoder vt_h264 "/path/to/Movie.mkv"
 
-While they have their own ratecontrol systems, you can still use the `--target` option with these encoders.
+You can also use the `--target` option with these encoders.
 
 ### How do you assess video transcoding quality?
 
