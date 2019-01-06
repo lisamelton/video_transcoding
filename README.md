@@ -557,6 +557,10 @@ These examples are written in Bash and only supply crop values. But almost any s
 
 <https://github.com/nwronski/batch-transcode-video>
 
+If you are looking for a quick way to transcode all the files in the current working directory & don't need to change options for each input the following one liner will work (although this isn't recommended):
+
+    for input in *;do transcode-video --mp4 "$input";done
+
 ## Explanation
 
 ### Ratecontrol systems
