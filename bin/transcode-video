@@ -154,6 +154,9 @@ Audio options:
                       (can be used multiple times)
     --aac-encoder NAME
                     use named AAC audio encoder (default: platform dependent)
+    --mixdown dpl2|stereo
+                    use specified mixdown when creating stereo tracks
+                      (default: dpl2)
     --no-audio      disable all audio output
 
 Subtitle options:
@@ -256,6 +259,7 @@ HERE
       @copy_audio                 = []
       @copy_audio_name            = []
       @aac_encoder                = nil
+      @mixdown                    = 'dpl2'
       @burn_subtitle              = nil
       @force_subtitle             = nil
       @extra_subtitle             = []
@@ -604,6 +608,15 @@ HERE
           @aac_encoder = arg
         else
           fail UsageError, "invalid aac encoder argument: #{arg}"
+        end
+      end
+
+      opts.on '--mixdown ARG' do |arg|
+        @mixdown = case arg
+        when 'dpl2', 'stereo'
+          arg
+        else
+          fail UsageError, "invalid mixdown: #{arg}"
         end
       end
 
@@ -1088,7 +1101,7 @@ HERE
         else
           @aac_encoder ||= HandBrake.aac_encoder
           encoders << @aac_encoder
-          mixdowns << (info[:channels] > 2.0 ? 'dpl2' : '')
+          mixdowns << (info[:channels] > 2.0 ? @mixdown : '')
         end
 
         bitrates << ''
