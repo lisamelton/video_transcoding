@@ -155,8 +155,7 @@ Audio options:
     --aac-encoder NAME
                     use named AAC audio encoder (default: platform dependent)
     --mixdown dpl2|stereo
-                    use specified mixdown when creating stereo tracks
-                      (default: dpl2)
+                    set mixdown format for stereo audio tracks (default: dpl2)
     --no-audio      disable all audio output
 
 Subtitle options:
