@@ -62,6 +62,9 @@ Quality options:
                       (predictable size with different quality than default)
     --simple        use simple constrained ratecontrol
                       (limited size with different quality than default)
+    --avbr          use average variable bitrate (AVBR) ratecontrol
+                      (size near target with different quality than default)
+                      (only available with x264 and x264_10bit encoders)
     --target big|small
                     apply video bitrate target macro for all input resolutions
                       (`big` trades some size for increased quality)
@@ -333,6 +336,10 @@ HERE
 
       opts.on '--simple' do
         @ratecontrol = :simple
+      end
+
+      opts.on '--avbr' do
+        @ratecontrol = :avbr
       end
 
       opts.on '--target ARG' do |arg|
@@ -996,6 +1003,10 @@ HERE
         encoder_options['vbv-maxrate']  = bitrate.to_s
         encoder_options['vbv-bufsize']  = bitrate.to_s
         signal_hrd                      = true
+      when :avbr
+        handbrake_options['vb']         = bitrate.to_s
+        encoder_options['ratetol']      = 'inf'
+        encoder_options['mbtree']       = '0'
       end
 
       if signal_hrd
