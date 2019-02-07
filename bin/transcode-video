@@ -232,8 +232,7 @@ HERE
       @format                     = :mkv
       @log                        = true
       @dry_run                    = false
-      @use_abr                    = false
-      @use_simple                 = false
+      @ratecontrol                = :special
       @target_bitrate_2160p       = 12000
       @target_bitrate_1080p       = 6000
       @target_bitrate_720p        = 3000
@@ -329,13 +328,11 @@ HERE
       end
 
       opts.on '--abr' do
-        @use_abr    = true
-        @use_simple = false
+        @ratecontrol = :abr
       end
 
       opts.on '--simple' do
-        @use_simple = true
-        @use_abr    = false
+        @ratecontrol = :simple
       end
 
       opts.on '--target ARG' do |arg|
@@ -980,24 +977,30 @@ HERE
           handbrake_options['encoder-level'] = encoder_level
       end
 
-      if @use_abr
-        handbrake_options['vb']         = bitrate.to_s
-        encoder_options['vbv-maxrate']  = ((bitrate * 1.5).to_i).to_s
-        encoder_options['vbv-bufsize']  = ((bitrate * 2).to_i).to_s
-        encoder_options['nal-hrd']      = 'vbr' if encoder =~ /^x264(?:_10bit)?$/
-        encoder_options['hrd']          = '1'   if encoder =~ /^x265(?:_1[02]bit)?$/
-      elsif @use_simple
-        handbrake_options['quality']    = '1'
-        encoder_options['vbv-maxrate']  = bitrate.to_s
-        encoder_options['vbv-bufsize']  = bitrate.to_s
-        encoder_options['nal-hrd']      = 'vbr' if encoder =~ /^x264(?:_10bit)?$/
-        encoder_options['hrd']          = '1'   if encoder =~ /^x265(?:_1[02]bit)?$/
-      else
+      signal_hrd = false
+
+      case @ratecontrol
+      when :special
         handbrake_options['quality']    = '1'
         encoder_options['vbv-maxrate']  = bitrate.to_s
         encoder_options['vbv-bufsize']  = ((bitrate * 2).to_i).to_s
         encoder_options['crf-max']      = '25'
         encoder_options['qpmax']        = '34'
+      when :abr
+        handbrake_options['vb']         = bitrate.to_s
+        encoder_options['vbv-maxrate']  = ((bitrate * 1.5).to_i).to_s
+        encoder_options['vbv-bufsize']  = ((bitrate * 2).to_i).to_s
+        signal_hrd                      = true
+      when :simple
+        handbrake_options['quality']    = '1'
+        encoder_options['vbv-maxrate']  = bitrate.to_s
+        encoder_options['vbv-bufsize']  = bitrate.to_s
+        signal_hrd                      = true
+      end
+
+      if signal_hrd
+        encoder_options['nal-hrd']      = 'vbr' if encoder =~ /^x264(?:_10bit)?$/
+        encoder_options['hrd']          = '1'   if encoder =~ /^x265(?:_1[02]bit)?$/
       end
 
       if  (@quick or @veryquick) and
