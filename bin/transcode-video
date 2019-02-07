@@ -342,6 +342,10 @@ HERE
         @ratecontrol = :avbr
       end
 
+      opts.on '--raw' do
+        @ratecontrol = :raw
+      end
+
       opts.on '--target ARG' do |arg|
         case arg
         when 'big'
@@ -1007,6 +1011,8 @@ HERE
         handbrake_options['vb']         = bitrate.to_s
         encoder_options['ratetol']      = 'inf'
         encoder_options['mbtree']       = '0'
+      when :raw
+        handbrake_options['vb']         = bitrate.to_s unless @handbrake_options.has_key? 'quality'
       end
 
       if signal_hrd
