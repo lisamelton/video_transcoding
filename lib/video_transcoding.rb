@@ -1,7 +1,7 @@
 #
 # video_transcoding.rb
 #
-# Copyright (c) 2013-2018 Don Melton
+# Copyright (c) 2013-2019 Don Melton
 #
 
 require 'English'
