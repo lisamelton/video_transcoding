@@ -1009,8 +1009,13 @@ HERE
         signal_hrd                      = true
       when :avbr
         handbrake_options['vb']         = bitrate.to_s
-        encoder_options['ratetol']      = 'inf'
-        encoder_options['mbtree']       = '0'
+
+        if encoder =~ /^x264(?:_10bit)?$/
+          encoder_options['ratetol']    = 'inf'
+          encoder_options['mbtree']     = '0'
+        else
+          fail UsageError, "`--avbr` not available with the `#{encoder}` encoder"
+        end
       when :raw
         handbrake_options['vb']         = bitrate.to_s unless @handbrake_options.has_key? 'quality'
       end
