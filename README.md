@@ -563,7 +563,7 @@ These examples are written in Bash and only supply crop values. But almost any s
 
 What is a ratecontrol system? It's how a video encoder decides on the amount of bits to allocate for a specific frame.
 
-My `transcode-video` tool has three different ratecontrol systems which manipulate the x264 and x265 software-based video encoders built into `HandBrakeCLI`.
+My `transcode-video` tool has four different ratecontrol systems which manipulate x264 and three which manipulate x265, both software-based video encoders built into `HandBrakeCLI`.
 
 Additionally, `transcode-video` allows access to hardware-based video encoders which have their own ratecontrol systems.
 
@@ -602,6 +602,18 @@ But I constrain the maximum bitrate (`vbv-maxrate`) to only 1.5 times that of th
 It seems counterintuitive, but constraining the maximum bitrate prevents too much bitrate being wasted on complex or difficult to encode passages at the expense of quality elsewhere. This is because with an average bitrate algorithm, when the peaks get too high then the valleys get too low.
 
 And this manipulation is exactly the same strategy used by streaming services such as Netflix.
+
+### How my average variable bitrate (AVBR) ratecontrol system works
+
+My average variable bitrate (AVBR) ratecontrol system, selected via the `--avbr` option, is also based on the ABR algorithm already within x264 which targets a specific bitrate.
+
+But the maximum bitrate is not constrained like my ABR system.
+
+Instead, the tolerance of missing the average bitrate is raised to the maximum amount, disabling overflow detection completely. This makes the ABR algorithm behave much more like a CRF-based encode, so final bitrates can be 10-15% higher or lower than the target.
+
+And to prevent bitrates from getting too low, the Macroblock-tree ratecontrol system built into x264 is disabled. While this does lower compression efficiency somewhat, it significantly reduces blockiness, color banding and other artifacts.
+
+Unfortunately, these modifications to implement AVBR are not possible when using x265.
 
 ## FAQ
 
