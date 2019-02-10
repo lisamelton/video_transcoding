@@ -676,6 +676,21 @@ For a few problematic videos, I have to apply options like `--force-rate 23.976 
 
 ## History
 
+### [0.23.0](https://github.com/donmelton/video_transcoding/releases/tag/0.23.0)
+
+Sunday, February 10, 2019
+
+* Add a `--avbr` ratecontrol option to `transcode-video` (via [ #248](https://github.com/donmelton/video_transcoding/issues/248)) which:
+    * Implements an average variable bitrate (AVBR) ratecontrol system focused on maintaining quality at the risk of final bitrates being as much as 10-15% higher or lower than the target.
+    * May emit a few `VBV underflow` warnings at the beginning of a transcode, but nothing like the sustained deluge possible with my special, or default, ratecontrol system.
+    * Works only with the `x264` and `x264_10bit` encoders. Sorry, but the settings necessary to implement AVBR are not available with the `x265` family of encoders.
+* Add my new AVBR ratecontrol system to the "Explanation" section of the "README" document.
+* Add an undocumented `--raw` ratecontrol testing option to `transcode-video` which implements, by default, an unconstrained ABR system, easily modified with `--handbrake-option` and/or `--encoder-option`.
+* Add a `--mixdown` option to `transcode-video` which sets the mixdown format for all AAC audio tracks, either Dolby Pro Logic II (the default) or stereo. Thanks to [@samhutchins](https://github.com/samhutchins) for the idea and the patch! Via [ #245](https://github.com/donmelton/video_transcoding/pull/245).
+* Fix failure in `detect-crop` on Linux for certain inputs by forcing the text output from `ffmpeg` into UTF-8 binary format to ensure the correct parsing of that data during crop detection. Via [ #247](https://github.com/donmelton/video_transcoding/issues/247).
+* List all hardware-based video encoders within the related answer in the "FAQ" section of the "README" document. Thanks to [@vr8hub](https://github.com/vr8hub) for the idea! Via [ #251](https://github.com/donmelton/video_transcoding/issues/251).
+* Update all copyright notices to the year 2019.
+
 ### [0.22.0](https://github.com/donmelton/video_transcoding/releases/tag/0.22.0)
 
 Saturday, December 15, 2018
