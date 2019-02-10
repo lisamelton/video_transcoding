@@ -629,9 +629,16 @@ While speed continues to improve, x265 is still considerably slower than the def
 
 Hardware-based encoders, like those in [Intel Quick Sync Video](https://en.wikipedia.org/wiki/Intel_Quick_Sync_Video), are often considerably faster than x264 or x265. Some are available in recent versions of HandBrake.
 
-Check the output of `HandBrakeCLI --help` to find out if your platform has any of these video encoders available. The names of these encoders all end with "`_h264`" (for H.264) or "`_h265`" (for HEVC).
+Check the `Video Options` section from the output of `HandBrakeCLI --help` to find out if your platform has any of these video encoders available:
 
-You can try hardware-based transcoding now using the `--encoder` option. On macOS, select the H.264 encoder this way:
+Platform | H.264 encoder | HEVC encoder
+--- | --- | ---
+Intel Quick Sync Video | `qsv_h264` | `qsv_h265` and `qsv_h265_10bit`
+AMD Video Coding Engine | `vce_h264` | `vce_h265`
+Nvidia NVENC | `nvenc_h264` | `nvenc_h265`
+Apple VideoToolbox | `vt_h264` | `vt_h265`
+
+You can try hardware-based transcoding now using the `--encoder` option. On macOS, select the Apple VideoToolbox H.264 encoder this way:
 
     transcode-video --encoder vt_h264 "/path/to/Movie.mkv"
 
