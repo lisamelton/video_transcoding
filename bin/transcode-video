@@ -89,8 +89,10 @@ Video options:
                       (use `--crop auto` for `HandBrakeCLI` behavior)
     --constrain-crop
                     constrain `--crop detect` to optimal shape
-    --fallback-crop handbrake|ffmpeg|none
+    --fallback-crop handbrake|ffmpeg|minimal|none
                     select fallback crop values if `--crop detect` fails
+                      (`minimal` uses the smallest possible crop values
+                        combining results from `HandBrakeCLI` and `ffmpeg`)
     --720p          fit video within 1280x720 pixel bounds
     --max-width WIDTH, --max-height HEIGHT
                     fit video within horizontal and/or vertical pixel bounds
@@ -435,7 +437,7 @@ HERE
 
       opts.on '--fallback-crop ARG' do |arg|
         @fallback_crop = case arg
-        when 'handbrake', 'ffmpeg', 'mplayer', 'none'
+        when 'handbrake', 'ffmpeg', 'mplayer', 'minimal', 'none'
           arg.to_sym
         else
           fail UsageError, "invalid fallback crop argument: #{arg}"
@@ -1083,6 +1085,13 @@ HERE
               hb_crop
             when :ffmpeg, :mplayer
               ff_crop
+            when :minimal
+              {
+                :top    => [hb_crop[:top],    ff_crop[:top]].min,
+                :bottom => [hb_crop[:bottom], ff_crop[:bottom]].min,
+                :left   => [hb_crop[:left],   ff_crop[:left]].min,
+                :right  => [hb_crop[:right],  ff_crop[:right]].min
+              }
             when :none
               {:top => 0, :bottom => 0, :left => 0, :right => 0}
             else
