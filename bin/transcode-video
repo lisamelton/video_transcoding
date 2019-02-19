@@ -134,9 +134,12 @@ Audio options:
                       (can be used multiple times)
     --reverse-double-order
                     reverse order of `double` width audio output tracks
-    --prefer-ac3    prefer AC-3 over AAC format when encoding or copying audio
-                      even when original track channel layout is stereo or mono
-                      (sets audio output width for all tracks to `surround`)
+    --audio-format surround|stereo|all=ac3|aac
+                    set audio format for specific or all output tracks
+                      (default for surround: ac3; default for stereo: aac)
+    --keep-ac3-stereo
+                    copy rather than transcode AC-3 stereo or mono audio tracks
+                      even when the current stereo format is AAC
     --ac3-encoder ac3|eac3
                     set AC-3 audio encoder (default: ac3)
     --ac3-bitrate 384|448|640|768|1536
@@ -145,7 +148,7 @@ Audio options:
                     set AC-3 audio pass-through bitrate (default: 640)
     --copy-audio TRACK|all
                     try to copy track selected by number in its original format
-                      falling back to AC-3 format if original not allowed
+                      falling back to surround format if original not allowed
                       or try to copy all tracks in same manner
                       (only applies to main and explicitly added audio tracks)
                       (can be used multiple times)
@@ -253,7 +256,9 @@ HERE
       @audio_language             = []
       @audio_width                = {:main => :double, :other => :stereo}
       @reverse_double_order       = false
-      @prefer_ac3                 = false
+      @surround_format            = 'ac3'
+      @stereo_format              = 'aac'
+      @keep_ac3_stereo            = false
       @ac3_encoder                = 'ac3'
       @ac3_bitrate                = 640
       @pass_ac3_bitrate           = 640
@@ -557,10 +562,35 @@ HERE
 
       opts.on('--reverse-double-order') { @reverse_double_order = true }
 
+      opts.on '--audio-format ARG' do |arg|
+        if arg =~ /^(surround|stereo|all)=(ac3|aac)$/
+          case $1
+          when 'surround'
+            @surround_format = $2
+          when 'stereo'
+            @stereo_format = $2
+          else
+            @surround_format = $2
+            @stereo_format = $2
+          end
+        else
+          fail UsageError, "invalid audio format argument: #{arg}"
+        end
+      end
+
+      opts.on '--keep-ac3-stereo' do
+        @keep_ac3_stereo = true
+      end
+
       opts.on '--prefer-ac3' do
-        @prefer_ac3 = true
+        Console.warn '**********'
+        Console.warn 'Using deprecated option: --prefer-ac3'
+        Console.warn "Replace with: --audio-width all=surround --audio-format all=ac3"
+        Console.warn '**********'
         @audio_width[:main] = :surround
         @audio_width[:other] = :surround
+        @surround_format = 'ac3'
+        @stereo_format = 'ac3'
       end
 
       opts.on '--ac3-encoder ARG' do |arg|
@@ -1094,37 +1124,53 @@ HERE
       end
 
       tracks, encoders, bitrates, mixdowns, names = [], [], [], [], []
+      @aac_encoder ||= HandBrake.aac_encoder
+      surround_encoder = @surround_format == 'ac3' ? @ac3_encoder : @aac_encoder
+      stereo_encoder = @stereo_format == 'ac3' ? @ac3_encoder : @aac_encoder
 
       add_surround = ->(info, copy) do
+        has_ac3 = (@ac3_encoder == 'ac3'  and info[:format] == 'AC3') or
+                  (@ac3_encoder == 'eac3' and info[:format] =~ /^(?:E-)?AC3$/)
         bitrate = info[:bps].nil? ? 640 : info[:bps] / 1000
 
-        if  copy or
-            (((@ac3_encoder == 'ac3'  and info[:format] == 'AC3') or
-              (@ac3_encoder == 'eac3' and info[:format] =~ /^(?:E-)?AC3$/)) and
-            bitrate <= @pass_ac3_bitrate)
+        if copy or
+            (@surround_format == 'ac3' and has_ac3 and bitrate <= @pass_ac3_bitrate) or
+            (@surround_format == 'aac' and info[:format] =~ /^AAC/)
           encoders << 'copy'
           bitrates << ''
+          mixdowns << ''
         else
-          encoders << @ac3_encoder
+          encoders << surround_encoder
 
-          if  (@ac3_encoder == 'ac3'  and @ac3_bitrate >= 640) or
-              (@ac3_encoder == 'eac3' and @ac3_bitrate == 1536)
-            bitrates << ''
+          if @surround_format == 'ac3'
+            if  (@ac3_encoder == 'ac3'  and @ac3_bitrate >= 640) or
+                (@ac3_encoder == 'eac3' and @ac3_bitrate == 1536)
+              bitrates << ''
+            else
+              bitrates << @ac3_bitrate.to_s
+            end
+
+            mixdowns << ''
           else
-            bitrates << @ac3_bitrate.to_s
+            bitrates << ''
+            mixdowns << '5point1'
           end
         end
-
-        mixdowns << ''
       end
 
       add_stereo = ->(info, copy) do
-        if copy or (info[:format] =~ /^AAC/ and info[:channels] <= 2.0)
+        has_ac3 = (@ac3_encoder == 'ac3'  and info[:format] == 'AC3') or
+                  (@ac3_encoder == 'eac3' and info[:format] =~ /^(?:E-)?AC3$/)
+
+        if copy or
+            (info[:channels] <= 2.0 and
+              ((@stereo_format == 'aac' and
+                (info[:format] =~ /^AAC/ or (@keep_ac3_stereo and has_ac3))) or
+              (@stereo_format == 'ac3' and has_ac3)))
           encoders << 'copy'
           mixdowns << ''
         else
-          @aac_encoder ||= HandBrake.aac_encoder
-          encoders << @aac_encoder
+          encoders << stereo_encoder
           mixdowns << (info[:channels] > 2.0 ? @mixdown : '')
         end
 
@@ -1162,7 +1208,7 @@ HERE
             add_stereo.call info, copy
           end
         when :surround
-          if @prefer_ac3 or (info[:channels] > 2.0)
+          if (info[:channels] > 2.0)
             add_surround.call info, copy
           else
             add_stereo.call info, copy
@@ -1175,7 +1221,7 @@ HERE
       handbrake_options['audio'] = tracks.join(',')
       encoders = encoders.join(',')
       handbrake_options['aencoder'] = encoders if encoders.gsub(/,/, '') != ''
-      handbrake_options['audio-fallback'] = @ac3_encoder unless @copy_audio.empty?
+      handbrake_options['audio-fallback'] = surround_encoder unless @copy_audio.empty?
       bitrates = bitrates.join(',')
       handbrake_options['ab'] = bitrates if bitrates.gsub(/,/, '') != ''
       mixdowns = mixdowns.join(',')
