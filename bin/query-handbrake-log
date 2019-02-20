@@ -137,7 +137,7 @@ HERE
           File.foreach(log) do |line|
             found = true if not found and line =~ /^HandBrake/
             count += 1
-            fail "not a HandBrake-generated `.log` file: #{log}" if count > 5 and not found
+            fail "not a HandBrake-generated `.log` file: #{log}" if count > 10 and not found
             duration_line = line if duration_line.nil? and line =~ /\+ duration: /
             rate_line = line if line =~ /\+ frame rate: /
 
