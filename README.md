@@ -676,6 +676,22 @@ For a few problematic videos, I have to apply options like `--force-rate 23.976 
 
 ## History
 
+### [0.24.0](https://github.com/donmelton/video_transcoding/releases/tag/0.24.0)
+
+Sunday, February 24, 2019
+
+* Add `--audio-format` and `--keep-ac3-stereo` options to `transcode-video`. Thanks to [@samhutchins](https://github.com/samhutchins) for the idea and design! Via [ #254](https://github.com/donmelton/video_transcoding/issues/254).
+    * With the `--audio-format` option, you can now specify whether AC-3 or AAC is used when surround or stereo output tracks are created.
+    * This allows multichannel 5.1 AAC audio output by adding `--audio-format surround=aac` to your command line. However, you may want to pair that with `--audio-width main=surround` to avoid two AAC tracks of the same input being created.
+    * Think of the `--keep-ac3-stereo` option as a kinder, gentler form of the `--prefer-ac3` option.
+    * It copies rather than transcodes AC-3 stereo or mono audio tracks even when the current stereo format is AAC, but it doesn't affect surround tracks.
+* Deprecate the `--prefer-ac3` option in `transcode-video` and remove its description from the `--help` output. Also via [ #254](https://github.com/donmelton/video_transcoding/issues/254).
+    * The option still works for now, but using it issues a warning message.
+    * You can get the exact same functionality by adding `--audio-width all=surround --audio-format all=ac3` to your command line.
+    * However, you might want to add `--audio-width all=surround --keep-ac3-stereo` instead since you'll get higher quality and slightly smaller output, albeit with some AAC tracks in your output when stereo audio in non-AC-3 format still needs to be transcoded.
+* Add a `minimal` argument to the `--fallback-crop` option in `transcode-video` which determines the smallest possible crop values, when using the`--crop detect` option and argument, by combining results from both `HandBrakeCLI` and `ffmpeg`. Thanks to [@dkoenig01](https://github.com/dkoenig01) for the idea! Via [ #255](https://github.com/donmelton/video_transcoding/issues/255).
+* Relax validation criteria for HandBrake-generated `.log` files in `query-handbrake-log` as workaround for `HandBrakeCLI` spewing linkage failure warnings on certain Linux platforms. Via [ #257](https://github.com/donmelton/video_transcoding/issues/257).
+
 ### [0.23.0](https://github.com/donmelton/video_transcoding/releases/tag/0.23.0)
 
 Sunday, February 10, 2019
