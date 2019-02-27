@@ -1408,6 +1408,10 @@ HERE
             end
             log_file.print char unless log_file.nil?
           end
+
+          if not buf.empy?
+            print buf
+          end
         end
       rescue SystemCallError => e
         raise "transcoding failed: #{e}"
