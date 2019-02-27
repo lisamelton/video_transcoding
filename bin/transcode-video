@@ -1409,7 +1409,7 @@ HERE
             log_file.print char unless log_file.nil?
           end
 
-          if not buf.empy?
+          if not buf.empty?
             print buf
           end
         end
