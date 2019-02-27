@@ -1386,7 +1386,7 @@ HERE
       Console.info 'Transcoding with HandBrakeCLI...'
 
       begin
-        IO.popen(handbrake_command, 'rb', :err=>[:child, :out]) do |io|
+        IO.popen(handbrake_command, 'r', :err=>[:child, :out]) do |io|
           Signal.trap 'INT' do
             Process.kill 'INT', io.pid
           end
