@@ -1391,21 +1391,24 @@ HERE
             Process.kill 'INT', io.pid
           end
 
-          buf = ""
-          io.each_char do |char|
-            # Printing a single UTF-8 continuation byte to the Console
-            # on Windows causes a crash, therefore we buffer characters
-            # as long as they seem to be part of a multi-byte UTF-8 sequence
+          buffer = ''
 
+          io.each_char do |char|
             if (char.bytes[0] & 0x80) != 0
-              buf << char
+              buffer << char
             else
-              if not buf.empty?
-                print buf
-                buf = ""
+              if not buffer.empty?
+                print buffer
+                buffer = ''
               end
+
               print char
             end
+
+            if not buffer.empty?
+              print buffer
+            end
+
             log_file.print char unless log_file.nil?
           end
 
