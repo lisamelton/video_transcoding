@@ -1405,15 +1405,11 @@ HERE
               print char
             end
 
-            if not buffer.empty?
-              print buffer
-            end
-
             log_file.print char unless log_file.nil?
           end
 
-          if not buf.empty?
-            print buf
+          if not buffer.empty?
+            print buffer
           end
         end
       rescue SystemCallError => e
