@@ -436,8 +436,23 @@ HERE
             Process.kill 'INT', io.pid
           end
 
+          buffer = ''
+
           io.each_char do |char|
-            print char
+            if (char.bytes[0] & 0x80) != 0
+              buffer << char
+            else
+              if not buffer.empty?
+                print buffer
+                buffer = ''
+              end
+
+              print char
+            end
+          end
+
+          if not buffer.empty?
+            print buffer
           end
         end
       rescue SystemCallError => e
