@@ -162,8 +162,10 @@ Audio options:
                       (can be used multiple times)
     --aac-encoder NAME
                     use named AAC audio encoder (default: platform dependent)
-    --mixdown dpl2|stereo
-                    set mixdown format for stereo audio tracks (default: dpl2)
+    --mixdown stereo|dpl2
+                    set mixdown for stereo audio output tracks
+                      to regular stereo or Dolby Pro Logic II format
+                      (default: stereo)
     --no-audio      disable all audio output
 
 Subtitle options:
@@ -267,7 +269,7 @@ HERE
       @copy_audio                 = []
       @copy_audio_name            = []
       @aac_encoder                = nil
-      @mixdown                    = 'dpl2'
+      @mixdown                    = 'stereo'
       @burn_subtitle              = nil
       @force_subtitle             = nil
       @extra_subtitle             = []
@@ -652,7 +654,7 @@ HERE
 
       opts.on '--mixdown ARG' do |arg|
         @mixdown = case arg
-        when 'dpl2', 'stereo'
+        when 'stereo', 'dpl2'
           arg
         else
           fail UsageError, "invalid mixdown: #{arg}"
