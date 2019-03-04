@@ -228,6 +228,12 @@ You can also call the `detect-crop` logic from `transcode-video` with the single
 
 However, be aware that `detect` can fail if HandBrake and FFmpeg disagree about the cropping values.
 
+Which is why you can select a fallback behavior using the `--fallback-crop` option when that happens, choosing `handbrake`, `ffmpeg`, `minimal` or `none` as its argument:
+
+    transcode-video --crop detect --fallback-crop minimal "/path/to/Movie.mkv"
+
+The `minimal` argument is perhaps the most useful behavior since it determines the smallest possible crop values by combining results from both `HandBrakeCLI` and `ffmpeg`.
+
 #### Understanding audio
 
 By default, the `transcode-video` tool selects the first audio track in the input as the main audio track. This is the first track in the output and the default track for playback.
