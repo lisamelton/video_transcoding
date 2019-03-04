@@ -877,6 +877,7 @@ HERE
       adjust_metadata(handbrake_options['output'])
 
       unless @dry_run
+        puts "Completed: #{handbrake_options['output']}"
         seconds = Time.now.tv_sec - seconds
         hours   = seconds / (60 * 60)
         minutes = (seconds / 60) % 60
