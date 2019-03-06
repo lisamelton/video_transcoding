@@ -1180,13 +1180,35 @@ HERE
                 (info[:format] =~ /^AAC/ or (@keep_ac3_stereo and has_ac3))) or
               (@stereo_format == 'ac3' and has_ac3)))
           encoders << 'copy'
+          bitrates << ''
           mixdowns << ''
         else
           encoders << stereo_encoder
+
+          if stereo_encoder == 'eac3'
+            if @ac3_bitrate == 1536
+              bitrates << ''
+            else
+              if (info[:channels] > 1.0)
+                if @ac3_bitrate == 768
+                  bitrates << '384'
+                else
+                  bitrates << '224'
+                end
+              else
+                if @ac3_bitrate == 768
+                  bitrates << '192'
+                else
+                  bitrates << '96'
+                end
+              end
+            end
+          else
+            bitrates << ''
+          end
+
           mixdowns << (info[:channels] > 2.0 ? @mixdown : '')
         end
-
-        bitrates << ''
       end
 
       track_order.each do |track|
