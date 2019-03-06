@@ -145,9 +145,9 @@ Audio options:
     --ac3-encoder ac3|eac3
                     set AC-3 audio encoder (default: ac3)
     --ac3-bitrate 384|448|640|768|1536
-                    set AC-3 audio bitrate (default: 640)
+                    set AC-3 surround audio bitrate (default: 640)
     --pass-ac3-bitrate 384|448|640|768|1536
-                    set AC-3 audio pass-through bitrate (default: 640)
+                    set AC-3 surround pass-through bitrate (default: 640)
     --copy-audio TRACK|all
                     try to copy track selected by number in its original format
                       falling back to surround format if original not allowed
