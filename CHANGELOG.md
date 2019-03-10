@@ -2,6 +2,19 @@
 
 This single document contains all of the notes created for each [release](https://github.com/donmelton/video_transcoding/releases).
 
+## [0.25.0](https://github.com/donmelton/video_transcoding/releases/tag/0.25.0)
+
+Saturday, March 9, 2019
+
+* Change the default mixdown for stereo audio output tracks in `transcode-video` from Dolby Pro Logic II format to regular stereo. This matches the behavior of the presets in HandBrake since version 1.2.0. The old behavior is still available in `transcode-video` via the `--mixdown dpl2` option and argument. Via [ #262](https://github.com/donmelton/video_transcoding/issues/262).
+* Remove previous addition to the "README" document explaining that stereo tracks can also include surround audio information in matrix-encoded Dolby Pro Logic II format since that's no longer the default behavior, nor is it recommended (which makes me sad).
+* In order to avoid a crash on the Windows Subsystem for Linux platform, buffer characters that seem to be part of a multibyte UTF-8 sequence when copying output from `HandBrakeCLI` to the console or the `.log` file in `transcode-video` and from `ffmpeg` to the console in `convert-video`. Thanks to [@joshstaiger](https://github.com/joshstaiger) for the persistent detective work and the patch! Via [ #189](https://github.com/donmelton/video_transcoding/issues/189) and [ #264](https://github.com/donmelton/video_transcoding/pull/264).
+* As a convenience to those _not_ using batch scripts, echo the output file name at the completion of transcoding. Thanks to [@JayJay1974](https://github.com/JayJay1974) for the idea! Via [ #260](https://github.com/donmelton/video_transcoding/issues/260).
+* Explain the `--fallback-crop` option and its new `minimal` argument in the "Cropping" section of the "README" document. Thanks to [@JMoVS](https://github.com/JMoVS) for the reminder! Via [ #266](https://github.com/donmelton/video_transcoding/issues/266).
+* Modify the `--help` output of `transcode-video` to clarify that the `--ac3-bitrate` and `--pass-ac3-bitrate` options only affect surround audio and surround pass-through bitrates.
+* Lower the bitrate of stereo and mono Dolby Digital Plus output to sensible levels in `transcode-video` when applying the `--ac3-encoder eac3` option and argument. Previously this was always 768 Kbps for stereo and 384 Kbps for mono, with stereo being higher than the default bitrate for surround audio output in the same format.
+* Add a "CHANGELOG.md" document to the project and replace the content of the "History" section of the "README" document with pointers to the GitHub releases page and that new "CHANGELOG.md" document.
+
 ## [0.24.0](https://github.com/donmelton/video_transcoding/releases/tag/0.24.0)
 
 Sunday, February 24, 2019
@@ -513,4 +526,3 @@ Wednesday, May 6, 2015
 Tuesday, May 5, 2015
 
 * Initial project version.
-
