@@ -2,6 +2,12 @@
 
 This single document contains all of the notes created for each [release](https://github.com/donmelton/video_transcoding/releases).
 
+## [0.25.1](https://github.com/donmelton/video_transcoding/releases/tag/0.25.1)
+
+Saturday, March 30, 2019
+
+* Fix a heinous multi-part bug in `transcode-video` which could prevent the proper detection of certain input audio formats, normally allowed for pass-through, from being copied unchanged to the output. This could also cause the `--keep-ac3-stereo` option from behaving correctly when used together with the `--ac3-encoder eac3` option and argument. Thanks to [@khaosx](https://github.com/khaosx) for the finding the problem!
+
 ## [0.25.0](https://github.com/donmelton/video_transcoding/releases/tag/0.25.0)
 
 Saturday, March 9, 2019
