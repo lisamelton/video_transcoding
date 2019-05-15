@@ -2,6 +2,12 @@
 
 This single document contains all of the notes created for each [release](https://github.com/donmelton/video_transcoding/releases).
 
+## [0.25.2](https://github.com/donmelton/video_transcoding/releases/tag/0.25.2)
+
+Wednesday, May 15, 2019
+
+* Fix a crash in `transcode-video` with the `--copy-audio-name` option when the input audio track name does not exist. Via [ #279](https://github.com/donmelton/video_transcoding/issues/279).
+
 ## [0.25.1](https://github.com/donmelton/video_transcoding/releases/tag/0.25.1)
 
 Saturday, March 30, 2019
