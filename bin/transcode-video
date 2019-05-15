@@ -1217,6 +1217,7 @@ HERE
 
         if @copy_audio_name.first == :all or @copy_audio_name.include? track
           name = info.fetch(:name, '')
+          name ||= ''
         else
           name = ''
         end
