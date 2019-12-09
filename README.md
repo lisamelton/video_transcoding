@@ -73,14 +73,18 @@ You can download the command line version of HandBrake, called `HandBrakeCLI`, h
 
 On macOS, `HandBrakeCLI` and all its other dependencies can be easily installed via [Homebrew](http://brew.sh/), an add-on package manager:
 
-    brew install handbrake
-    brew install ffmpeg
-    brew install mkvtoolnix
-    brew install mp4v2
+```sh
+brew install handbrake
+brew install ffmpeg
+brew install mkvtoolnix
+brew install mp4v2
+```
 
 The optional crop previewing package can also be installed via Homebrew:
 
-    brew install mpv
+```sh
+brew install mpv
+```
 
 On Linux, package management systems vary so it's best consult the indexes for those systems. But there's a Homebrew port available called [Linuxbrew](http://linuxbrew.sh/) and it doesn't require root access.
 
@@ -144,7 +148,9 @@ The `transcode-video` tool creates both video files and `.log` files. While not 
 
 Each of my Video Transcoding tools has several command line options. The `transcode-video` tool is the most complex with over 40 of its own. Not all of those options are detailed here. Use `--help` to list the full set of options available for a specific tool, along with brief instructions on their usage:
 
-    transcode-video --help
+```sh
+transcode-video --help
+```
 
 This built-in help works even if a tool's software dependencies are not yet installed.
 
@@ -152,11 +158,15 @@ All of the tools can accept multiple inputs, but batch processing for `transcode
 
 The `transcode-video` and `detect-crop` tools work best with video files:
 
-    transcode-video "/path/to/Movie.mkv"
+```sh
+transcode-video "/path/to/Movie.mkv"
+```
 
 However, both tools also accept disc image directories as input:
 
-    transcode-video "/path/to/Movie disc image directory/"
+```sh
+transcode-video "/path/to/Movie disc image directory/"
+```
 
 Disc image directories contain unencrypted backups of Blu-ray Discs or DVDs. Typically these formats include more than one video title. These additional titles can be bonus features, alternate versions of a movie, multiple TV show episodes, etc.
 
@@ -164,17 +174,23 @@ By default, `transcode-video` and `detect-crop` will automatically select the ma
 
 Both tools allow you to scan disc image directories, listing titles and tracks:
 
-    transcode-video --scan "/path/to/Movie disc image directory/"
+```sh
+transcode-video --scan "/path/to/Movie disc image directory/"
+```
 
 So you can then select a specific title by number:
 
-    transcode-video --title 5 "/path/to/Movie disc image directory/"
+```sh
+transcode-video --title 5 "/path/to/Movie disc image directory/"
+```
 
 ### Using `transcode-video`
 
 The `transcode-video` tool automatically determines target video bitrate, number of audio tracks, etc. without any command line options, so using it can be as simple as:
 
-    transcode-video "/path/to/Movie.mkv"
+```sh
+transcode-video "/path/to/Movie.mkv"
+```
 
 That command creates, after a reasonable amount of time, two files in the current working directory:
 
@@ -187,7 +203,9 @@ The `.log` file can be used as input to the `query-handbrake-log` tool.
 
 By default, the `transcode-video` tool generates output in Matroska format. To generate output in MP4 format, use the `--mp4` option:
 
-    transcode-video --mp4 "/path/to/Movie.mkv"
+```sh
+transcode-video --mp4 "/path/to/Movie.mkv"
+```
 
 Which will instead create:
 
@@ -196,7 +214,9 @@ Which will instead create:
 
 To create MP4 output with the `.m4v` file extension instead of `.mp4`, use the `--m4v` option:
 
-    transcode-video --m4v "/path/to/Movie.mkv"
+```sh
+transcode-video --m4v "/path/to/Movie.mkv"
+```
 
 The `.m4v` file extension is more "iTunes-friendly," but the file content itself is exactly the same as a file with the `.mp4` extension.
 
@@ -204,7 +224,9 @@ The `.m4v` file extension is more "iTunes-friendly," but the file content itself
 
 You can increase encoding speed by 70-80% with no easily perceptible loss in video quality by using the `--quick` option:
 
-    transcode-video --quick "/path/to/Movie.mkv"
+```sh
+transcode-video --quick "/path/to/Movie.mkv"
+```
 
 The `--quick` option avoids the typical quality problems associated with the x264 video encoder's speed-based presets, especially as that speed increases.
 
@@ -214,23 +236,31 @@ No cropping is applied by default. Use the `--crop TOP:BOTTOM:LEFT:RIGHT` option
 
 This command removes the top and bottom 144 pixels, typical of a 2.40:1 widescreen movie embedded within 16:9 Blu-ray Disc video:
 
-    transcode-video --crop 144:144:0:0 "/path/to/Movie.mkv"
+```sh
+transcode-video --crop 144:144:0:0 "/path/to/Movie.mkv"
+```
 
 This command removes the left and right 240 pixels, typical of a 4:3 classic TV show embedded within 16:9 Blu-ray Disc video:
 
-    transcode-video --crop 0:0:240:240 "/path/to/Movie.mkv"
+```sh
+transcode-video --crop 0:0:240:240 "/path/to/Movie.mkv"
+```
 
 Use the `detect-crop` tool to determine the cropping bounds before transcoding.
 
 You can also call the `detect-crop` logic from `transcode-video` with the single `detect` argument:
 
-    transcode-video --crop detect "/path/to/Movie.mkv"
+```sh
+transcode-video --crop detect "/path/to/Movie.mkv"
+```
 
 However, be aware that `detect` can fail if HandBrake and FFmpeg disagree about the cropping values.
 
 Which is why you can select a fallback behavior using the `--fallback-crop` option when that happens, choosing `handbrake`, `ffmpeg`, `minimal` or `none` as its argument:
 
-    transcode-video --crop detect --fallback-crop minimal "/path/to/Movie.mkv"
+```sh
+transcode-video --crop detect --fallback-crop minimal "/path/to/Movie.mkv"
+```
 
 The `minimal` argument is perhaps the most useful behavior since it determines the smallest possible crop values by combining results from both `HandBrakeCLI` and `ffmpeg`.
 
@@ -240,31 +270,43 @@ By default, the `transcode-video` tool selects the first audio track in the inpu
 
 But you can select any input audio track as the main track. In this case, track number 3:
 
-    transcode-video --main-audio 3 "/path/to/Movie.mkv"
+```sh
+transcode-video --main-audio 3 "/path/to/Movie.mkv"
+```
 
 Or you can select the first input audio track in a specific language using a three-letter code instead of a track index number. This command selects the first Spanish language track:
 
-    transcode-video --main-audio spa "/path/to/Movie.mkv"
+```sh
+transcode-video --main-audio spa "/path/to/Movie.mkv"
+```
 
 If no track in the target language is found, then selection defaults to the first audio track in the input.
 
 You can also give the main audio track a custom name:
 
-    transcode-video --main-audio 3="Original Stereo" "/path/to/Movie.mkv"
+```sh
+transcode-video --main-audio 3="Original Stereo" "/path/to/Movie.mkv"
+```
 
 Unlike `HandBrakeCLI`, custom track names are allowed to contain commas.
 
 By default, only one track is selected as the main audio or default track. But you can add additional tracks, also with custom names:
 
-    transcode-video --add-audio 4 --add-audio 5="Director Commentary" "/path/to/Movie.mkv"
+```sh
+transcode-video --add-audio 4 --add-audio 5="Director Commentary" "/path/to/Movie.mkv"
+```
 
 Or you can add all audio tracks with a single option and argument:
 
-    transcode-video --add-audio all "/path/to/Movie.mkv"
+```sh
+transcode-video --add-audio all "/path/to/Movie.mkv"
+```
 
 You can also add audio tracks selected by their three-letter language code. This command adds all French and Spanish language tracks in the same order they're found in the input:
 
-    transcode-video --add-audio fra,spa "/path/to/Movie.mkv"
+```sh
+transcode-video --add-audio fra,spa "/path/to/Movie.mkv"
+```
 
 By default, the main audio track is transcoded in AAC format and, if the original is multi-channel surround sound, in Dolby Digital AC-3 format. Meaning the output can contain two tracks from the same source in different formats. So, main audio output is "wide" enough for "double" tracks.
 
@@ -274,21 +316,29 @@ However, you can change the "width" of main audio or additional audio output usi
 
 Use this command to treat any other additional audio tracks just like the main audio track:
 
-    transcode-video --audio-width other=double "/path/to/Movie.mkv"
+```sh
+transcode-video --audio-width other=double "/path/to/Movie.mkv"
+```
 
 Or use this command to make main audio output as a single track but still allow it in surround format:
 
-    transcode-video --audio-width main=surround "/path/to/Movie.mkv"
+```sh
+transcode-video --audio-width main=surround "/path/to/Movie.mkv"
+```
 
 If possible, audio is first passed through in its original format, providing that format is either AC-3 or AAC. This hardly ever works for Blu-ray Discs but it often will for DVDs and other random videos.
 
 However, you can still copy audio tracks and maintain their original format, provided HandBrake and your selected file format support it:
 
-    transcode-video --copy-audio all "/path/to/Movie.mkv"
+```sh
+transcode-video --copy-audio all "/path/to/Movie.mkv"
+```
 
 The `--copy-audio` option doesn't implicitly add audio tracks to be copied. Since only the main audio track is included by default, the previous command only tries to copy that track. To also copy another track, you must first add it:
 
-    transcode-video --add-audio 4 --copy-audio all "/path/to/Movie.mkv"
+```sh
+transcode-video --add-audio 4 --copy-audio all "/path/to/Movie.mkv"
+```
 
 Be aware that copying audio tracks in their original format will likely defeat two very important goals of transcoding: portability and compression.
 
@@ -298,11 +348,15 @@ By default, the `transcode-video` tool automatically burns any forced subtitle t
 
 But you can select any subtitle track for burning. In this case, track number 3:
 
-    transcode-video --burn-subtitle 3 "/path/to/Movie.mkv"
+```sh
+transcode-video --burn-subtitle 3 "/path/to/Movie.mkv"
+```
 
 You can also use a special "scan" mode of HandBrake to find any embedded forced subtitle track that's in the same language as the main audio track:
 
-    transcode-video --burn-subtitle scan "/path/to/Movie.mkv"
+```sh
+transcode-video --burn-subtitle scan "/path/to/Movie.mkv"
+```
     
 Be aware that using this special "scan" mode does not always work. Sometimes it won't find any track or, worse, it will find the wrong track. And you won't know whether it worked until the transcoding is complete.
 
@@ -316,7 +370,9 @@ You can also find text-based subtitles for your movies and TV shows at sites lik
 
 If and when you do have a subtitle in text format, specifically [SubRip](https://en.wikipedia.org/wiki/SubRip) `.srt` format, you can easily add it to your output video from an external file:
 
-    transcode-video --add-srt "/path/to/Subtitle.srt" "/path/to/Movie.mkv"
+```sh
+transcode-video --add-srt "/path/to/Subtitle.srt" "/path/to/Movie.mkv"
+```
 
 Unlike `HandBrakeCLI`, external subtitle file names are allowed to contain commas.
 
@@ -324,7 +380,9 @@ Unlike `HandBrakeCLI`, external subtitle file names are allowed to contain comma
 
 The command to find the video cropping bounds is as simple as:
 
-    detect-crop "/path/to/Movie.mkv"
+```sh
+detect-crop "/path/to/Movie.mkv"
+```
 
 Which prints out something like this:
 
@@ -363,7 +421,9 @@ When input is a disc image directory instead of a single file, the `detect-crop`
 
 The `convert-video` tool repackages video files, converting them from Matroska to MP4 format or from MP4 to Matroksa format without transcoding the video. It's as simple as:
 
-    convert-video "Movie.mkv"
+```sh
+convert-video "Movie.mkv"
+```
 
 Which creates this MP4 file in the current working directory:
 
@@ -371,7 +431,9 @@ Which creates this MP4 file in the current working directory:
 
 Or...
 
-    convert-video "Movie.mp4"
+```sh
+convert-video "Movie.mp4"
+```
 
 Which creates this Matroska file in the current working directory:
 
@@ -401,7 +463,9 @@ Technically this is the average P-frame quantizer for transcoding, sorted from l
 
 One of these information types is required as an argument:
 
-    query-handbrake-log time "/path/to/Logs directory/"
+```sh
+query-handbrake-log time "/path/to/Logs directory/"
+```
 
 Which prints out something like this, time spent transcoding followed by video file name:
 
@@ -456,7 +520,9 @@ I have four rules when preparing my own media for transcoding:
 
 The `--preset` option in `transcode-video` controls the x264 video encoder, not the other preset system built into HandBrake. It takes a preset name as its single argument:
 
-    transcode-video --preset slow "/path/to/Movie.mkv"
+```sh
+transcode-video --preset slow "/path/to/Movie.mkv"
+```
 
 The x264 preset names (mostly) reflect their relative speed compared to the default, `medium`.
 
@@ -464,13 +530,17 @@ Presets faster than `medium` trade precision and compression efficiency for more
 
 However, you can increase encoding speed by 70-80% with no easily perceptible loss in video quality by using the `--quick` option instead:
 
-    transcode-video --quick "/path/to/Movie.mkv"
+```sh
+transcode-video --quick "/path/to/Movie.mkv"
+```
 
 Presets slower than `medium` trade encoding speed for more precision and compression efficiency. Any quality improvement using these presets may not be perceptible for most input.
 
 A faster and more perceptible way to improve quality is to simply raise the target video bitrate 50% by using the `--target big` option and argument macro:
 
-    transcode-video --target big "/path/to/Movie.mkv"
+```sh
+transcode-video --target big "/path/to/Movie.mkv"
+```
 
 ### Recommended `transcode-video` usage
 
@@ -494,38 +564,42 @@ Although the `transcode-video` tool can accept multiple inputs, batch processing
 
 A `batch.sh` script can simply be a list of commands:
 
-    #!/usr/bin/env bash
+```sh
+#!/usr/bin/env bash
 
-    transcode-video --crop 132:132:0:0 "/path/to/Movie.mkv"
-    transcode-video "/path/to/Another Movie.mkv"
-    transcode-video --crop 0:0:240:240 "/path/to/Yet Another Movie.mkv"
+transcode-video --crop 132:132:0:0 "/path/to/Movie.mkv"
+transcode-video "/path/to/Another Movie.mkv"
+transcode-video --crop 0:0:240:240 "/path/to/Yet Another Movie.mkv"
+```
 
 But a better solution is to write the script once and supply the list of movies and their crop values separately:
 
-    #!/usr/bin/env bash
+```sh
+#!/usr/bin/env bash
 
-    readonly work="$(cd "$(dirname "$0")" && pwd)"
-    readonly queue="$work/queue.txt"
-    readonly crops="$work/Crops"
+readonly work="$(cd "$(dirname "$0")" && pwd)"
+readonly queue="$work/queue.txt"
+readonly crops="$work/Crops"
+
+input="$(sed -n 1p "$queue")"
+
+while [ "$input" ]; do
+    title_name="$(basename "$input" | sed 's/\.[^.]*$//')"
+    crop_file="$crops/${title_name}.txt"
+
+    if [ -f "$crop_file" ]; then
+        crop_option="--crop $(cat "$crop_file")"
+    else
+        crop_option=''
+    fi
+
+    sed -i '' 1d "$queue" || exit 1
+
+    transcode-video $crop_option "$input"
 
     input="$(sed -n 1p "$queue")"
-
-    while [ "$input" ]; do
-        title_name="$(basename "$input" | sed 's/\.[^.]*$//')"
-        crop_file="$crops/${title_name}.txt"
-
-        if [ -f "$crop_file" ]; then
-            crop_option="--crop $(cat "$crop_file")"
-        else
-            crop_option=''
-        fi
-
-        sed -i '' 1d "$queue" || exit 1
-
-        transcode-video $crop_option "$input"
-
-        input="$(sed -n 1p "$queue")"
-    done
+done
+```
 
 This requires a `work` directory on disk with three items, one of which is a directory itself:
 
@@ -549,11 +623,15 @@ Notice that there's no crop file for `/path/to/Another Movie.mkv`. This is becau
 
 For other options that won't change from input to input, e.g. `--mp4`, simply augment the line in the script calling `transcode-video`:
 
-        transcode-video --mp4 $crop_option "$input"
+```sh
+    transcode-video --mp4 $crop_option "$input"
+```
 
 The transcoding process is started by executing the script:
 
-    ./batch.sh
+```sh
+./batch.sh
+```
 
 The path is first deleted from the `queue.txt` file and then passed as an argument to the `transcode-video.` tool. To pause after `transcode-video` returns, simply insert a blank line at the top of the `queue.txt` file.
 
@@ -637,7 +715,9 @@ HandBrake has supported [High Efficiency Video Coding](https://en.wikipedia.org/
 
 You can try HEVC transcoding now using the `--encoder` option:
 
-    transcode-video --encoder x265 "/path/to/Movie.mkv"
+```sh
+transcode-video --encoder x265 "/path/to/Movie.mkv"
+```
 
 While speed continues to improve, x265 is still considerably slower than the default x264 encoder.
 
@@ -656,7 +736,9 @@ Apple VideoToolbox | `vt_h264` | `vt_h265`
 
 You can try hardware-based transcoding now using the `--encoder` option. On macOS, select the Apple VideoToolbox H.264 encoder this way:
 
-    transcode-video --encoder vt_h264 "/path/to/Movie.mkv"
+```sh
+transcode-video --encoder vt_h264 "/path/to/Movie.mkv"
+```
 
 You can also use the `--target` option with these encoders.
 
