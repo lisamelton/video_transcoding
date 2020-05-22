@@ -90,8 +90,8 @@ HERE
 
       print_all = ->(crop) do
         puts
-        puts "mpv --no-audio --vf \"lavfi=[drawbox=#{Crop.drawbox_string(crop, width, height)}:invert:1]\" #{shell_path}"
-        puts "mpv --no-audio --vf crop=#{Crop.player_string(crop, width, height)} #{shell_path}"
+        puts "mpv --no-audio --vf=\"lavfi=[drawbox=#{Crop.drawbox_string(crop, width, height)}:invert:1]\" #{shell_path}"
+        puts "mpv --no-audio --vf=crop=#{Crop.player_string(crop, width, height)} #{shell_path}"
         print_transcode.call crop
       end
 
