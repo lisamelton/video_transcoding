@@ -1,7 +1,7 @@
 #
 # cli.rb
 #
-# Copyright (c) 2013-2019 Don Melton
+# Copyright (c) 2013-2020 Don Melton
 #
 
 require 'optparse'
