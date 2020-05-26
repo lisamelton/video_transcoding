@@ -2,6 +2,13 @@
 
 This single document contains all of the notes created for each [release](https://github.com/donmelton/video_transcoding/releases).
 
+## [0.25.3](https://github.com/donmelton/video_transcoding/releases/tag/0.25.3)
+
+Tuesday, May 26, 2020
+
+* Modify `detect-crop` to show preview commands compatible with newer versions of `mpv`.
+* Update all copyright notices to the year 2020.
+
 ## [0.25.2](https://github.com/donmelton/video_transcoding/releases/tag/0.25.2)
 
 Wednesday, May 15, 2019
