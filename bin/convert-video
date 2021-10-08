@@ -62,7 +62,7 @@ HERE
 
       opts.on '--ac3-encoder ARG' do |arg|
         @ac3_encoder = case arg
-        when 'ac3', 'eac3'
+        when /ac3/i, /eac3/i
           arg
         else
           fail UsageError, "invalid AC-3 audio encoder: #{arg}"
@@ -87,7 +87,6 @@ HERE
       Console.debug media.info.inspect
       output = resolve_output(media)
       fail "no compatible video track: #{arg}" unless media.info[:h264] or media.info[:hevc]
-      fail "no video stream: #{arg}" unless media.info.has_key? :stream
 
       if media.info[:mkv]
         convert_to_mp4(media, output)
@@ -130,7 +129,7 @@ HERE
         if @double and media.info[:audio][1][:channels] > 2.0
           if  track_order.size > 1 and
               media.info[:audio][1][:language] == media.info[:audio][2][:language] and
-              media.info[:audio][2][:format] =~ /^AAC/ and
+              media.info[:audio][2][:format] =~ /^AAC/i and
               media.info[:audio][2][:channels] <= 2.0
             first = track_order[0]
             track_order[0] = track_order[1]
@@ -161,7 +160,7 @@ HERE
               "-b:a:#{stream}", '640k'
             ])
           elsif media.info[:audio][track][:channels] <= 2.0 and
-                not media.info[:audio][track][:format] =~ /^AAC/ and
+                not media.info[:audio][track][:format] =~ /^AAC/i and
                 not ac3_format?(media.info[:audio][track][:format])
             copy_options.concat([
               "-ac:a:#{stream}", '2',
@@ -188,10 +187,10 @@ HERE
           break unless media.info[:subtitle][track].has_key? :stream
 
           subtitle_encoder = case media.info[:subtitle][track][:format]
-          when 'Text'
+          when /Text/i
             'mov_text'
-          when 'Bitmap'
-            if media.info[:subtitle][track][:encoding] == 'VOBSUB'
+          when /Bitmap/i
+            if media.info[:subtitle][track][:encoding] =~ /VOBSUB/i
               'copy'
             else
               nil
@@ -249,8 +248,8 @@ HERE
     end
 
     def ac3_format?(track_format)
-      if  (@ac3_encoder == 'ac3'  and track_format == 'AC3') or
-          (@ac3_encoder == 'eac3' and track_format =~ /^(?:E-)?AC3$/)
+      if  (@ac3_encoder == 'ac3'  and track_format =~ /AC3/i) or
+          (@ac3_encoder == 'eac3' and track_format =~ /^(?:E-)?AC3$/i)
         true
       else
         false
@@ -294,7 +293,7 @@ HERE
         if  @double and
             track_order.size > 1 and
             media.info[:audio][1][:language] == media.info[:audio][2][:language] and
-            media.info[:audio][1][:format] =~ /^AAC/ and
+            media.info[:audio][1][:format] =~ /^AAC/i and
             media.info[:audio][1][:channels] <= 2.0 and
             media.info[:audio][2][:channels] > 2.0
           first = track_order[0]
@@ -323,10 +322,10 @@ HERE
 
         track_order.each do |track|
           subtitle_encoder = case media.info[:subtitle][track][:format]
-          when 'Text'
+          when /Text/i
             'text'
-          when 'Bitmap'
-            if media.info[:subtitle][track][:encoding] == 'VOBSUB'
+          when /Bitmap/i
+            if media.info[:subtitle][track][:encoding] =~ /VOBSUB/i
               'dvdsub'
             else
               nil

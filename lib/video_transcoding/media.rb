@@ -3,396 +3,211 @@
 #
 # Copyright (c) 2013-2020 Don Melton
 #
+require 'English'
+require 'json'
 
 module VideoTranscoding
   class Media
-    attr_reader :path
+    attr_reader :path, :info
 
-    def initialize(path: nil, title: nil, autocrop: false, extended: true, allow_directory: true)
-      fail 'missing path argument' if path.nil?
+    def initialize(path: nil, title: 0, autocrop: false, extended: true, allow_directory: true)
+      raise 'missing path argument' if path.nil?
+
       @path     = path
+      # The number of preview images HandBrake will generate
       @previews = autocrop ? 10 : 2
       @extended = extended
-      @scan     = nil
       @stat     = File.stat(@path)
+      @title    = title || 0
+      @summary  = nil
 
-      if @stat.directory?
-        fail UsageError, "not a file: #{@path}" unless allow_directory
-        @title = title
+      raise UsageError, "not a file (directory processing disabled): #{@path}" if @stat.directory? && !allow_directory
 
-        if @title.nil?
-          @scan = Media.scan(@path, 0, 2)
-        elsif @title < 1
-          fail UsageError, "invalid title index: #{@title}"
-        end
-      else
-        fail UsageError, "invalid title index: #{title}" unless title.nil? or title == 1
-        @title = 1
-      end
-
-      @scan       = Media.scan(@path, @title, @previews) if @scan.nil?
-      @first_scan = @scan
-      @mp4_scan   = nil
-      @summary    = nil
-      @info       = nil
+      @info = Media.scan(@path, @title, @previews)
     end
 
-    def summary
-      if @summary.nil?
-        @summary = ''
-        @first_scan.each_line { |line| @summary += line if line =~ /^ *\+ (?!(autocrop|support))/ }
-      end
+    def self.language_code(language)
+      mapping = {
+        'alb' => 'sqi',
+        'arm' => 'hye',
+        'baq' => 'eus',
+        'bur' => 'mya',
+        'chi' => 'zho',
+        'cze' => 'ces',
+        'dut' => 'nld',
+        'fre' => 'fra',
+        'geo' => 'kat',
+        'ger' => 'deu',
+        'gre' => 'ell',
+        'ice' => 'isl',
+        'mac' => 'mkd',
+        'mao' => 'mri',
+        'per' => 'fas',
+        'rum' => 'ron',
+        'slo' => 'slk',
+        'tib' => 'bod',
+        'wel' => 'cym'
+      }
 
-      @summary
+      mapping.key?(language) ? mapping[language] : language
     end
 
-    def info
-      return @info unless @info.nil?
-      @info = {}
-
-      if @title.nil?
-        if @scan =~ /\+ title ([0-9]+):\r?\n  \+ Main Feature/m
-          @title = $1.to_i
-        elsif @scan =~ /^\+ title ([0-9]+):/
-          @title = $1.to_i
-        else
-          @title = 1
-        end
-
-        @scan = Media.scan(@path, @title, @previews)
-      end
-
-      if @scan =~ / libhb: scan thread found ([0-9]+) valid title/
-        fail 'multiple titles found' if $1.to_i > 1
-      end
-
-      @info[:title]     = @title
-      @info[:size]      = @stat.size
-      @info[:directory] = @stat.directory?
-
-      unless @scan =~ /^  \+ duration: ([0-9]{2}):([0-9]{2}):([0-9]{2})/
-        fail 'media duration not found'
-      end
-
-      @info[:duration] = ($1.to_i * 60 * 60) + ($2.to_i * 60) + $3.to_i
-
-      unless @scan =~ / scan: [0-9]+ previews, ([0-9]+)x([0-9]+), ([0-9.]+) fps, autocrop = ([0-9]+)\/([0-9]+)\/([0-9]+)\/([0-9]+), aspect [0-9.]+:[0-9.]+, PAR [0-9]+:[0-9]+/
-        fail 'video information not found'
-      end
-
-      @info[:width]   = $1.to_i
-      @info[:height]  = $2.to_i
-      @info[:fps]     = $3.to_f
-
-      if @previews > 2
-        @info[:autocrop] = {:top => $4.to_i, :bottom => $5.to_i, :left => $6.to_i, :right => $7.to_i}
-      else
-        @info[:autocrop] = nil
-      end
-
-      return @info unless @extended
-
-      unless @scan =~ /  \+ audio tracks:\r?\n(.*)  \+ subtitle tracks:\r?\n(.*)HandBrake has exited./m
-        fail 'audio and subtitle information not found'
-      end
-
-      audio             = $1
-      subtitle          = $2
-      @info[:audio]     = {}
-      @info[:subtitle]  = {}
-
-      audio.gsub(/\r/, '').each_line do |line|
-        if line =~ /^    \+ ([0-9]+), [^(]+\(([^)]+)\) .*\(([0-9.]+) ch\) .*\(iso639-2: ([a-z]{3})\)/
-          track                 = $1.to_i
-          track_info            = {}
-          track_info[:format]   = $2
-          track_info[:channels] = $3.to_f
-          track_info[:language] = $4
-
-          if line =~ /([0-9]+)bps/
-            track_info[:bps] = $1.to_i
-          else
-            track_info[:bps] = nil
-          end
-
-          @info[:audio][track] = track_info
-        end
-      end
-
-      subtitle.gsub(/\r/, '').each_line do |line|
-        if line =~ /^    \+ ([0-9]+), .*\(iso639-2: ([a-z]{3})\) \((Text|Bitmap)\)\(([^)]+)\)/
-          track                   = $1.to_i
-          track_info              = {}
-          track_info[:language]   = $2
-          track_info[:format]     = $3
-          track_info[:encoding]   = $4
-          @info[:subtitle][track] = track_info
-        elsif line =~ /^    \+ ([0-9]+), .*\[(.*)\]/
-          track                   = $1.to_i
-          track_info              = {}
-          track_info[:language]   = 'und'
-          track_info[:format]     = ($2 == 'PGS' or $2 == 'VOBSUB') ? 'Bitmap' : 'Text'
-          track_info[:encoding]   = $2
-          @info[:subtitle][track] = track_info
-        end
-      end
-
-      @info[:h264]    = false
-      @info[:hevc]    = false
-      @info[:mpeg2]   = false
-      audio_track     = 0
-      subtitle_track  = 0
-
-      @scan.each_line do |line|
-        if line =~ /[ ]+Stream #0[.:]([0-9]+)(?:\(([a-z]{3})\))?: (Video|Audio|Subtitle): (.*)/
-          stream      = $1.to_i
-          language    = $2
-          type        = $3
-          attributes  = $4
-
-          case type
-          when 'Video'
-            unless @info.has_key? :stream
-              @info[:stream] = stream
-
-              if attributes =~ /^h264/
-                @info[:h264] = true
-              elsif attributes =~ /^hevc/
-                @info[:hevc] = true
-              elsif attributes =~ /^mpeg2video/
-                @info[:mpeg2] = true
-              end
-            end
-          when 'Audio'
-            audio_track += 1
-
-            if @info[:audio].has_key? audio_track
-              track_info = @info[:audio][audio_track]
-              track_info[:stream] = stream
-
-              if @scan =~ /[ ]+Stream #0[.:]#{stream}[^ ]*: Audio: [^\n]+(?:\n[^\n]+)?\(default\)/m
-                track_info[:default] = true
-              else
-                track_info[:default] = false
-              end
-
-              if @scan =~ /[ ]+Stream #0[.:]#{stream}[^ ]*: Audio: [^\n]+\n(?:[^\n]+\n)?[ ]+Metadata:\r?\n^[ ]+title[ ]+: ([^\r\n]+)/m
-                track_info[:name] = $1
-              else
-                track_info[:name] = nil
-              end
-            end
-          when 'Subtitle'
-            subtitle_track += 1
-
-            if @info[:subtitle].has_key? subtitle_track
-              track_info = @info[:subtitle][subtitle_track]
-              track_info[:stream] = stream
-
-              if track_info[:language] == 'und'
-                case language
-                when 'alb'
-                  track_info[:language] = 'sqi'
-                when 'arm'
-                  track_info[:language] = 'hye'
-                when 'baq'
-                  track_info[:language] = 'eus'
-                when 'bur'
-                  track_info[:language] = 'mya'
-                when 'chi'
-                  track_info[:language] = 'zho'
-                when 'cze'
-                  track_info[:language] = 'ces'
-                when 'dut'
-                  track_info[:language] = 'nld'
-                when 'fre'
-                  track_info[:language] = 'fra'
-                when 'geo'
-                  track_info[:language] = 'kat'
-                when 'ger'
-                  track_info[:language] = 'deu'
-                when 'gre'
-                  track_info[:language] = 'ell'
-                when 'ice'
-                  track_info[:language] = 'isl'
-                when 'mac'
-                  track_info[:language] = 'mkd'
-                when 'mao'
-                  track_info[:language] = 'mri'
-                when 'per'
-                  track_info[:language] = 'fas'
-                when 'rum'
-                  track_info[:language] = 'ron'
-                when 'slo'
-                  track_info[:language] = 'slk'
-                when 'tib'
-                  track_info[:language] = 'bod'
-                when 'wel'
-                  track_info[:language] = 'cym'
-                else
-                  track_info[:language] = language
-                end
-              end
-
-              if attributes =~ /\(default\)/
-                track_info[:default] = true
-              else
-                track_info[:default] = false
-              end
-
-              if attributes =~ /\(forced\)/
-                track_info[:forced] = true
-              else
-                track_info[:forced] = false
-              end
-
-              if @scan =~ /[ ]+Stream #0[.:]#{stream}[^ ]*: Subtitle: [^\n]+\n(?:[^\n]+\n)?[ ]+Metadata:\r?\n^[ ]+title[ ]+: ([^\r\n]+)/m
-                track_info[:name] = $1
-              else
-                track_info[:name] = nil
-              end
-            end
-          end
-        end
-      end
-
-      @info[:bd]  = false
-      @info[:dvd] = false
-
-      if @scan =~ / scan: (BD|DVD) has [0-9]+ title/
-        @info[$1.downcase.to_sym] = true
-        @info[:mpeg2] = true if @info[:dvd]
-      end
-
-      if @scan =~ /Input #0, matroska/
-        @info[:mkv] = true
-      else
-        @info[:mkv] = false
-      end
-
-      if @scan =~ /Input #0, mov,mp4/
-        @info[:mp4] = true
-      else
-        @info[:mp4] = false
-      end
-
-      if @info[:mp4]
-        @mp4_scan = Media.scan_mp4(@path)
-        types     = []
-        flags     = []
-        names     = []
-
-        @mp4_scan.each_line do |line|
-          if line =~ /^[ ]+type[ ]+=[ ]+(.*)$/
-            types << $1
-          elsif line =~ /^[ ]+enabled[ ]+=[ ]+(.*)$/
-            if $1 == 'true'
-              flags << true
-            else
-              flags << false
-            end
-          elsif line =~ /^[ ]+userDataName[ ]+=[ ]+(.*)$/
-            if $1 == '<absent>'
-              names << nil
-            else
-              names << $1
-            end
-          end
-        end
-
-        index           = 0
-        audio_track     = 0
-        subtitle_track  = 0
-
-        types.each do |type|
-          case type
-          when 'audio'
-            audio_track += 1
-
-            if @info[:audio].has_key? audio_track
-              track_info = @info[:audio][audio_track]
-              track_info[:default] = flags[index]
-              track_info[:name] = names[index]
-            end
-          when '(sbtl)', '(subp)', 'text'
-            subtitle_track += 1
-
-            if @info[:subtitle].has_key? subtitle_track
-              track_info = @info[:subtitle][subtitle_track]
-              track_info[:default] = flags[index]
-              track_info[:forced] = flags[index]
-              track_info[:name] = names[index]
-            end
-          end
-
-          index += 1
-        end
-
-        if subtitle_track > 0 and @scan =~ /[ ]+Chapter #0[.:]0: start /
-          @info[:subtitle].delete subtitle_track
-        end
-      end
-
-      @info
-    end
-
-    def self.scan(path, title, previews)
-      output = ''
-      label = title == 0 ? 'media' : "media title #{title}"
+    def self.run_handbrake(path, title_to_scan, previews)
+      # if title_to_scan == 0, scan all titles, rely on HandBrake to
+      # choose the MainFeature
+      label = title_to_scan.zero? ? 'media' : "media title #{title_to_scan}"
       Console.info "Scanning #{label} with HandBrakeCLI..."
-      last_seconds = Time.now.tv_sec
 
+      hb_raw = ''
       begin
         IO.popen([
-          HandBrake.command_name,
-          "--title=#{title}",
-          '--scan',
-          "--previews=#{previews}:0",
-          "--input=#{path}"
-        ], :err=>[:child, :out]) do |io|
-          io.each do |line|
-            seconds = Time.now.tv_sec
-
-            if seconds - last_seconds >= 3
-              Console.warn '...'
-              last_seconds = seconds
-            end
-
-            line.encode! 'UTF-8', 'binary', invalid: :replace, undef: :replace, replace: ''
-            Console.debug line
-            output += line
-          end
+                   'HandBrakeCLI',
+                   "--title=#{title_to_scan}",
+                   '--scan',
+                   '--json',
+                   "--previews=#{previews}:0",
+                   "--input=#{path}"
+                 ], err: '/dev/null') do |io|
+          hb_raw = io.read
+          hb_raw = fixup_hb_output(hb_raw)
+          Console.debug hb_raw
         end
       rescue SystemCallError => e
         raise "scanning #{label} failed: #{e}"
       end
 
-      fail "scanning #{label} failed" unless $CHILD_STATUS.exitstatus == 0
-      output
+      # If no video stream is present, HandBrake will have exited
+      # with an error status.
+      raise "scanning #{label} failed (exit: #{$CHILD_STATUS.exitstatus}" unless $CHILD_STATUS.exitstatus.zero?
+
+      hb_raw
     end
 
-    def self.scan_mp4(path)
-      output = ''
-      Console.info 'Scanning with mp4track...'
+    def self.scan(path, title_to_scan, previews)
+      hb_out = run_handbrake(path, title_to_scan, previews)
 
-      begin
-        IO.popen([
-          MP4track.command_name,
-          '--list',
-          path
-        ], :err=>[:child, :out]) do |io|
-          io.each do |line|
-            line.encode! 'UTF-8', 'binary', invalid: :replace, undef: :replace, replace: ''
-            Console.debug line
-            output += line
-          end
+      # The HandBrakeCLI output has several JSON objects
+      # Version (of HandBrake), Progress (several times), JSON Title Set
+      # We just need the Title Set
+      hb_json = hb_out.partition('JSON Title Set: ')[2]
+      raise 'scanning with HandBrake failed: no JSON output' if hb_json == ''
+
+      # Now parse the JSON
+      root = JSON.parse(hb_json)
+
+      # Select the correct title
+      title = {}
+      if title_to_scan.zero?
+        if (root['MainFeature']).zero?
+          Console.debug 'HandBrake could not identify the MainFeature, using first title'
+          title = root['TitleList'][0]
+        else
+          Console.debug "MainFeature is title #{root['MainFeature']}"
+          title = root['TitleList'].select { |t| t['Index'] == root['MainFeature'] }
+          raise "Couldn't find title that was identified as MainFeature" if title.empty?
+
+          # .select returns an array, but we just want the first entry
+          title = title[0]
         end
-      rescue SystemCallError => e
-        raise "scanning failed: #{e}"
+      else
+        # A specific title was specified on the command line,
+        # so it should be the only one in the TitleList
+        raise "Failed to find title #{title_to_scan}" if root['TitleList'].empty?
+
+        title = root['TitleList'][0]
       end
 
-      fail 'scanning failed' unless $CHILD_STATUS.exitstatus == 0
-      output
+      # Get File info
+      stat = File.stat(path)
+
+      info = {
+        title: title['Index'],
+        size: stat.size,
+        directory: stat.directory?,
+        mkv: title.key?('Container') ? title['Container'].match?(/matroska|mkv/i) : false,
+        mp4: title.key?('Container') ? title['Container'].match?(/mp4/i) : false,
+        width: title['Geometry']['Width'],
+        height: title['Geometry']['Height'],
+        fps: (title['FrameRate']['Num'].to_f / title['FrameRate']['Den']).round(3),
+        h264: title['VideoCodec'].match?(/h264/i),
+        hevc: title['VideoCodec'].match?(/hevc|h265/i),
+        mpeg2: title['VideoCodec'].match?(/mpeg2/i),
+        # TODO: HandBrake JSON doesn't give the stream numbers
+        # might be in 
+        #   hb_title_s.video_id
+        #   hb_audio_s.id
+        #   hb_subtitle_s.id
+        stream: 0
+      }
+
+      # Convert duration to seconds
+      duration = title['Duration']
+      info[:duration] = duration['Hours'] * 60 * 60 + duration['Minutes'] * 60 + duration['Seconds']
+
+      # Handle autocrop (previews)
+      info[:autocrop] = if previews > 2 && title.key?('Crop')
+                          {
+                            top: title['Crop'][0],
+                            bottom: title['Crop'][1],
+                            left: title['Crop'][2],
+                            right: title['Crop'][3]
+                          }
+                        end
+
+      # Collect audio tracks
+      info[:audio] = {}
+      title['AudioList'].each_with_index do |track, i|
+        info[:audio][i + 1] = {
+          stream: i,
+          language: language_code(track['LanguageCode']),
+          format: track['CodecName'],
+          channels: track['ChannelCount'].to_i,
+          bps: track['BitRate'],
+          default: track['Attributes']['Default'],
+          name: track['Description']
+        }
+      end
+
+      # Collect subtitle tracks
+      info[:subtitle] = {}
+      title['SubtitleList'].each_with_index do |track, i|
+        info[:subtitle][i + 1] = {
+          stream: i,
+          language: language_code(track['LanguageCode']),
+          format: track['Format'],
+          encoding: track['SourceName'],
+          default: track['Attributes']['Default'],
+          forced: track['Attributes']['Forced'],
+          name: track['Language']
+        }
+      end
+
+      info
+    end
+
+    def self.fixup_hb_output(hb_raw)
+      hb_raw.encode 'UTF-8', 'binary', invalid: :replace, undef: :replace, replace: ''
+    end
+
+    # Gets a summary from HandBrakeCLI,
+    # using the raw (not JSON) output
+    def summary
+      if @summary.nil?
+        IO.popen([
+                   'HandBrakeCLI',
+                   "--title=#{@title}",
+                   '--scan',
+                   "--input=#{@path}"
+                 ], err: %i[child out]) do |io|
+          @summary = io.readlines.select do |line|
+            # HandBrakeCLI gives a summary where each line begins with
+            # a '+' character.
+            fixup_hb_output(line).match(/^\s*\+ (?!(autocrop|support))/)
+          end.join('')
+        end
+      end
+
+      @summary
     end
   end
 end
