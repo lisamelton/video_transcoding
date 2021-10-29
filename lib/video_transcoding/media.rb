@@ -5,6 +5,7 @@
 #
 require 'English'
 require 'json'
+require 'open3'
 
 module VideoTranscoding
   class Media
@@ -58,33 +59,29 @@ module VideoTranscoding
       label = title_to_scan.zero? ? 'media' : "media title #{title_to_scan}"
       Console.info "Scanning #{label} with HandBrakeCLI..."
 
-      hb_raw = ''
-      begin
-        IO.popen([
-                   'HandBrakeCLI',
-                   "--title=#{title_to_scan}",
-                   '--scan',
-                   '--json',
-                   "--previews=#{previews}:0",
-                   "--input=#{path}"
-                 ], err: '/dev/null') do |io|
-          hb_raw = io.read
-          hb_raw = fixup_hb_output(hb_raw)
-          Console.debug hb_raw
-        end
-      rescue SystemCallError => e
-        raise "scanning #{label} failed: #{e}"
-      end
+      hb_out, hb_err, status = Open3.capture3(
+        'HandBrakeCLI',
+        "--title=#{title_to_scan}",
+        '--scan',
+        '--json',
+        "--previews=#{previews}:0",
+        "--input=#{path}"
+      )
+
+      hb_out = fixup_hb_output(hb_out)
+      hb_err = fixup_hb_output(hb_err)
+      Console.debug hb_out
+      Console.debug hb_err
 
       # If no video stream is present, HandBrake will have exited
       # with an error status.
-      raise "scanning #{label} failed (exit: #{$CHILD_STATUS.exitstatus}" unless $CHILD_STATUS.exitstatus.zero?
+      raise "scanning #{label} failed (exit: #{status.exitstatus}" unless status
 
-      hb_raw
+      [hb_out, hb_err]
     end
 
     def self.scan(path, title_to_scan, previews)
-      hb_out = run_handbrake(path, title_to_scan, previews)
+      hb_out, hb_err = run_handbrake(path, title_to_scan, previews)
 
       # The HandBrakeCLI output has several JSON objects
       # Version (of HandBrake), Progress (several times), JSON Title Set
@@ -96,6 +93,101 @@ module VideoTranscoding
       root = JSON.parse(hb_json)
 
       # Select the correct title
+      title = get_title(title_to_scan, root)
+
+      # Get File info
+      stat = File.stat(path)
+
+      # To get stream IDs, have to parse HB stderr
+      streams = parse_stream_ids(hb_err)
+
+      # Now aggregate it all
+      info = {
+        title: title['Index'],
+        size: stat.size,
+        directory: stat.directory?,
+        mkv: title.key?('Container') ? title['Container'].match?(/matroska|mkv/i) : false,
+        mp4: title.key?('Container') ? title['Container'].match?(/mp4/i) : false,
+        width: title['Geometry']['Width'],
+        height: title['Geometry']['Height'],
+        fps: (title['FrameRate']['Num'].to_f / title['FrameRate']['Den']).round(3),
+        h264: title['VideoCodec'].match?(/h264/i),
+        hevc: title['VideoCodec'].match?(/hevc|h265/i),
+        mpeg2: title['VideoCodec'].match?(/mpeg2/i),
+        stream: streams[:video].shift
+      }
+
+      # Convert duration to seconds
+      duration = title['Duration']
+      info[:duration] = duration['Hours'] * 60 * 60 + duration['Minutes'] * 60 + duration['Seconds']
+
+      # Handle autocrop (previews)
+      info[:autocrop] = if previews > 2 && title.key?('Crop')
+                          {
+                            top: title['Crop'][0],
+                            bottom: title['Crop'][1],
+                            left: title['Crop'][2],
+                            right: title['Crop'][3]
+                          }
+                        end
+
+      # Collect audio tracks
+      info[:audio] = {}
+      title['AudioList'].each_with_index do |track, i|
+        info[:audio][i + 1] = {
+          stream: streams[:audio].shift,
+          language: language_code(track['LanguageCode']),
+          format: track['CodecName'],
+          channels: track['ChannelCount'].to_i,
+          bps: track['BitRate'],
+          default: track['Attributes']['Default'],
+          name: track['Description']
+        }
+      end
+
+      # Collect subtitle tracks
+      info[:subtitle] = {}
+      title['SubtitleList'].each_with_index do |track, i|
+        info[:subtitle][i + 1] = {
+          stream: streams[:subtitle].shift,
+          language: language_code(track['LanguageCode']),
+          format: track['Format'],
+          encoding: track['SourceName'],
+          default: track['Attributes']['Default'],
+          forced: track['Attributes']['Forced'],
+          name: track['Language']
+        }
+      end
+
+      info
+    end
+
+    def self.fixup_hb_output(hb_raw)
+      hb_raw.encode 'UTF-8', 'binary', invalid: :replace, undef: :replace, replace: ''
+    end
+
+    def self.parse_stream_ids(hb_err)
+      streams = { video: [], audio: [], subtitle: [] }
+      hb_err.each_line do |line|
+        next unless line =~ /\s*Stream #0[.:]([0-9]+)(?:\(([a-z]{3})\))?: (Video|Audio|Subtitle): (.*)/i
+
+        id = Regexp.last_match(1).to_i
+        type = Regexp.last_match(3)
+
+        case type
+        when /video/i
+          streams[:video] << id
+        when /audio/i
+          streams[:audio] << id
+        when /subtitle/i
+          streams[:subtitle] << id
+        end
+      end
+
+      streams
+    end
+
+    def self.get_title(title_to_scan, root)
       title = {}
       if title_to_scan.zero?
         if (root['MainFeature']).zero?
@@ -117,80 +209,11 @@ module VideoTranscoding
         title = root['TitleList'][0]
       end
 
-      # Get File info
-      stat = File.stat(path)
-
-      info = {
-        title: title['Index'],
-        size: stat.size,
-        directory: stat.directory?,
-        mkv: title.key?('Container') ? title['Container'].match?(/matroska|mkv/i) : false,
-        mp4: title.key?('Container') ? title['Container'].match?(/mp4/i) : false,
-        width: title['Geometry']['Width'],
-        height: title['Geometry']['Height'],
-        fps: (title['FrameRate']['Num'].to_f / title['FrameRate']['Den']).round(3),
-        h264: title['VideoCodec'].match?(/h264/i),
-        hevc: title['VideoCodec'].match?(/hevc|h265/i),
-        mpeg2: title['VideoCodec'].match?(/mpeg2/i),
-        # TODO: HandBrake JSON doesn't give the stream numbers
-        # might be in 
-        #   hb_title_s.video_id
-        #   hb_audio_s.id
-        #   hb_subtitle_s.id
-        stream: 0
-      }
-
-      # Convert duration to seconds
-      duration = title['Duration']
-      info[:duration] = duration['Hours'] * 60 * 60 + duration['Minutes'] * 60 + duration['Seconds']
-
-      # Handle autocrop (previews)
-      info[:autocrop] = if previews > 2 && title.key?('Crop')
-                          {
-                            top: title['Crop'][0],
-                            bottom: title['Crop'][1],
-                            left: title['Crop'][2],
-                            right: title['Crop'][3]
-                          }
-                        end
-
-      # Collect audio tracks
-      info[:audio] = {}
-      title['AudioList'].each_with_index do |track, i|
-        info[:audio][i + 1] = {
-          stream: i,
-          language: language_code(track['LanguageCode']),
-          format: track['CodecName'],
-          channels: track['ChannelCount'].to_i,
-          bps: track['BitRate'],
-          default: track['Attributes']['Default'],
-          name: track['Description']
-        }
-      end
-
-      # Collect subtitle tracks
-      info[:subtitle] = {}
-      title['SubtitleList'].each_with_index do |track, i|
-        info[:subtitle][i + 1] = {
-          stream: i,
-          language: language_code(track['LanguageCode']),
-          format: track['Format'],
-          encoding: track['SourceName'],
-          default: track['Attributes']['Default'],
-          forced: track['Attributes']['Forced'],
-          name: track['Language']
-        }
-      end
-
-      info
+      title
     end
 
-    def self.fixup_hb_output(hb_raw)
-      hb_raw.encode 'UTF-8', 'binary', invalid: :replace, undef: :replace, replace: ''
-    end
-
-    # Gets a summary from HandBrakeCLI,
-    # using the raw (not JSON) output
+    # Gets a summary from HandBrakeCLI, using the raw (not JSON) output.
+    # This does incur an additional HB call, but the output looks nice
     def summary
       if @summary.nil?
         IO.popen([
