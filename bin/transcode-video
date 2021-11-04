@@ -1145,10 +1145,10 @@ HERE
 
         if copy or
             (@surround_format == 'ac3' and
-            ((@ac3_encoder == 'ac3' and info[:format] == 'AC3') or
-            (@ac3_encoder == 'eac3' and info[:format] =~ /^(?:E-)?AC3$/)) and
+            ((@ac3_encoder == 'ac3' and info[:format] =~ /AC3/i) or
+            (@ac3_encoder == 'eac3' and info[:format] =~ /^(?:E-)?AC3$/i)) and
             bitrate <= @pass_ac3_bitrate) or
-            (@surround_format == 'aac' and info[:format] =~ /^AAC/)
+            (@surround_format == 'aac' and info[:format] =~ /^AAC/i)
           encoders << 'copy'
           bitrates << ''
           mixdowns << ''
@@ -1174,9 +1174,9 @@ HERE
       add_stereo = ->(info, copy) do
         if copy or
             (info[:channels] <= 2.0 and
-              ((@stereo_format == 'aac' and info[:format] =~ /^AAC/) or
-              (((@ac3_encoder == 'ac3' and info[:format] == 'AC3') or
-              (@ac3_encoder == 'eac3' and info[:format] =~ /^(?:E-)?AC3$/)) and
+              ((@stereo_format == 'aac' and info[:format] =~ /^AAC/i) or
+              (((@ac3_encoder == 'ac3' and info[:format] =~ /AC3/i) or
+              (@ac3_encoder == 'eac3' and info[:format] =~ /^(?:E-)?AC3$/i)) and
               (@keep_ac3_stereo or @stereo_format == 'ac3'))))
           encoders << 'copy'
           bitrates << ''
