@@ -225,7 +225,7 @@ module VideoTranscoding
           @summary = io.readlines.select do |line|
             # HandBrakeCLI gives a summary where each line begins with
             # a '+' character.
-            fixup_hb_output(line).match(/^\s*\+ (?!(autocrop|support))/)
+            Media.fixup_hb_output(line).match(/^\s*\+ (?!(autocrop|support))/)
           end.join('')
         end
       end
