@@ -4,7 +4,7 @@ Tools to transcode, inspect and convert videos.
 
 ## About
 
-Hi, I'm [Don Melton](http://donmelton.com/). I created these tools to transcode my collection of Blu-ray Discs and DVDs into a smaller, more portable format while remaining high enough quality to be mistaken for the originals.
+Hi, I'm [Lisa Melton](https://lisamelton.net/). I created these tools to transcode my collection of Blu-ray Discs and DVDs into a smaller, more portable format while remaining high enough quality to be mistaken for the originals.
 
 What makes these tools unique are the [ratecontrol systems](#explanation) which achieve those goals.
 
@@ -680,11 +680,11 @@ For a few problematic videos, I have to apply options like `--force-rate 23.976 
 
 ## History
 
-All of the notes for each [release](https://github.com/donmelton/video_transcoding/releases) are now available in the "[CHANGELOG](https://github.com/donmelton/video_transcoding/blob/master/CHANGELOG.md)" document.
+All of the notes for each [release](https://github.com/lisamelton/video_transcoding/releases) are now available in the "[CHANGELOG](https://github.com/lisamelton/video_transcoding/blob/master/CHANGELOG.md)" document.
 
 ## Feedback
 
-The best way to send feedback is mentioning me, [@donmelton](https://twitter.com/donmelton), on Twitter. You can also file bugs or ask questions in a longer form by [creating a new issue](https://github.com/donmelton/video_transcoding/issues) on GitHub. I always try to respond quickly but sometimes it may take as long as 24 hours.
+The best way to send feedback is mentioning me, [@lisamelton@mastodon.social](https://mastodon.social/@lisamelton), on Mastodon. You can also file bugs or ask questions in a longer form by [creating a new issue](https://github.com/lisamelton/video_transcoding/issues) on GitHub. I always try to respond quickly but sometimes it may take as long as 24 hours.
 
 ## Acknowledgements
 
@@ -698,4 +698,4 @@ Many thanks to [Jordan Breeding](https://twitter.com/jorbsd) and numerous others
 
 ## License
 
-Video Transcoding is copyright [Don Melton](http://donmelton.com/) and available under a [MIT license](https://github.com/donmelton/video_transcoding/blob/master/LICENSE).
+Video Transcoding is copyright [Lisa Melton](https://lisamelton.net/) and available under a [MIT license](https://github.com/lisamelton/video_transcoding/blob/master/LICENSE).
