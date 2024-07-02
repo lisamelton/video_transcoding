@@ -1,7 +1,7 @@
 #
 # crop.rb
 #
-# Copyright (c) 2013-2020 Don Melton
+# Copyright (c) 2013-2024 Lisa Melton
 #
 
 module VideoTranscoding
