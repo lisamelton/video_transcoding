@@ -12,9 +12,9 @@ Gem::Specification.new do |s|
     and convert videos.
   HERE
   s.license               = 'MIT'
-  s.author                = 'Don Melton'
-  s.email                 = 'don@blivet.com'
-  s.homepage              = 'https://github.com/donmelton/video_transcoding'
+  s.author                = 'Lisa Melton'
+  s.email                 = '115488+lisamelton@users.noreply.github.com'
+  s.homepage              = 'https://github.com/lisamelton/video_transcoding'
   s.files                 = Dir['{bin,lib}/**/*'] + Dir['[A-Z]*'] + ['video_transcoding.gemspec']
   s.executables           = ['convert-video', 'detect-crop', 'query-handbrake-log', 'transcode-video']
   s.extra_rdoc_files      = ['LICENSE', 'README.md']
