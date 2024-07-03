@@ -684,7 +684,7 @@ All of the notes for each [release](https://github.com/lisamelton/video_transcod
 
 ## Feedback
 
-The best way to send feedback is mentioning me, @lisamelton@mastodon.social, on Mastodon. You can also file bugs or ask questions in a longer form by [creating a new issue](https://github.com/lisamelton/video_transcoding/issues) on GitHub. I always try to respond quickly but sometimes it may take as long as 24 hours.
+The best way to send feedback is mentioning me, [@lisamelton@mastodon.social](https://mastodon.social/@lisamelton), on Mastodon. You can also file bugs or ask questions in a longer form by [creating a new issue](https://github.com/lisamelton/video_transcoding/issues) on GitHub. I always try to respond quickly but sometimes it may take as long as 24 hours.
 
 ## Acknowledgements
 
