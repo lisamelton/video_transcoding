@@ -2,6 +2,12 @@
 
 This single document contains all of the notes created for each [release](https://github.com/lisamelton/video_transcoding/releases).
 
+## [0.25.4](https://github.com/lisamelton/video_transcoding/releases/tag/0.25.4)
+
+Thursday, January 9, 2025
+
+* Tag final version of legacy code no longer released as a Gem.
+
 ## [0.25.3](https://github.com/lisamelton/video_transcoding/releases/tag/0.25.3)
 
 Tuesday, May 26, 2020
