@@ -2,7 +2,7 @@
 #
 # convert-video
 #
-# Copyright (c) 2013-2024 Lisa Melton
+# Copyright (c) 2025 Lisa Melton
 #
 
 $LOAD_PATH.unshift File.expand_path(File.dirname(__FILE__) + '/../lib')

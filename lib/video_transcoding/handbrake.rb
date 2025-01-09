@@ -1,7 +1,7 @@
 #
 # handbrake.rb
 #
-# Copyright (c) 2013-2024 Lisa Melton
+# Copyright (c) 2025 Lisa Melton
 #
 
 module VideoTranscoding
