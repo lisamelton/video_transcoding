@@ -315,7 +315,7 @@ Requires `HandBrakeCLI` and `ffprobe`.
         if name == 'encopts'
           fail UsageError, "invalid HandBrakeCLI option usage: #{name}" if value.nil?
 
-          handbrake_command << encoder_options.nil? ? value : "#{encoder_options}:#{value}"
+          handbrake_command << (encoder_options.nil? ? value : "#{encoder_options}:#{value}")
           encoder_options = nil
         else
           handbrake_command << value unless value.nil?
