@@ -1,5 +1,13 @@
 # Changes to the "[Video Transcoding](https://github.com/lisamelton/video_transcoding)" project
 
+## [2025.01.10](https://github.com/lisamelton/video_transcoding/releases/tag/2025.01.10)
+
+Friday, January 10, 2025
+
+* Fix bug preventing `encopts` arguments being passed to the `--extra` option of `transcode-video.rb`.
+* Clarify that the automatic behavior of `transcode-video.rb` described in the `README.md` file is for a single forced subtitle and does not apply to multiple subtitles.
+* Add note to the `README.md` file regarding possible future video modes for `transcode-video.rb`.
+
 ## [2025.01.09](https://github.com/lisamelton/video_transcoding/releases/tag/2025.01.09)
 
 Thursday, January 9, 2025
