@@ -86,7 +86,7 @@ Video is automatically cropped.
 
 The first audio track in the input, if available, is automatically selected.
 
-Any forced subtitles are automatically burned into the video track or included as separate text-only tracks depending on their original format.
+Any forced subtitle is automatically burned into the video track or included as a separate text-only track depending on its original format.
 
 The venerable `x264` software-based encoder is used with two-pass ratecontrol to produce a constant bitrate. Using two passes _is_ a bit slower than other methods but the output quality is worth the wait, as is the output size. This Is The Way™.
 
