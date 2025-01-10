@@ -17,7 +17,7 @@ module Converting
   class Command
     def about
       <<-HERE
-convert-video.rb 2025.01.09
+convert-video.rb 2025.01.10
 Copyright (c) 2025 Lisa Melton
       HERE
     end
