@@ -132,8 +132,14 @@ The `svt_av1_10bit` encoder can produce output compatible with the HDR10 and HDR
 
 When using this mode, audio output is in Opus format at slightly lower bitrates. Why Opus? Because it's higher quality than AAC and if you can play AV1 format video then you can certainly play Opus format audio.
 
+### `--mode nvenc-av1`
+
+This mode uses the `nvenc_av1_10bit` Nvidia hardware-based encoder, also with a constant quality ratecontrol system. The output is actually about the same size as that from the software-based `svt_av1_10bit` encoder in `av1` mode, but this is MUCH faster.
+
+Be aware that, like other Nvidia encoders, `nvenc_h265_10bit` can only produce HDR10-compatible output. And like the `av1` mode, audio output is in Opus format at slightly lower bitrates.
+
 > [!NOTE]
-> *Additional `--mode` arguments leveraging the `vt_h265_10bit` and `nvenc_av1_10bit` video encoders, likely to be named `vt-hevc` and `nvenc-av1`, are under consideration pending ratecontrol tuning. And tuning of any `vt-hevc` mode implementation will be delayed until I actually have an Apple Silicon Mac. But I'm working on the `nvenc-av1` mode implementation now since I already have the necessary Nvidia hardware.*
+> *An additional `--mode` argument leveraging the `vt_h265_10bit` video encoder, likely to be named `vt-hevc`, is under consideration pending ratecontrol tuning which will be delayed until I actually have an Apple Silicon Mac.*
 
 ## Calling `HandBrakeCLI` from `transcode-video.rb`
 

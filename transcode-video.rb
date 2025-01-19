@@ -36,7 +36,7 @@ Forced subtitles are automatically burned or included.
 Options:
     --debug           increase diagnostic information
 -n, --dry-run         don't transcode, just show `HandBrakeCLI` command
--m, --mode h264|hevc|nvenc-hevc|av1|none
+-m, --mode h264|hevc|nvenc-hevc|av1|nvenc-av1|none
                       set video encoding mode (default: h264)
 -p, --preset NAME     apply video encoder preset (default: 8 for av1)
 -b, --bitrate TARGET  set video bitrate target (default: based on input)
@@ -44,7 +44,8 @@ Options:
     --no-bframe-refs  don't use B-frames as reference frames
                         (for compatibilty with older Nvidia GPUs)
 -a, --audio-mode aac|opus|eac3|none
-                      set audio encoding mode (default: aac, opus for av1)
+                      set audio encoding mode
+                        (default: aac, opus for av1 and nvenc-av1)
     --add-audio TRACK|LANGUAGE|STRING|all
                       include audio track (default: 1)
                         (can be used multiple times)
@@ -138,11 +139,14 @@ Requires `HandBrakeCLI` and `ffprobe`.
         @mode = case arg
         when 'h264', 'hevc', 'none'
           arg.to_sym
+        when 'nvenc-hevc'
+          :nvenc_hevc
         when 'av1'
           @audio_mode = :opus
           :av1
-        when 'nvenc-hevc'
-          :nvenc_hevc
+        when 'nvenc-av1'
+          @audio_mode = :opus
+          :nvenc_av1
         else
           fail UsageError, "unsupported video mode: #{arg}"
         end
@@ -467,6 +471,12 @@ Requires `HandBrakeCLI` and `ffprobe`.
           end
 
           preset = @preset.nil? ? '8' : [[@preset.to_i, -1].max, 13].min.to_s
+        when :nvenc_av1
+          encoder = 'nvenc_av1_10bit'
+
+          if @bitrate.nil?
+            quality = @quality.nil? ? '35' : [[@quality.to_i, 0].max, 63].min.to_s
+          end
         else
           quality = @quality
         end
