@@ -18,7 +18,7 @@ module Cropping
   class Command
     def about
       <<-HERE
-detect-crop.rb 2025.01.10
+detect-crop.rb 2025.01.19
 Copyright (c) 2025 Lisa Melton
       HERE
     end

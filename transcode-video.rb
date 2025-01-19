@@ -17,7 +17,7 @@ module Transcoding
   class Command
     def about
       <<-HERE
-transcode-video.rb 2025.01.10
+transcode-video.rb 2025.01.19
 Copyright (c) 2025 Lisa Melton
       HERE
     end
