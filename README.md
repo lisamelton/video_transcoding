@@ -126,7 +126,7 @@ But be aware that the `nvenc_h265_10bit` encoder can only produce HDR10-compatib
 
 ### `--mode av1`
 
-This Is The Future. Unfortunately, the [AV1 video format](https://en.wikipedia.org/wiki/AV1) is currently the Star Trek Future. Other than desktop PCs, most devices can't play it yet. This script uses the `svt_av1_10bit` software-based encoder with a constant quality ratecontrol system. Although the encoder is already quite good, it's still a work in progress. But it's faster than `x265_10bit` and usually produces smaller output. So it's certainly worth a try. Especially on 4K HDR content.
+This Is The Future. Unfortunately, the [AV1 video format](https://en.wikipedia.org/wiki/AV1) is currently the Star Trek Future. Other than desktop PCs, most devices can't play it yet. This mode uses the `svt_av1_10bit` software-based encoder with a constant quality ratecontrol system. Although the encoder is already quite good, it's still a work in progress. But it's faster than `x265_10bit` and usually produces smaller output. So it's certainly worth a try. Especially on 4K HDR content.
 
 The `svt_av1_10bit` encoder can produce output compatible with the HDR10 and HDR10+ standards and pass through Dolby Vision metadata.
 
