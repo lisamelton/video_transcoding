@@ -1,5 +1,11 @@
 # Changes to the "[Video Transcoding](https://github.com/lisamelton/video_transcoding)" project
 
+## [2025.01.19](https://github.com/lisamelton/video_transcoding/releases/tag/2025.01.19)
+
+Sunday, January 19, 2025
+
+* Add `nvenc-av1` video mode to `transcode-video.rb`.
+
 ## [2025.01.10](https://github.com/lisamelton/video_transcoding/releases/tag/2025.01.10)
 
 Friday, January 10, 2025
