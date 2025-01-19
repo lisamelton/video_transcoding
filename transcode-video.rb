@@ -292,7 +292,6 @@ Requires `HandBrakeCLI` and `ffprobe`.
       end
 
       output = File.basename(path, '.*') + extension
-
       media_info = scan_media(path)
       video_options = get_video_options(media_info)
       audio_options = get_audio_options(media_info)
