@@ -166,6 +166,10 @@ Requires `HandBrakeCLI` and `ffprobe`.
         @bitrate = nil
       end
 
+      opts.on '--no-bframe-refs' do
+        @bframe_refs = false
+      end
+
       opts.on '-a', '--audio-mode ARG' do |arg|
         @audio_mode = case arg
         when 'aac', 'opus', 'eac3', 'none'
@@ -310,7 +314,15 @@ Requires `HandBrakeCLI` and `ffprobe`.
         *subtitle_options
       ]
 
-      encoder_options = @vbv_size.nil? ? nil : "vbv-maxrate=#{@vbv_size}:vbv-bufsize=#{@vbv_size}"
+      case @mode
+      when :h264
+        encoder_options = "vbv-maxrate=#{@vbv_size}:vbv-bufsize=#{@vbv_size}"
+      when :nvenc_hevc
+        encoder_options = 'spatial_aq=1:rc-lookahead=32'
+        encoder_options += ':b_ref_mode=2' if @bframe_refs
+      else
+        encoder_options = nil
+      end
 
       @extra_options.each do |name, value|
         handbrake_command << "--#{name}"
