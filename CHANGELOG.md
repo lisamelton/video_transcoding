@@ -1,5 +1,11 @@
 # Changes to the "[Video Transcoding](https://github.com/lisamelton/video_transcoding)" project
 
+## [2025.01.23](https://github.com/lisamelton/video_transcoding/releases/tag/2025.01.23)
+
+Thursday, January 23, 2025
+
+* Add missing ratecontrol code for the `nvenc-hevc` video mode that was _stupidly_ left out of the original rewrite of `transcode-video.rb`. This also implements the `--no-bframe-refs` option.
+
 ## [2025.01.19](https://github.com/lisamelton/video_transcoding/releases/tag/2025.01.19)
 
 Sunday, January 19, 2025
