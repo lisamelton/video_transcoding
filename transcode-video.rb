@@ -314,14 +314,16 @@ Requires `HandBrakeCLI` and `ffprobe`.
         *subtitle_options
       ]
 
-      case @mode
-      when :h264
-        encoder_options = "vbv-maxrate=#{@vbv_size}:vbv-bufsize=#{@vbv_size}"
-      when :nvenc_hevc
-        encoder_options = 'spatial_aq=1:rc-lookahead=32'
-        encoder_options += ':b_ref_mode=2' if @bframe_refs
-      else
-        encoder_options = nil
+      encoder_options = nil
+
+      unless @extra_options.include? 'encoder'
+        case @mode
+        when :h264
+          encoder_options = "vbv-maxrate=#{@vbv_size}:vbv-bufsize=#{@vbv_size}"
+        when :nvenc_hevc
+          encoder_options = 'spatial_aq=1:rc-lookahead=32'
+          encoder_options += ':b_ref_mode=2' if @bframe_refs
+        end
       end
 
       @extra_options.each do |name, value|
