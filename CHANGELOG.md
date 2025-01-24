@@ -1,5 +1,11 @@
 # Changes to the "[Video Transcoding](https://github.com/lisamelton/video_transcoding)" project
 
+## [2025.01.24](https://github.com/lisamelton/video_transcoding/releases/tag/2025.01.24)
+
+Friday, January 24, 2025
+
+* Fix the bogus VBV being set when using a custom encoder with `transcode-video.rb`. This bug was introduced by the previous change.
+
 ## [2025.01.23](https://github.com/lisamelton/video_transcoding/releases/tag/2025.01.23)
 
 Thursday, January 23, 2025
