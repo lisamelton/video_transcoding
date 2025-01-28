@@ -323,6 +323,9 @@ Requires `HandBrakeCLI` and `ffprobe`.
         when :nvenc_hevc
           encoder_options = 'spatial_aq=1:rc-lookahead=20'
           encoder_options += ':b_ref_mode=2' if @bframe_refs
+        when :nvenc_av1
+          encoder_options = 'spatial-aq=1:rc-lookahead=20'
+          encoder_options += ':b_ref_mode=2' if @bframe_refs
         end
       end
 
