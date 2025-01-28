@@ -492,7 +492,7 @@ Requires `HandBrakeCLI` and `ffprobe`.
           encoder = 'nvenc_av1_10bit'
 
           if @bitrate.nil?
-            quality = @quality.nil? ? '35' : [[@quality.to_i, 0].max, 63].min.to_s
+            quality = @quality.nil? ? '37' : [[@quality.to_i, 0].max, 63].min.to_s
           end
         else
           quality = @quality
