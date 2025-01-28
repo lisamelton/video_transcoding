@@ -321,7 +321,7 @@ Requires `HandBrakeCLI` and `ffprobe`.
         when :h264
           encoder_options = "vbv-maxrate=#{@vbv_size}:vbv-bufsize=#{@vbv_size}"
         when :nvenc_hevc
-          encoder_options = 'spatial_aq=1:rc-lookahead=32'
+          encoder_options = 'spatial_aq=1:rc-lookahead=20'
           encoder_options += ':b_ref_mode=2' if @bframe_refs
         end
       end
