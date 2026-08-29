@@ -276,8 +276,7 @@ Requires `HandBrakeCLI` and `ffprobe`.
         ]
 
         @extra_options.each do |name, value|
-          handbrake_command << "--#{name}"
-          handbrake_command << value unless value.nil?
+          handbrake_command << (value.nil? ? "--#{name}" : "--#{name}=#{value}")
         end
 
         system(*handbrake_command, exception: true)
@@ -330,16 +329,14 @@ Requires `HandBrakeCLI` and `ffprobe`.
       end
 
       @extra_options.each do |name, value|
-        handbrake_command << "--#{name}"
-
         if name == 'encopts'
           fail UsageError, "invalid HandBrakeCLI option usage: #{name}" if value.nil?
 
-          handbrake_command << (encoder_options.nil? ? value : "#{encoder_options}:#{value}")
+          value = encoder_options.nil? ? value : "#{encoder_options}:#{value}"
           encoder_options = nil
-        else
-          handbrake_command << value unless value.nil?
         end
+
+        handbrake_command << (value.nil? ? "--#{name}" : "--#{name}=#{value}")
       end
 
       handbrake_command += ['--encopts', encoder_options] unless encoder_options.nil?
@@ -407,7 +404,7 @@ Requires `HandBrakeCLI` and `ffprobe`.
           str = "\"#{str}\""
         end
       else
-        str.gsub!(/([^A-Za-z0-9_\-.,:\/@\n])/, "\\\\\\1")
+        str.gsub!(/([^A-Za-z0-9_\-.,:=\/@\n])/, "\\\\\\1")
         str.gsub!(/\n/, "'\n'")
       end
 
